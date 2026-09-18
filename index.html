@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pedro Febrero — Consultoria e implementação de IA</title>
 <meta name="description" content="Economista e tecnólogo. Descubro onde a inteligência artificial se paga numa empresa e ponho-a a funcionar — com a documentação que o financiamento exige.">
-<meta property="og:title" content="Pedro Febrero — Consultoria e implementação de IA">
-<meta property="og:description" content="Onde a IA se paga na sua empresa, e como pô-la a funcionar. Avaliação em duas semanas, implementação e formação.">
+<meta property="og:title" content="Pedro Febrero — Consultoria e implementação de IA / AI advisory and implementation">
+<meta property="og:description" content="Onde a IA se paga na sua empresa, e como pô-la a funcionar. Avaliação, implementação e formação.">
 <meta property="og:type" content="profile">
 <style>
 :root{
   --ink:#10151c; --body:#38414f; --muted:#6b7686; --line:#e4e8ee; --bg:#fbfcfd;
-  --accent:#0f6b53; --accent-soft:#e8f3ef; --gold:#c8952a;
+  --accent:#0f6b53; --accent-soft:#e8f3ef;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--body);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -21,7 +21,12 @@ h1,h2,h3{color:var(--ink);line-height:1.2;margin:0}
 h2{font-size:15px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 18px}
 section{padding:38px 0;border-top:1px solid var(--line)}
 
-header{background:var(--ink);color:#e9edf3;padding:52px 0 44px}
+.langbar{position:sticky;top:0;z-index:5;background:var(--ink);border-bottom:1px solid rgba(255,255,255,.08)}
+.langbar .wrap{display:flex;justify-content:flex-end;gap:6px;padding-top:8px;padding-bottom:8px}
+.langbar button{background:none;border:1px solid rgba(255,255,255,.25);color:#c2cbd6;border-radius:999px;padding:4px 12px;font:600 13px/1 inherit;cursor:pointer}
+.langbar button[aria-pressed="true"]{background:#7fd8bb;border-color:#7fd8bb;color:#0b2a22}
+
+header{background:var(--ink);color:#e9edf3;padding:44px 0}
 header .kicker{color:#7fd8bb;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
 header h1{color:#fff;font-size:44px;margin:10px 0 14px;letter-spacing:-.02em}
 header p{font-size:19px;color:#c2cbd6;max-width:38em;margin:0}
@@ -31,18 +36,17 @@ header p{font-size:19px;color:#c2cbd6;max-width:38em;margin:0}
 
 .lead{font-size:18px;color:var(--ink)}
 .grid{display:grid;gap:16px}
-@media(min-width:720px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:720px){.g2{grid-template-columns:1fr 1fr}}
 .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
 .card h3{font-size:17px;margin-bottom:6px}
 .card .sub{color:var(--muted);font-size:14px}
 .now{background:var(--accent-soft);border-color:#cfe6dd}
 .now h3{color:var(--accent)}
 
-.price{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding:14px 0}
-.price:last-child{border-bottom:0}
-.price .n{font-weight:700;color:var(--ink)}
-.price .v{white-space:nowrap;font-weight:700;color:var(--accent)}
-.price .d{display:block;font-weight:400;color:var(--muted);font-size:14.5px;margin-top:3px}
+.item{padding:14px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item b{color:var(--ink)}
+.item .d{display:block;color:var(--muted);font-size:14.5px;margin-top:3px}
 
 .role{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
 .role:last-child{border-bottom:0}
@@ -55,17 +59,23 @@ header p{font-size:19px;color:#c2cbd6;max-width:38em;margin:0}
 .pub:last-child{border-bottom:0}
 .pub .doi{font-size:13.5px;color:var(--muted)}
 
-.cta{background:var(--ink);color:#fff;border-radius:14px;padding:26px 24px;margin:8px 0 0}
+.cta{background:var(--ink);color:#fff;border-radius:14px;padding:26px 24px}
 .cta h3{color:#fff;font-size:22px;margin-bottom:8px}
 .cta p{color:#c2cbd6;margin:0 0 18px}
 .btn{display:inline-block;background:#7fd8bb;color:#0b2a22;border-radius:10px;padding:12px 20px;font-weight:700;text-decoration:none;margin:0 10px 10px 0}
 .btn.ghost{background:transparent;color:#e9edf3;border:1px solid rgba(255,255,255,.3)}
 footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
-.en{color:var(--muted);font-size:15px}
-.en h3{font-size:16px;margin-bottom:6px}
 </style>
 </head>
 <body>
+
+<div class="langbar"><div class="wrap">
+  <button id="btn-pt" aria-pressed="true">Português</button>
+  <button id="btn-en" aria-pressed="false">English</button>
+</div></div>
+
+<!-- ===================== PORTUGUÊS ===================== -->
+<div class="lang" id="lang-pt">
 
 <header>
   <div class="wrap">
@@ -126,13 +136,13 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
 
 <section>
   <div class="wrap">
-    <h2>Serviços</h2>
+    <h2>Como trabalho</h2>
     <div class="card">
-      <div class="price"><span class="n">Avaliação de oportunidades de IA<span class="d">Duas semanas, preço fixo. Reviso os processos, ordeno-os por retorno e entrego uma lista curta com custo e prazo estimados. Pode avançar comigo ou sozinho.</span></span><span class="v">6.500 €</span></div>
-      <div class="price"><span class="n">Direção de IA a tempo parcial<span class="d">Três dias por mês, mínimo de seis meses. Critério sénior na equipa de gestão sem contratar um quadro sénior.</span></span><span class="v">4.500 €/mês</span></div>
-      <div class="price"><span class="n">Sessão para direção e administração<span class="d">Meio dia. O que esta tecnologia faz, o que custa e o que a concorrência anda mesmo a fazer — para quem tem de aprovar o orçamento.</span></span><span class="v">2.500 €</span></div>
-      <div class="price"><span class="n">Implementação financiada (PRR / Portugal 2030)<span class="d">Execução e documentação técnica de projetos de IA com apoio aprovado, no formato que a entidade financiadora audita.</span></span><span class="v">15.000–45.000 €</span></div>
-      <div class="price"><span class="n">Tokenomics e lançamento Web3<span class="d">Desenho económico do token, distribuição, incentivos e sequência de lançamento. Âmbito fechado.</span></span><span class="v">12.000 €</span></div>
+      <div class="item"><b>Avaliação de oportunidades de IA</b><span class="d">Duas semanas. Reviso os processos, ordeno-os por retorno e entrego uma lista curta com custo e prazo estimados. Pode avançar comigo ou sozinho.</span></div>
+      <div class="item"><b>Direção de IA a tempo parcial</b><span class="d">Alguns dias por mês, com continuidade. Critério sénior na equipa de gestão sem contratar um quadro sénior.</span></div>
+      <div class="item"><b>Sessão para direção e administração</b><span class="d">Meio dia. O que esta tecnologia faz, o que custa e o que a concorrência anda mesmo a fazer — para quem tem de aprovar o orçamento.</span></div>
+      <div class="item"><b>Implementação financiada (PRR / Portugal 2030)</b><span class="d">Execução e documentação técnica de projetos de IA com apoio aprovado, no formato que a entidade financiadora audita.</span></div>
+      <div class="item"><b>Tokenomics e lançamento Web3</b><span class="d">Desenho económico do token, distribuição, incentivos e sequência de lançamento. Âmbito fechado.</span></div>
     </div>
     <p class="card" style="margin-top:16px;background:#fffaf0;border-color:#f0e2c2">
       <b>Sobre financiamento:</b> nos apoios do PRR e do Portugal 2030 para digitalização e IA, a consultoria e a formação contam como despesa elegível, e não apenas o software. Quem já tem projeto aprovado tem prazo para executar e obrigação de o documentar — que é exatamente onde entro.
@@ -144,6 +154,7 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   <div class="wrap">
     <h2>Percurso</h2>
     <div class="card">
+      <div class="role"><span><b>CTO</b> · Mantovani Horses<br><span class="sub">Responsável pela tecnologia da empresa.</span></span><span class="when">jan 2026 —</span></div>
       <div class="role"><span><b>Head of Crypto Research</b> · DiamondNXT<br><span class="sub">Direção da área de blockchain e arquitetura de soluções para clientes.</span></span><span class="when">2025 —</span></div>
       <div class="role"><span><b>VP de Engenharia Web3</b> · RealFevr<br><span class="sub">Estratégia técnica de Web3 numa plataforma de NFT desportivos: roteiro, equipa que o entregou e o argumento comercial dos dois.</span></span><span class="when">2022 — 2024</span></div>
       <div class="role"><span><b>Head of Blockchain</b> · RealFevr<br><span class="sub">Criou a função do zero: contratação, ferramentas, arquitetura e os contratos inteligentes por trás do mercado de NFT. O arco completo até produção.</span></span><span class="when">2019 — 2022</span></div>
@@ -190,17 +201,159 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
+<footer><div class="wrap">Pedro Febrero · Lisboa · atualizado em setembro de 2026</div></footer>
+</div>
+
+<!-- ===================== ENGLISH ===================== -->
+<div class="lang" id="lang-en" hidden>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">Artificial intelligence for business</div>
+    <h1>Pedro Febrero</h1>
+    <p>An economist who ships. I work out where artificial intelligence actually pays back in a company, put it into production, and leave the team able to run it.</p>
+    <div class="meta">
+      <a href="mailto:pedro@gigacorp.pt">pedro@gigacorp.pt</a>
+      <a href="https://wa.me/351936882364">WhatsApp +351 936 882 364</a>
+      <a href="https://www.linkedin.com/in/pedro-febrero-8485093a6/">LinkedIn</a>
+      <span>Lisbon · Portugal · remote</span>
+      <span>Native PT · fluent EN</span>
+    </div>
+  </div>
+</header>
+
 <section>
-  <div class="wrap en">
-    <h3>In English</h3>
-    <p>I am an economist who ships. I work out where AI actually pays back in a company, put it into production, and leave the team able to run it. Nine years taking emerging technology from concept to production — VP of Web3 Engineering at RealFevr, lecturer at Nova and the University of Leeds (2018–2025), published in IEEE Transactions on Engineering Management and the Journal of Management in Engineering (ASCE). Today I build and run AI systems for small and mid-sized companies: automated prospecting and reply handling over a 4,900-company database, and AI-generated video advertising.</p>
-    <p>Engagements: AI Opportunity Assessment (two weeks, €6,500) · Fractional Head of AI (€4,500/month) · Board workshop (€2,500) · Grant-funded implementation and documentation (€15–45k) · Tokenomics and Web3 go-to-market (€12,000). Lisbon-based, available remotely. <a href="mailto:pedro@gigacorp.pt">pedro@gigacorp.pt</a></p>
+  <div class="wrap">
+    <h2>What I am building right now</h2>
+    <p class="lead">The most useful proof I have is not a slide deck: it is an AI system of my own, running in production every day.</p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card now">
+        <h3>Automated prospecting and replies</h3>
+        <p>A database of roughly 4,900 companies, each with an automated audit of its online presence. The system picks who to contact, writes a message fitted to that business, sends on a schedule, reads the replies, classifies them and drafts the answer — which only goes out once I approve it from my phone. Deliveries, opens and bounces are measured and feed back into the rules.</p>
+      </div>
+      <div class="card now">
+        <h3>AI-generated video advertising</h3>
+        <p>A synthetic presenter with a cloned voice, animated from a single still image, with automated editing, music and captions. From script to a publishable vertical ad in minutes, for a few euros — which is what makes weekly content viable for small businesses.</p>
+      </div>
+    </div>
+    <p style="margin-top:18px">A concrete example: a clinical pilates studio in Lisbon now has a maintained Google profile, active social accounts and regular video produced by this system, on a monthly retainer — without hiring anyone for it.</p>
   </div>
 </section>
 
-<footer>
-  <div class="wrap">Pedro Febrero · Lisboa · atualizado em setembro de 2026</div>
-</footer>
+<section>
+  <div class="wrap">
+    <h2>The problem I am usually called about</h2>
+    <p>Most organisations approaching AI are stuck between two bad advisers. One sells a model demo that never reaches production. The other sells a strategy deck with no idea what implementation costs.</p>
+    <p>I spent nine years in the unglamorous middle of exactly that problem, for a technology that arrived a decade earlier and made all the same mistakes. Which processes are genuinely worth automating. What the integration really costs. What it breaks. Who needs retraining, and who quietly resists. I was an economist before I was a technologist, so I scope work in payback period rather than parameter count — and I then ran the engineering division that had to deliver it.</p>
+  </div>
+</section>
 
+<section>
+  <div class="wrap">
+    <h2>Where each sector starts</h2>
+    <div class="card">
+      <div class="sector"><b>Accounting</b> — read invoices and receipts automatically and post them without anyone typing.</div>
+      <div class="sector"><b>Law firms</b> — search years of contracts and templates in seconds, and draft the first versions.</div>
+      <div class="sector"><b>Recruitment</b> — screen hundreds of CVs against your own criteria and hand back a summary of each candidate.</div>
+      <div class="sector"><b>Real estate</b> — answer every enquiry within minutes and tell who is actually buying.</div>
+      <div class="sector"><b>Transport and logistics</b> — process shipping paperwork without typing and answer status requests on its own.</div>
+      <div class="sector"><b>Manufacturing</b> — read the production logs that stay on paper and warn before the machine stops.</div>
+      <div class="sector"><b>Insurance</b> — build claim files and prepare quotes in a fraction of the time.</div>
+      <div class="sector"><b>Agencies and marketing</b> — first drafts of content and campaign reporting without tying up the team.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>How I work</h2>
+    <div class="card">
+      <div class="item"><b>AI opportunity assessment</b><span class="d">Two weeks. Every process reviewed for automation value, ranked by payback, ending in a costed shortlist you can act on with me or without me.</span></div>
+      <div class="item"><b>Fractional head of AI</b><span class="d">A few days a month, with continuity. Senior AI judgement on your leadership team without the senior headcount.</span></div>
+      <div class="item"><b>Board and executive workshop</b><span class="d">Half a day. What this technology does, what it costs, and what your competitors are actually doing — for the people who approve the budget.</span></div>
+      <div class="item"><b>Grant-funded implementation (PRR / Portugal 2030)</b><span class="d">Delivery and technical documentation for grant-backed AI projects, to the standard the funder audits against.</span></div>
+      <div class="item"><b>Tokenomics and Web3 go-to-market</b><span class="d">Token economic design, distribution, incentive modelling and launch sequencing. Fixed scope.</span></div>
+    </div>
+    <p class="card" style="margin-top:16px;background:#fffaf0;border-color:#f0e2c2">
+      <b>On funding:</b> under Portugal's PRR and Portugal 2030 digitalisation and AI support lines, consultancy and training are eligible spend, not only software. Companies with an approved project have a deadline to execute and an obligation to document it — which is exactly where I come in.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Track record</h2>
+    <div class="card">
+      <div class="role"><span><b>CTO</b> · Mantovani Horses<br><span class="sub">Responsible for the company's technology.</span></span><span class="when">Jan 2026 —</span></div>
+      <div class="role"><span><b>Head of Crypto Research</b> · DiamondNXT<br><span class="sub">Runs the blockchain division; sets research direction and architects bespoke solutions for clients.</span></span><span class="when">2025 —</span></div>
+      <div class="role"><span><b>VP of Web3 Engineering</b> · RealFevr<br><span class="sub">Owned technical strategy for Web3 across a sports NFT platform: the roadmap, the division delivering it, and the commercial argument for both.</span></span><span class="when">2022 — 2024</span></div>
+      <div class="role"><span><b>Head of Blockchain</b> · RealFevr<br><span class="sub">Built the function from nothing: hiring, tooling, architecture and the smart contract ecosystem behind the NFT marketplace. The full zero-to-production arc.</span></span><span class="when">2019 — 2022</span></div>
+      <div class="role"><span><b>Lecturer</b> · Nova University · University of Leeds<br><span class="sub">Seven years teaching blockchain, cryptocurrency economics and DeFi to students and executives.</span></span><span class="when">2018 — 2025</span></div>
+      <div class="role"><span><b>Co-host</b> · CryptoCafe<br><span class="sub">Portugal's most-followed cryptocurrency show.</span></span><span class="when">2020 —</span></div>
+      <div class="role"><span><b>Strategic adviser</b> · BridgeWhat<br><span class="sub">Blockchain and DeFi.</span></span><span class="when">2024 —</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Education and research</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>BSc Economics</h3>
+        <p class="sub">ISCTE Business School, Lisbon · 2008–2013</p>
+        <p class="sub" style="margin-bottom:0">Research assistant, supply-chain blockchain, University of Huddersfield (2019).</p>
+      </div>
+      <div class="card">
+        <div class="pub">
+          <b>Insights into Blockchain Implementation in Construction</b><br>
+          <span class="sub">Journal of Management in Engineering (ASCE), 2021</span><br>
+          <span class="doi">DOI 10.1061/(ASCE)ME.1943-5479.0000939</span>
+        </div>
+        <div class="pub">
+          <b>Cryptocurrency Constellations Across the Three-Dimensional Space</b><br>
+          <span class="sub">IEEE Transactions on Engineering Management, 2020</span><br>
+          <span class="doi">DOI 10.1109/TEM.2020.3030202</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta">
+      <h3>Twenty minutes is enough to know whether this is worth doing</h3>
+      <p>Tell me what your team does most often in a week. I will tell you whether there is an AI case in there that pays for itself — and if there is not, I will tell you that too.</p>
+      <a class="btn" href="mailto:pedro@gigacorp.pt?subject=20-minute%20conversation%20about%20AI">Send an email</a>
+      <a class="btn ghost" href="https://wa.me/351936882364">WhatsApp +351 936 882 364</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">Pedro Febrero · Lisbon · updated September 2026</div></footer>
+</div>
+
+<script>
+(function () {
+  var pt = document.getElementById("lang-pt"), en = document.getElementById("lang-en");
+  var bPt = document.getElementById("btn-pt"), bEn = document.getElementById("btn-en");
+  function set(lang, remember) {
+    var isEn = lang === "en";
+    en.hidden = !isEn; pt.hidden = isEn;
+    bEn.setAttribute("aria-pressed", String(isEn));
+    bPt.setAttribute("aria-pressed", String(!isEn));
+    document.documentElement.lang = isEn ? "en" : "pt";
+    document.title = isEn ? "Pedro Febrero — AI advisory and implementation" : "Pedro Febrero — Consultoria e implementação de IA";
+    if (remember) { try { localStorage.setItem("lang", lang); } catch (e) {} }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem("lang"); } catch (e) {}
+  // visitors whose browser is not Portuguese get English first
+  set(saved || ((navigator.language || "pt").toLowerCase().indexOf("pt") === 0 ? "pt" : "en"), false);
+  bPt.onclick = function () { set("pt", true); };
+  bEn.onclick = function () { set("en", true); };
+})();
+</script>
 </body>
 </html>
