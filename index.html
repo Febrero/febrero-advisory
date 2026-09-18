@@ -59,7 +59,11 @@ header p{font-size:19px;color:#c2cbd6;max-width:38em;margin:0}
 .pub:last-child{border-bottom:0}
 .pub .doi{font-size:13.5px;color:var(--muted)}
 
+h3.area{font-size:21px;margin:34px 0 6px;color:var(--ink)}
+h3.area:first-of-type{margin-top:22px}
+.area-note{margin:0 0 4px;color:var(--body)}
 .projects{margin-top:16px}
+.proj video{display:block;width:100%;height:330px;object-fit:contain;background:#0b0f14}
 .proj{display:block;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s ease,box-shadow .15s ease}
 .proj:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(16,21,28,.10)}
 .proj img{display:block;width:100%;aspect-ratio:8/5;object-fit:cover;object-position:top center;background:#10151c}
@@ -102,51 +106,105 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
 
 <section>
   <div class="wrap">
-    <h2>O que estou a construir agora</h2>
-    <p class="lead">A prova mais útil que tenho não é um slide: é um sistema de IA meu, em produção, todos os dias.</p>
-    <div class="grid g2" style="margin-top:18px">
-      <div class="card now">
-        <h3>Captação e resposta automáticas</h3>
-        <p>Uma base de cerca de 4.900 empresas, com auditoria automática da presença online de cada uma. O sistema escolhe quem contactar, escreve a mensagem adaptada ao negócio, envia em horários definidos, lê as respostas, classifica-as e prepara a resposta — que só sai depois de eu aprovar no telemóvel. Entregas, aberturas e devoluções são medidas e realimentam as regras.</p>
+    <h2>O que faço, por área</h2>
+    <p class="lead">A prova mais útil que tenho não é uma apresentação: são sistemas meus a correr todos os dias e trabalho já entregue a clientes.</p>
+
+    <h3 class="area">Comunicação e publicidade</h3>
+    <p class="area-note">Apresentadores sintéticos com voz clonada, animados a partir de uma única imagem, com montagem, música e legendas automáticas. De um guião a um anúncio pronto a publicar em minutos e por poucos euros — é isso que torna viável conteúdo semanal para um negócio pequeno. Há peças deste tipo com mais de 50 mil visualizações.</p>
+    <div class="grid g2 projects">
+      <div class="proj">
+        <video src="media/bond-pitch.mp4" poster="media/bond-pitch.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Apresentadora a vender empreendimentos</b><span class="url">Bond Maison Concierge</span>
+          <p>A concierge do projeto imobiliário apresenta-se e explica o que faz — a mesma personagem que depois responde no Telegram.</p></div>
       </div>
-      <div class="card now">
-        <h3>Vídeo publicitário gerado por IA</h3>
-        <p>Uma apresentadora sintética com voz clonada, animada a partir de uma única imagem, com montagem, música e legendas automáticas. De um guião a um anúncio vertical pronto a publicar em minutos, por poucos euros — o que torna viável fazer conteúdo semanal para negócios pequenos.</p>
+      <div class="proj">
+        <video src="media/elispace.mp4" poster="media/elispace.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Anúncio para um estúdio de pilates</b><span class="url">Cliente em avença</span>
+          <p>Erros de postura explicados em segundos e o convite para a aula experimental. Produzido de ponta a ponta pelo sistema.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/vila-alice.mp4" poster="media/vila-alice.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Anúncio de restaurante</b><span class="url">Vila Alice</span>
+          <p>Ambiente, mesa e sala cheia gerados por IA, com a marca aplicada — sem sessão de filmagem.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/gigacorp.mp4" poster="media/gigacorp.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Vídeo de marca</b><span class="url">Gigacorp</span>
+          <p>Narrativa, vozes e imagem geradas por IA para a minha própria operação de marketing local.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/pontinha.mp4" poster="media/pontinha.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Centro comercial de bairro</b><span class="url">CC Pontinha</span>
+          <p>A apresentadora em bolha sobre as imagens do próprio centro, com guitarra portuguesa por baixo.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/imed.mp4" poster="media/imed.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Clínica dentária</b><span class="url">Imed · Parque das Nações</span>
+          <p>Seis segundos: onde fica a clínica, para quem é, e o convite para marcar.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/pernas.mp4" poster="media/pernas.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Conteúdo de aula</b><span class="url">Estúdio de pilates</span>
+          <p>Exercício explicado sobre imagens reais do estúdio — o formato que alimenta as redes todas as semanas.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/poke.mp4" poster="media/poke.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Meme animado</b><span class="url">Formato viral</span>
+          <p>Animação em estilo desenho, feita por IA, do género que corre nas redes e traz alcance sem orçamento de meios.</p></div>
       </div>
     </div>
-    <p style="margin-top:18px">Exemplo concreto: um estúdio de pilates clínico em Lisboa passou a ter ficha Google tratada, redes sociais e vídeos regulares produzidos por este sistema, por uma avença mensal — sem contratar ninguém para isso.</p>
 
-    <h2 style="margin-top:36px">Projetos em curso</h2>
+    <h3 class="area">Captação de clientes e vendas</h3>
+    <p class="area-note">Sistemas que encontram o cliente, falam com ele e só me passam a decisão.</p>
+    <div class="grid g2 projects">
+      <div class="proj">
+        <div class="pb" style="padding-top:18px"><b>Máquina de captação e resposta</b><span class="url">Operação própria</span>
+          <p>Uma base de cerca de 4.900 empresas, com auditoria automática da presença online de cada uma. O sistema escolhe quem contactar, escreve a mensagem adaptada ao negócio, envia em horários definidos, lê as respostas, classifica-as e prepara a resposta — que só sai depois de eu aprovar no telemóvel. Entregas, aberturas e devoluções são medidas e realimentam as regras.</p></div>
+      </div>
+      <a class="proj" href="https://concierge-production-358f.up.railway.app/" target="_blank" rel="noopener">
+        <img src="img/concierge.jpg" alt="Bond Maison Concierge">
+        <div class="pb"><b>Assistente pessoal para imobiliário</b><span class="url">Bond Maison Concierge</span>
+          <p>Uma concierge com voz e vídeo responde no Telegram, apresenta os empreendimentos e acompanha a obra ao vivo, 24 horas por dia.</p></div>
+      </a>
+    </div>
+
+    <h3 class="area">Comércio e retalho</h3>
+    <p class="area-note">Transformar conteúdo e coleções em algo que se compra num toque.</p>
+    <div class="grid g2 projects">
+      <a class="proj" href="https://sic-shop-production.up.railway.app/" target="_blank" rel="noopener">
+        <img src="img/sic-shop.jpg" alt="SIC Shop">
+        <div class="pb"><b>Televisão que se compra</b><span class="url">SIC Shop</span>
+          <p>Cada peça de roupa vista nos programas fica à venda num toque, organizada por concorrente e por episódio.</p></div>
+      </a>
+      <a class="proj" href="https://fuse.cards/" target="_blank" rel="noopener">
+        <img src="img/fuse-cards.jpg" alt="fuse.cards" loading="lazy">
+        <div class="pb"><b>Álbum digital de cartas</b><span class="url">fuse.cards</span>
+          <p>Organiza a coleção por páginas, importa listas de cartas e funde duas numa nova, no laboratório de fusão.</p></div>
+      </a>
+    </div>
+
+    <h3 class="area">Ativos, mercados e Web3</h3>
+    <p class="area-note">Onde a economia do ativo é o produto: desenho económico, mercado e a plataforma que o suporta.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://pump.horse/" target="_blank" rel="noopener">
         <img src="img/pump-horse.jpg" alt="pump.horse" loading="lazy">
         <div class="pb"><b>Cavalos lusitanos como ativo</b><span class="url">pump.horse</span>
           <p>Plataforma da Mantovani Horses: exposição fracionada a cavalos lusitanos de alta competição, com histórico de valorização, participações e sorteios.</p></div>
       </a>
-      <a class="proj" href="https://concierge-production-358f.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/concierge.jpg" alt="Bond Maison Concierge" loading="lazy">
-        <div class="pb"><b>Assistente pessoal para imobiliário</b><span class="url">Bond Maison Concierge</span>
-          <p>Uma concierge com voz e vídeo responde no Telegram, apresenta os empreendimentos e acompanha a obra ao vivo, 24 horas por dia.</p></div>
-      </a>
-      <a class="proj" href="https://sic-shop-production.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/sic-shop.jpg" alt="SIC Shop" loading="lazy">
-        <div class="pb"><b>Televisão que se compra</b><span class="url">SIC Shop</span>
-          <p>Cada peça de roupa vista nos programas fica à venda num toque, organizada por concorrente e por episódio.</p></div>
-      </a>
       <a class="proj" href="https://memes.army/" target="_blank" rel="noopener">
         <img src="img/memes-army.jpg" alt="memes.army" loading="lazy">
         <div class="pb"><b>Painel de mercado cripto</b><span class="url">memes.army</span>
           <p>Preços ao vivo, índice de retorno e um mapa de batalha que mostra onde está a pressão de compra e de venda.</p></div>
       </a>
+    </div>
+
+    <h3 class="area">Turismo e experiências web</h3>
+    <p class="area-note">Sites que vendem a experiência, e experiências que só existem no browser.</p>
+    <div class="grid g2 projects">
       <a class="proj" href="https://evora-safari-tours-production.up.railway.app/" target="_blank" rel="noopener">
         <img src="img/evora-safari.jpg" alt="Alentours" loading="lazy">
         <div class="pb"><b>Site de reservas de turismo</b><span class="url">Alentours · Évora</span>
           <p>Para uma empresa familiar de Évora: passeios de Land Rover pelo Alentejo, com rotas, galeria e marcação online em português e inglês.</p></div>
-      </a>
-      <a class="proj" href="https://fuse.cards/" target="_blank" rel="noopener">
-        <img src="img/fuse-cards.jpg" alt="fuse.cards" loading="lazy">
-        <div class="pb"><b>Álbum digital de cartas</b><span class="url">fuse.cards</span>
-          <p>Organiza a coleção por páginas, importa listas de cartas e funde duas numa nova, no laboratório de fusão.</p></div>
       </a>
       <a class="proj" href="https://trenches.wtf/" target="_blank" rel="noopener">
         <img src="img/trenches.jpg" alt="trenches.wtf" loading="lazy">
@@ -176,7 +234,7 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
       <div class="sector"><b>Transportes e logística</b> — tratar guias e documentos sem digitação e responder sozinho a pedidos de estado.</div>
       <div class="sector"><b>Indústria</b> — ler os registos de produção que ficam em papel e avisar antes de a máquina parar.</div>
       <div class="sector"><b>Seguros</b> — instruir processos de sinistro e preparar propostas em muito menos tempo.</div>
-      <div class="sector"><b>Agências e marketing</b> — primeiras versões de conteúdo e relatórios de campanha sem ocupar a equipa.</div>
+      <div class="sector"><b>Comunicação e publicidade</b> — primeiras versões de conteúdo e relatórios de campanha sem ocupar a equipa.</div>
     </div>
   </div>
 </section>
@@ -271,51 +329,105 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
 
 <section>
   <div class="wrap">
-    <h2>What I am building right now</h2>
-    <p class="lead">The most useful proof I have is not a slide deck: it is an AI system of my own, running in production every day.</p>
-    <div class="grid g2" style="margin-top:18px">
-      <div class="card now">
-        <h3>Automated prospecting and replies</h3>
-        <p>A database of roughly 4,900 companies, each with an automated audit of its online presence. The system picks who to contact, writes a message fitted to that business, sends on a schedule, reads the replies, classifies them and drafts the answer — which only goes out once I approve it from my phone. Deliveries, opens and bounces are measured and feed back into the rules.</p>
+    <h2>What I do, by area</h2>
+    <p class="lead">The most useful proof I have is not a slide deck: it is systems of mine running every day, and work already delivered for clients.</p>
+
+    <h3 class="area">Communication and advertising</h3>
+    <p class="area-note">Synthetic presenters with cloned voices, animated from a single still image, with automated editing, music and captions. From script to a publishable ad in minutes and for a few euros — which is what makes weekly content viable for a small business. Pieces like these have passed 50,000 views.</p>
+    <div class="grid g2 projects">
+      <div class="proj">
+        <video src="media/bond-pitch.mp4" poster="media/bond-pitch.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>A presenter selling property</b><span class="url">Bond Maison Concierge</span>
+          <p>The development's concierge introduces herself and explains what she does — the same character who then answers on Telegram.</p></div>
       </div>
-      <div class="card now">
-        <h3>AI-generated video advertising</h3>
-        <p>A synthetic presenter with a cloned voice, animated from a single still image, with automated editing, music and captions. From script to a publishable vertical ad in minutes, for a few euros — which is what makes weekly content viable for small businesses.</p>
+      <div class="proj">
+        <video src="media/elispace.mp4" poster="media/elispace.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Ad for a pilates studio</b><span class="url">Retainer client</span>
+          <p>Posture mistakes explained in seconds, then the invitation to a trial class. Produced end to end by the system.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/vila-alice.mp4" poster="media/vila-alice.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Restaurant ad</b><span class="url">Vila Alice</span>
+          <p>Room, table and full house generated by AI, with the brand applied — no shoot required.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/gigacorp.mp4" poster="media/gigacorp.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Brand film</b><span class="url">Gigacorp</span>
+          <p>Story, voices and footage generated by AI for my own local-marketing operation.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/pontinha.mp4" poster="media/pontinha.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Neighbourhood shopping centre</b><span class="url">CC Pontinha</span>
+          <p>The presenter in a bubble over the centre's own footage, with Portuguese guitar underneath.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/imed.mp4" poster="media/imed.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Dental clinic</b><span class="url">Imed · Parque das Nações</span>
+          <p>Six seconds: where the clinic is, who it is for, and the invitation to book.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/pernas.mp4" poster="media/pernas.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Class content</b><span class="url">Pilates studio</span>
+          <p>An exercise explained over real footage of the studio — the format that feeds the social accounts every week.</p></div>
+      </div>
+      <div class="proj">
+        <video src="media/poke.mp4" poster="media/poke.jpg" controls preload="none" playsinline></video>
+        <div class="pb"><b>Animated meme</b><span class="url">Viral format</span>
+          <p>Cartoon-style AI animation, the kind that travels on social and buys reach without a media budget.</p></div>
       </div>
     </div>
-    <p style="margin-top:18px">A concrete example: a clinical pilates studio in Lisbon now has a maintained Google profile, active social accounts and regular video produced by this system, on a monthly retainer — without hiring anyone for it.</p>
 
-    <h2 style="margin-top:36px">Projects in flight</h2>
+    <h3 class="area">Client acquisition and sales</h3>
+    <p class="area-note">Systems that find the customer, talk to them, and hand me only the decision.</p>
+    <div class="grid g2 projects">
+      <div class="proj">
+        <div class="pb" style="padding-top:18px"><b>Prospecting and reply machine</b><span class="url">Own operation</span>
+          <p>A database of roughly 4,900 companies, each with an automated audit of its online presence. The system picks who to contact, writes a message fitted to that business, sends on a schedule, reads the replies, classifies them and drafts the answer — which only goes out once I approve it from my phone. Deliveries, opens and bounces are measured and feed back into the rules.</p></div>
+      </div>
+      <a class="proj" href="https://concierge-production-358f.up.railway.app/" target="_blank" rel="noopener">
+        <img src="img/concierge.jpg" alt="Bond Maison Concierge">
+        <div class="pb"><b>Personal assistant for real estate</b><span class="url">Bond Maison Concierge</span>
+          <p>A concierge with voice and video answers on Telegram, walks buyers through the developments and follows the construction live, around the clock.</p></div>
+      </a>
+    </div>
+
+    <h3 class="area">Commerce and retail</h3>
+    <p class="area-note">Turning content and collections into something you can buy in one tap.</p>
+    <div class="grid g2 projects">
+      <a class="proj" href="https://sic-shop-production.up.railway.app/" target="_blank" rel="noopener">
+        <img src="img/sic-shop.jpg" alt="SIC Shop">
+        <div class="pb"><b>Shoppable television</b><span class="url">SIC Shop</span>
+          <p>Every garment worn on the shows is buyable in one tap, organised by contestant and by episode.</p></div>
+      </a>
+      <a class="proj" href="https://fuse.cards/" target="_blank" rel="noopener">
+        <img src="img/fuse-cards.jpg" alt="fuse.cards" loading="lazy">
+        <div class="pb"><b>Digital card binder</b><span class="url">fuse.cards</span>
+          <p>Organise a collection across pages, import card lists, and fuse two cards into a new one in the fuse lab.</p></div>
+      </a>
+    </div>
+
+    <h3 class="area">Assets, markets and Web3</h3>
+    <p class="area-note">Where the asset's economics are the product: economic design, the market, and the platform under it.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://pump.horse/" target="_blank" rel="noopener">
         <img src="img/pump-horse.jpg" alt="pump.horse" loading="lazy">
         <div class="pb"><b>Lusitano horses as an asset</b><span class="url">pump.horse</span>
           <p>Mantovani Horses' platform: fractional economic exposure to elite Lusitano dressage horses, with price history, shares and raffles.</p></div>
       </a>
-      <a class="proj" href="https://concierge-production-358f.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/concierge.jpg" alt="Bond Maison Concierge" loading="lazy">
-        <div class="pb"><b>Personal assistant for real estate</b><span class="url">Bond Maison Concierge</span>
-          <p>A concierge with voice and video answers on Telegram, walks buyers through the developments and follows the construction live, around the clock.</p></div>
-      </a>
-      <a class="proj" href="https://sic-shop-production.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/sic-shop.jpg" alt="SIC Shop" loading="lazy">
-        <div class="pb"><b>Shoppable television</b><span class="url">SIC Shop</span>
-          <p>Every garment worn on the shows is buyable in one tap, organised by contestant and by episode.</p></div>
-      </a>
       <a class="proj" href="https://memes.army/" target="_blank" rel="noopener">
         <img src="img/memes-army.jpg" alt="memes.army" loading="lazy">
         <div class="pb"><b>Crypto market dashboard</b><span class="url">memes.army</span>
           <p>Live prices, a return index and a battle map showing where the buying and selling pressure sits.</p></div>
       </a>
+    </div>
+
+    <h3 class="area">Tourism and web experiences</h3>
+    <p class="area-note">Sites that sell the experience, and experiences that only exist in the browser.</p>
+    <div class="grid g2 projects">
       <a class="proj" href="https://evora-safari-tours-production.up.railway.app/" target="_blank" rel="noopener">
         <img src="img/evora-safari.jpg" alt="Alentours" loading="lazy">
         <div class="pb"><b>Tourism booking site</b><span class="url">Alentours · Évora</span>
           <p>For a family business in Évora: Land Rover tours across the Alentejo, with routes, gallery and online booking in Portuguese and English.</p></div>
-      </a>
-      <a class="proj" href="https://fuse.cards/" target="_blank" rel="noopener">
-        <img src="img/fuse-cards.jpg" alt="fuse.cards" loading="lazy">
-        <div class="pb"><b>Digital card binder</b><span class="url">fuse.cards</span>
-          <p>Organise a collection across pages, import card lists, and fuse two cards into a new one in the fuse lab.</p></div>
       </a>
       <a class="proj" href="https://trenches.wtf/" target="_blank" rel="noopener">
         <img src="img/trenches.jpg" alt="trenches.wtf" loading="lazy">
@@ -345,7 +457,7 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
       <div class="sector"><b>Transport and logistics</b> — process shipping paperwork without typing and answer status requests on its own.</div>
       <div class="sector"><b>Manufacturing</b> — read the production logs that stay on paper and warn before the machine stops.</div>
       <div class="sector"><b>Insurance</b> — build claim files and prepare quotes in a fraction of the time.</div>
-      <div class="sector"><b>Agencies and marketing</b> — first drafts of content and campaign reporting without tying up the team.</div>
+      <div class="sector"><b>Communication and advertising</b> — first drafts of content and campaign reporting without tying up the team.</div>
     </div>
   </div>
 </section>
