@@ -21,10 +21,20 @@ h1,h2,h3{color:var(--ink);line-height:1.2;margin:0}
 h2{font-size:15px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 18px}
 section{padding:38px 0;border-top:1px solid var(--line)}
 
-.langbar{position:sticky;top:0;z-index:5;background:var(--ink);border-bottom:1px solid rgba(255,255,255,.08)}
-.langbar .wrap{display:flex;justify-content:flex-end;gap:6px;padding-top:8px;padding-bottom:8px}
-.langbar button{background:none;border:1px solid rgba(255,255,255,.25);color:#c2cbd6;border-radius:999px;padding:4px 12px;font:600 13px/1 inherit;cursor:pointer}
+.langbar{position:sticky;top:0;z-index:5;background:var(--ink);border-bottom:1px solid rgba(255,255,255,.08);transition:background .25s ease,border-color .25s ease}
+.langbar .wrap{display:flex;justify-content:flex-end;padding-top:8px;padding-bottom:8px;transition:padding .25s ease}
+.langbar .pill{display:flex;gap:6px;padding:0;border-radius:999px;transition:padding .25s ease,background .25s ease,box-shadow .25s ease}
+.langbar button{background:none;border:1px solid rgba(255,255,255,.25);color:#c2cbd6;border-radius:999px;padding:4px 12px;font:600 13px/1 inherit;cursor:pointer;transition:padding .25s ease,font-size .25s ease}
 .langbar button[aria-pressed="true"]{background:#7fd8bb;border-color:#7fd8bb;color:#0b2a22}
+.langbar button .abbr{display:none}
+/* scrolled: the bar gets out of the way — a small floating pill in the corner */
+.langbar.small{background:transparent;border-color:transparent}
+.langbar.small .wrap{padding-top:6px;padding-bottom:6px}
+.langbar.small .pill{padding:4px;background:rgba(16,21,28,.82);box-shadow:0 6px 18px rgba(16,21,28,.22)}
+@supports (backdrop-filter:blur(8px)){.langbar.small .pill{backdrop-filter:blur(8px)}}
+.langbar.small button{padding:3px 9px;font-size:11.5px}
+.langbar.small button .full{display:none}
+.langbar.small button .abbr{display:inline}
 
 header{background:var(--ink);color:#e9edf3;padding:44px 0}
 header .kicker{color:#7fd8bb;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
@@ -82,10 +92,10 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
 </head>
 <body>
 
-<div class="langbar"><div class="wrap">
-  <button id="btn-pt" aria-pressed="true">Português</button>
-  <button id="btn-en" aria-pressed="false">English</button>
-</div></div>
+<div class="langbar" id="langbar"><div class="wrap"><div class="pill">
+  <button id="btn-pt" aria-pressed="true"><span class="full">Português</span><span class="abbr">PT</span></button>
+  <button id="btn-en" aria-pressed="false"><span class="full">English</span><span class="abbr">EN</span></button>
+</div></div></div>
 
 <!-- ===================== PORTUGUÊS ===================== -->
 <div class="lang" id="lang-pt">
@@ -584,6 +594,10 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   set(saved || ((navigator.language || "pt").toLowerCase().indexOf("pt") === 0 ? "pt" : "en"), false);
   bPt.onclick = function () { set("pt", true); };
   bEn.onclick = function () { set("en", true); };
+  var bar = document.getElementById("langbar");
+  function onScroll() { bar.classList.toggle("small", window.scrollY > 60); }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 })();
 </script>
 </body>
