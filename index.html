@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedro Febrero — Consultoria e implementação de IA</title>
+<meta name="description" content="Economista e tecnólogo. Descubro onde a inteligência artificial se paga numa empresa e ponho-a a funcionar — com a documentação que o financiamento exige.">
+<meta property="og:title" content="Pedro Febrero — Consultoria e implementação de IA">
+<meta property="og:description" content="Onde a IA se paga na sua empresa, e como pô-la a funcionar. Avaliação em duas semanas, implementação e formação.">
+<meta property="og:type" content="profile">
+<style>
+:root{
+  --ink:#10151c; --body:#38414f; --muted:#6b7686; --line:#e4e8ee; --bg:#fbfcfd;
+  --accent:#0f6b53; --accent-soft:#e8f3ef; --gold:#c8952a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--body);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 22px}
+a{color:var(--accent)}
+h1,h2,h3{color:var(--ink);line-height:1.2;margin:0}
+h2{font-size:15px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 18px}
+section{padding:38px 0;border-top:1px solid var(--line)}
+
+header{background:var(--ink);color:#e9edf3;padding:52px 0 44px}
+header .kicker{color:#7fd8bb;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+header h1{color:#fff;font-size:44px;margin:10px 0 14px;letter-spacing:-.02em}
+header p{font-size:19px;color:#c2cbd6;max-width:38em;margin:0}
+.meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px}
+.meta a,.meta span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e9edf3;border-radius:999px;padding:7px 14px;font-size:14px;text-decoration:none}
+.meta a:hover{background:rgba(255,255,255,.16)}
+
+.lead{font-size:18px;color:var(--ink)}
+.grid{display:grid;gap:16px}
+@media(min-width:720px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.card h3{font-size:17px;margin-bottom:6px}
+.card .sub{color:var(--muted);font-size:14px}
+.now{background:var(--accent-soft);border-color:#cfe6dd}
+.now h3{color:var(--accent)}
+
+.price{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding:14px 0}
+.price:last-child{border-bottom:0}
+.price .n{font-weight:700;color:var(--ink)}
+.price .v{white-space:nowrap;font-weight:700;color:var(--accent)}
+.price .d{display:block;font-weight:400;color:var(--muted);font-size:14.5px;margin-top:3px}
+
+.role{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.role:last-child{border-bottom:0}
+.role b{color:var(--ink)}
+.role .when{color:var(--muted);font-size:14px;white-space:nowrap}
+.sector{padding:9px 0;border-bottom:1px dashed var(--line)}
+.sector:last-child{border-bottom:0}
+.sector b{color:var(--ink)}
+.pub{padding:10px 0;border-bottom:1px solid var(--line)}
+.pub:last-child{border-bottom:0}
+.pub .doi{font-size:13.5px;color:var(--muted)}
+
+.cta{background:var(--ink);color:#fff;border-radius:14px;padding:26px 24px;margin:8px 0 0}
+.cta h3{color:#fff;font-size:22px;margin-bottom:8px}
+.cta p{color:#c2cbd6;margin:0 0 18px}
+.btn{display:inline-block;background:#7fd8bb;color:#0b2a22;border-radius:10px;padding:12px 20px;font-weight:700;text-decoration:none;margin:0 10px 10px 0}
+.btn.ghost{background:transparent;color:#e9edf3;border:1px solid rgba(255,255,255,.3)}
+footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
+.en{color:var(--muted);font-size:15px}
+.en h3{font-size:16px;margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">Inteligência artificial para empresas</div>
+    <h1>Pedro Febrero</h1>
+    <p>Economista que implementa. Descubro onde a inteligência artificial se paga numa empresa, ponho-a a funcionar em produção e deixo a equipa a saber usá-la.</p>
+    <div class="meta">
+      <a href="mailto:pedro@gigacorp.pt">pedro@gigacorp.pt</a>
+      <a href="https://wa.me/351936882364">WhatsApp 936 882 364</a>
+      <a href="https://www.linkedin.com/in/pedro-febrero-8485093a6/">LinkedIn</a>
+      <span>Lisboa · Portugal · remoto</span>
+      <span>PT nativo · EN fluente</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>O que estou a construir agora</h2>
+    <p class="lead">A prova mais útil que tenho não é um slide: é um sistema de IA meu, em produção, todos os dias.</p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card now">
+        <h3>Captação e resposta automáticas</h3>
+        <p>Uma base de cerca de 4.900 empresas, com auditoria automática da presença online de cada uma. O sistema escolhe quem contactar, escreve a mensagem adaptada ao negócio, envia em horários definidos, lê as respostas, classifica-as e prepara a resposta — que só sai depois de eu aprovar no telemóvel. Entregas, aberturas e devoluções são medidas e realimentam as regras.</p>
+      </div>
+      <div class="card now">
+        <h3>Vídeo publicitário gerado por IA</h3>
+        <p>Uma apresentadora sintética com voz clonada, animada a partir de uma única imagem, com montagem, música e legendas automáticas. De um guião a um anúncio vertical pronto a publicar em minutos, por poucos euros — o que torna viável fazer conteúdo semanal para negócios pequenos.</p>
+      </div>
+    </div>
+    <p style="margin-top:18px">Exemplo concreto: um estúdio de pilates clínico em Lisboa passou a ter ficha Google tratada, redes sociais e vídeos regulares produzidos por este sistema, por uma avença mensal — sem contratar ninguém para isso.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>O problema para que costumo ser chamado</h2>
+    <p>A maioria das empresas que se aproxima da IA fica entre dois maus conselheiros: um vende uma demonstração que nunca chega a produção; o outro vende uma apresentação de estratégia sem ideia do que custa implementar.</p>
+    <p>Passei nove anos no meio pouco glamoroso desse problema, com uma tecnologia que chegou uma década antes e cometeu os mesmos erros. Que processos vale mesmo a pena automatizar. Quanto custa a integração. O que é que parte. Quem precisa de formação e quem resiste em silêncio. Fui economista antes de ser tecnólogo, por isso avalio trabalho em período de retorno — e depois dirigi a equipa que teve de o entregar.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Por onde começa cada setor</h2>
+    <div class="card">
+      <div class="sector"><b>Contabilidade</b> — ler faturas e recibos automaticamente e lançá-los sem ninguém os digitar.</div>
+      <div class="sector"><b>Advocacia</b> — procurar em anos de contratos e minutas em segundos, e preparar as primeiras versões.</div>
+      <div class="sector"><b>Recrutamento</b> — triar centenas de currículos pelos critérios da casa e entregar um resumo de cada candidato.</div>
+      <div class="sector"><b>Imobiliário</b> — responder a cada pedido de informação em minutos e perceber quem está mesmo a comprar.</div>
+      <div class="sector"><b>Transportes e logística</b> — tratar guias e documentos sem digitação e responder sozinho a pedidos de estado.</div>
+      <div class="sector"><b>Indústria</b> — ler os registos de produção que ficam em papel e avisar antes de a máquina parar.</div>
+      <div class="sector"><b>Seguros</b> — instruir processos de sinistro e preparar propostas em muito menos tempo.</div>
+      <div class="sector"><b>Agências e marketing</b> — primeiras versões de conteúdo e relatórios de campanha sem ocupar a equipa.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Serviços</h2>
+    <div class="card">
+      <div class="price"><span class="n">Avaliação de oportunidades de IA<span class="d">Duas semanas, preço fixo. Reviso os processos, ordeno-os por retorno e entrego uma lista curta com custo e prazo estimados. Pode avançar comigo ou sozinho.</span></span><span class="v">6.500 €</span></div>
+      <div class="price"><span class="n">Direção de IA a tempo parcial<span class="d">Três dias por mês, mínimo de seis meses. Critério sénior na equipa de gestão sem contratar um quadro sénior.</span></span><span class="v">4.500 €/mês</span></div>
+      <div class="price"><span class="n">Sessão para direção e administração<span class="d">Meio dia. O que esta tecnologia faz, o que custa e o que a concorrência anda mesmo a fazer — para quem tem de aprovar o orçamento.</span></span><span class="v">2.500 €</span></div>
+      <div class="price"><span class="n">Implementação financiada (PRR / Portugal 2030)<span class="d">Execução e documentação técnica de projetos de IA com apoio aprovado, no formato que a entidade financiadora audita.</span></span><span class="v">15.000–45.000 €</span></div>
+      <div class="price"><span class="n">Tokenomics e lançamento Web3<span class="d">Desenho económico do token, distribuição, incentivos e sequência de lançamento. Âmbito fechado.</span></span><span class="v">12.000 €</span></div>
+    </div>
+    <p class="card" style="margin-top:16px;background:#fffaf0;border-color:#f0e2c2">
+      <b>Sobre financiamento:</b> nos apoios do PRR e do Portugal 2030 para digitalização e IA, a consultoria e a formação contam como despesa elegível, e não apenas o software. Quem já tem projeto aprovado tem prazo para executar e obrigação de o documentar — que é exatamente onde entro.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Percurso</h2>
+    <div class="card">
+      <div class="role"><span><b>Head of Crypto Research</b> · DiamondNXT<br><span class="sub">Direção da área de blockchain e arquitetura de soluções para clientes.</span></span><span class="when">2025 —</span></div>
+      <div class="role"><span><b>VP de Engenharia Web3</b> · RealFevr<br><span class="sub">Estratégia técnica de Web3 numa plataforma de NFT desportivos: roteiro, equipa que o entregou e o argumento comercial dos dois.</span></span><span class="when">2022 — 2024</span></div>
+      <div class="role"><span><b>Head of Blockchain</b> · RealFevr<br><span class="sub">Criou a função do zero: contratação, ferramentas, arquitetura e os contratos inteligentes por trás do mercado de NFT. O arco completo até produção.</span></span><span class="when">2019 — 2022</span></div>
+      <div class="role"><span><b>Docente convidado</b> · Nova University · University of Leeds<br><span class="sub">Sete anos a ensinar blockchain, economia das criptomoedas e DeFi a alunos e a executivos.</span></span><span class="when">2018 — 2025</span></div>
+      <div class="role"><span><b>Co-apresentador</b> · CryptoCafe<br><span class="sub">O programa de criptomoedas com mais audiência em Portugal.</span></span><span class="when">2020 —</span></div>
+      <div class="role"><span><b>Consultor estratégico</b> · BridgeWhat<br><span class="sub">Blockchain e DeFi.</span></span><span class="when">2024 —</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Formação e investigação</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Licenciatura em Economia</h3>
+        <p class="sub">ISCTE Business School, Lisboa · 2008–2013</p>
+        <p class="sub" style="margin-bottom:0">Assistente de investigação em blockchain na cadeia de abastecimento, University of Huddersfield (2019).</p>
+      </div>
+      <div class="card">
+        <div class="pub">
+          <b>Insights into Blockchain Implementation in Construction</b><br>
+          <span class="sub">Journal of Management in Engineering (ASCE), 2021</span><br>
+          <span class="doi">DOI 10.1061/(ASCE)ME.1943-5479.0000939</span>
+        </div>
+        <div class="pub">
+          <b>Cryptocurrency Constellations Across the Three-Dimensional Space</b><br>
+          <span class="sub">IEEE Transactions on Engineering Management, 2020</span><br>
+          <span class="doi">DOI 10.1109/TEM.2020.3030202</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta">
+      <h3>Vinte minutos chegam para saber se faz sentido</h3>
+      <p>Diga-me o que a sua equipa faz mais vezes por semana. Digo-lhe se há aí um caso de IA que se pague — e se não houver, também lho digo.</p>
+      <a class="btn" href="mailto:pedro@gigacorp.pt?subject=Conversa%20de%2020%20minutos%20sobre%20IA">Escrever um email</a>
+      <a class="btn ghost" href="https://wa.me/351936882364">WhatsApp 936 882 364</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap en">
+    <h3>In English</h3>
+    <p>I am an economist who ships. I work out where AI actually pays back in a company, put it into production, and leave the team able to run it. Nine years taking emerging technology from concept to production — VP of Web3 Engineering at RealFevr, lecturer at Nova and the University of Leeds (2018–2025), published in IEEE Transactions on Engineering Management and the Journal of Management in Engineering (ASCE). Today I build and run AI systems for small and mid-sized companies: automated prospecting and reply handling over a 4,900-company database, and AI-generated video advertising.</p>
+    <p>Engagements: AI Opportunity Assessment (two weeks, €6,500) · Fractional Head of AI (€4,500/month) · Board workshop (€2,500) · Grant-funded implementation and documentation (€15–45k) · Tokenomics and Web3 go-to-market (€12,000). Lisbon-based, available remotely. <a href="mailto:pedro@gigacorp.pt">pedro@gigacorp.pt</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Pedro Febrero · Lisboa · atualizado em setembro de 2026</div>
+</footer>
+
+</body>
+</html>
