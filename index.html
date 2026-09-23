@@ -91,6 +91,25 @@ h3.area:first-of-type{margin-top:22px}
 .btn{display:inline-block;background:#7fd8bb;color:#0b2a22;border-radius:10px;padding:12px 20px;font-weight:700;text-decoration:none;margin:0 10px 10px 0}
 .btn.ghost{background:transparent;color:#e9edf3;border:1px solid rgba(255,255,255,.3)}
 footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
+
+/* portfolio: one area at a time (tabs), long grids folded behind "ver mais" */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 4px}
+.tab{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;font:600 14px/1.2 inherit;color:var(--body);cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
+.tab:hover{border-color:var(--accent);color:var(--accent)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel[hidden]{display:none}
+.panel h3.area{margin-top:22px}
+.panel .projects.g3{grid-template-columns:1fr 1fr}
+@media(min-width:720px){.panel .projects.g3{grid-template-columns:repeat(3,1fr)}}
+.panel .projects.g3 .proj video{height:250px}
+.panel .projects.g3 .proj .pb{padding:12px 14px 14px}
+.panel .projects.g3 .proj .pb b{font-size:15px}
+.panel .projects.g3 .proj .pb p{font-size:13.5px}
+.proj.extra[hidden]{display:none}
+.more{display:inline-block;margin:16px 0 0;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;font:600 14px/1 inherit;color:var(--accent);cursor:pointer}
+.more:hover{border-color:var(--accent)}
+@media(max-width:719px){.panel .projects.g3{grid-template-columns:1fr}.panel .projects.g3 .proj video{height:300px}}
 </style>
 </head>
 <body>
@@ -601,6 +620,68 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   function onScroll() { bar.classList.toggle("small", window.scrollY > 60); }
   addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+})();
+
+// Portfolio section: turn the five "areas" into tabs and fold long grids (both languages).
+(function () {
+  var SHOW = 3; // projects visible before "ver mais" in a grid
+  document.querySelectorAll(".lang").forEach(function (block) {
+    var isEn = block.id === "lang-en";
+    var first = block.querySelector("h3.area");
+    if (!first) return;
+    var wrap = first.parentNode;
+    var heads = Array.prototype.slice.call(wrap.querySelectorAll("h3.area"));
+    var tabs = document.createElement("div");
+    tabs.className = "tabs"; tabs.setAttribute("role", "tablist");
+    var panels = [];
+    heads.forEach(function (h, i) {
+      var panel = document.createElement("div");
+      panel.className = "panel"; panel.setAttribute("role", "tabpanel"); panel.id = block.id + "-panel-" + i;
+      wrap.insertBefore(panel, h);
+      var node = h;
+      while (node && !(node !== h && node.matches && node.matches("h3.area"))) {
+        var next = node.nextSibling; panel.appendChild(node); node = next;
+      }
+      var tab = document.createElement("button");
+      tab.type = "button"; tab.className = "tab"; tab.setAttribute("role", "tab");
+      tab.textContent = h.textContent.trim();
+      tab.setAttribute("aria-controls", panel.id);
+      tab.onclick = function () { select(i); };
+      tabs.appendChild(tab);
+      panels.push({ tab: tab, panel: panel });
+      // videos get a tighter three-column grid; long grids fold behind a button
+      var grid = panel.querySelector(".projects");
+      if (grid && grid.querySelector("video")) grid.classList.add("g3");
+      var projs = grid ? Array.prototype.slice.call(grid.querySelectorAll(".proj")) : [];
+      if (projs.length > SHOW + 1) {
+        var extra = projs.slice(SHOW);
+        extra.forEach(function (p) { p.classList.add("extra"); p.hidden = true; });
+        var btn = document.createElement("button");
+        btn.type = "button"; btn.className = "more";
+        var open = false;
+        var label = function () { btn.textContent = open ? (isEn ? "Show fewer" : "Mostrar menos") : (isEn ? "Show " + extra.length + " more" : "Ver mais " + extra.length); };
+        btn.onclick = function () { open = !open; extra.forEach(function (p) { p.hidden = !open; }); label(); };
+        label();
+        grid.parentNode.insertBefore(btn, grid.nextSibling);
+      }
+    });
+    wrap.insertBefore(tabs, panels[0].panel);
+    function select(i) {
+      panels.forEach(function (p, k) {
+        p.panel.hidden = k !== i;
+        p.tab.setAttribute("aria-selected", String(k === i));
+        p.tab.tabIndex = k === i ? 0 : -1;
+      });
+      // pause any playing video in the panels we just hid
+      block.querySelectorAll(".panel[hidden] video").forEach(function (v) { try { v.pause(); } catch (e) {} });
+    }
+    tabs.addEventListener("keydown", function (e) {
+      var cur = panels.findIndex(function (p) { return p.tab.getAttribute("aria-selected") === "true"; });
+      if (e.key === "ArrowRight") select((cur + 1) % panels.length);
+      if (e.key === "ArrowLeft") select((cur - 1 + panels.length) % panels.length);
+    });
+    select(0);
+  });
 })();
 </script>
 </body>
