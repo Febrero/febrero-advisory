@@ -50,7 +50,7 @@
     tabs.className = 'tabs';
     tabs.setAttribute('role', 'tablist');
     tabs.setAttribute('aria-label', en ? 'Project categories' : 'Categorias de projetos');
-    const names = en ? ['Content & advertising', 'Clients & sales', 'Commerce & retail', 'Markets & Web3', 'Web experiences'] : ['Conteúdo e publicidade', 'Clientes e vendas', 'Comércio e retalho', 'Mercados e Web3', 'Experiências web'];
+    const names = en ? ['Organisational processes', 'Content & advertising', 'Clients & sales', 'Commerce & retail', 'Markets & Web3', 'Web experiences'] : ['Processos da organização', 'Conteúdo e publicidade', 'Clientes e vendas', 'Comércio e retalho', 'Mercados e Web3', 'Experiências web'];
     const panels = [];
     heads.forEach((heading, index) => {
       const panel = document.createElement('div');
