@@ -11,135 +11,30 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<style>
-:root{
-  --ink:#10151c; --body:#38414f; --muted:#6b7686; --line:#e4e8ee; --bg:#fbfcfd;
-  --accent:#0f6b53; --accent-soft:#e8f3ef;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--body);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
-.wrap{max-width:860px;margin:0 auto;padding:0 22px}
-a{color:var(--accent)}
-h1,h2,h3{color:var(--ink);line-height:1.2;margin:0}
-h2{font-size:15px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 18px}
-section{padding:38px 0;border-top:1px solid var(--line)}
-
-.langbar{position:sticky;top:0;z-index:5;background:var(--ink);border-bottom:1px solid rgba(255,255,255,.08);transition:background .25s ease,border-color .25s ease}
-.langbar .wrap{display:flex;justify-content:flex-end;padding-top:8px;padding-bottom:8px;transition:padding .25s ease}
-.langbar .pill{display:flex;gap:6px;padding:0;border-radius:999px;transition:padding .25s ease,background .25s ease,box-shadow .25s ease}
-.langbar button{background:none;border:1px solid rgba(255,255,255,.25);color:#c2cbd6;border-radius:999px;padding:4px 12px;font:600 13px/1 inherit;cursor:pointer;transition:padding .25s ease,font-size .25s ease}
-.langbar button[aria-pressed="true"]{background:#7fd8bb;border-color:#7fd8bb;color:#0b2a22}
-.langbar button .abbr{display:none}
-/* scrolled: the bar gets out of the way — a small floating pill in the corner */
-.langbar.small{background:transparent;border-color:transparent}
-.langbar.small .wrap{padding-top:6px;padding-bottom:6px}
-.langbar.small .pill{padding:4px;background:rgba(16,21,28,.82);box-shadow:0 6px 18px rgba(16,21,28,.22)}
-@supports (backdrop-filter:blur(8px)){.langbar.small .pill{backdrop-filter:blur(8px)}}
-.langbar.small button{padding:3px 9px;font-size:11.5px}
-.langbar.small button .full{display:none}
-.langbar.small button .abbr{display:inline}
-
-header{background:var(--ink);color:#e9edf3;padding:44px 0}
-header .kicker{color:#7fd8bb;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
-header h1{color:#fff;font-size:44px;margin:10px 0 14px;letter-spacing:-.02em}
-header p{font-size:19px;color:#c2cbd6;max-width:38em;margin:0}
-.meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px}
-.meta a,.meta span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e9edf3;border-radius:999px;padding:7px 14px;font-size:14px;text-decoration:none}
-.meta a:hover{background:rgba(255,255,255,.16)}
-
-.lead{font-size:18px;color:var(--ink)}
-.grid{display:grid;gap:16px}
-@media(min-width:720px){.g2{grid-template-columns:1fr 1fr}}
-.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
-.card h3{font-size:17px;margin-bottom:6px}
-.card .sub{color:var(--muted);font-size:14px}
-.now{background:var(--accent-soft);border-color:#cfe6dd}
-.now h3{color:var(--accent)}
-.card.vcenter{display:flex;flex-direction:column;justify-content:center}
-
-.item{padding:14px 0;border-bottom:1px solid var(--line)}
-.item:last-child{border-bottom:0}
-.item b{color:var(--ink)}
-.item .d{display:block;color:var(--muted);font-size:14.5px;margin-top:3px}
-
-.role{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
-.role:last-child{border-bottom:0}
-.role b{color:var(--ink)}
-.role .when{color:var(--muted);font-size:14px;white-space:nowrap}
-.sector{padding:9px 0;border-bottom:1px dashed var(--line)}
-.sector:last-child{border-bottom:0}
-.sector b{color:var(--ink)}
-.pub{padding:10px 0;border-bottom:1px solid var(--line)}
-.pub:last-child{border-bottom:0}
-.pub .doi{font-size:13.5px;color:var(--muted)}
-
-h3.area{font-size:21px;margin:34px 0 6px;color:var(--ink)}
-h3.area:first-of-type{margin-top:22px}
-.area-note{margin:0 0 4px;color:var(--body)}
-.projects{margin-top:16px}
-.proj video{display:block;width:100%;height:330px;object-fit:contain;background:#0b0f14}
-.proj{display:block;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s ease,box-shadow .15s ease}
-.proj:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(16,21,28,.10)}
-.proj img{display:block;width:100%;aspect-ratio:8/5;object-fit:cover;object-position:top center;background:#10151c}
-.proj .pb{padding:14px 16px 16px}
-.proj .pb b{display:block;color:var(--ink);font-size:16px}
-.proj .pb .url{color:var(--accent);font-size:13.5px;font-weight:600}
-.proj .pb p{margin:6px 0 0;font-size:14.5px;color:var(--body)}
-.cta{background:var(--ink);color:#fff;border-radius:14px;padding:26px 24px}
-.cta h3{color:#fff;font-size:22px;margin-bottom:8px}
-.cta p{color:#c2cbd6;margin:0 0 18px}
-.btn{display:inline-block;background:#7fd8bb;color:#0b2a22;border-radius:10px;padding:12px 20px;font-weight:700;text-decoration:none;margin:0 10px 10px 0}
-.btn.ghost{background:transparent;color:#e9edf3;border:1px solid rgba(255,255,255,.3)}
-footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
-
-/* portfolio: one area at a time (tabs), long grids folded behind "ver mais" */
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 4px}
-.tab{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;font:600 14px/1.2 inherit;color:var(--body);cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
-.tab:hover{border-color:var(--accent);color:var(--accent)}
-.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.panel[hidden]{display:none}
-.panel h3.area{margin-top:22px}
-.panel .projects.g3{grid-template-columns:1fr 1fr}
-@media(min-width:720px){.panel .projects.g3{grid-template-columns:repeat(3,1fr)}}
-.panel .projects.g3 .proj video{height:250px}
-.panel .projects.g3 .proj .pb{padding:12px 14px 14px}
-.panel .projects.g3 .proj .pb b{font-size:15px}
-.panel .projects.g3 .proj .pb p{font-size:13.5px}
-.proj.extra[hidden]{display:none}
-.more{display:inline-block;margin:16px 0 0;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;font:600 14px/1 inherit;color:var(--accent);cursor:pointer}
-.more:hover{border-color:var(--accent)}
-@media(max-width:719px){.panel .projects.g3{grid-template-columns:1fr}.panel .projects.g3 .proj video{height:300px}}
-</style>
+<link rel="preload" href="assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-serif-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 
-<div class="langbar" id="langbar"><div class="wrap"><div class="pill">
-  <button id="btn-pt" aria-pressed="true"><span class="full">Português</span><span class="abbr">PT</span></button>
-  <button id="btn-en" aria-pressed="false"><span class="full">English</span><span class="abbr">EN</span></button>
-</div></div></div>
+<a class="skip-link" href="#work-en" data-jump="work">Skip to content</a>
+<nav class="langbar" id="langbar" aria-label="Main navigation"><div class="wrap nav-inner">
+  <a class="wordmark" href="#" aria-label="Febrero AI home">febrero<span class="brand-star" aria-hidden="true">✳</span><span class="brand-ai">ai</span></a>
+  <div class="nav-links"><a href="#work-en" data-jump="work" data-pt="Trabalho" data-en="Work">Work</a><a href="#approach-en" data-jump="approach" data-pt="Método" data-en="Approach">Approach</a><a href="#about-en" data-jump="about" data-pt="Sobre mim" data-en="About">About</a></div>
+  <div class="nav-end"><div class="pill" aria-label="Language"><button id="btn-pt" aria-label="Português" aria-pressed="true">PT</button><span aria-hidden="true">/</span><button id="btn-en" aria-label="English" aria-pressed="false">EN</button></div><a class="nav-contact" href="#contact-en" data-jump="contact"><span data-pt="Vamos conversar" data-en="Let’s talk">Let’s talk</span><span aria-hidden="true">↗</span></a></div>
+</div></nav>
 
 <!-- ===================== PORTUGUÊS ===================== -->
-<div class="lang" id="lang-pt">
+<main><div class="lang" id="lang-pt">
 
-<header>
-  <div class="wrap">
-    <div class="kicker">Inteligência artificial para empresas</div>
-    <h1>Pedro Febrero</h1>
-    <p>Economista que implementa. Descubro onde a inteligência artificial se paga numa empresa, ponho-a a funcionar em produção e deixo a equipa a saber usá-la.</p>
-    <div class="meta">
-      <a href="mailto:pedro@gigacorp.pt">pedro@gigacorp.pt</a>
-      <a href="https://wa.me/351936882364">WhatsApp 936 882 364</a>
-      <a href="https://www.linkedin.com/in/pedro-febrero-8485093a6/">LinkedIn</a>
-      <span>Lisboa · Portugal · remoto</span>
-      <span>PT nativo · EN fluente</span>
-    </div>
-  </div>
-</header>
+<header class="hero" id="top-pt">
+ <div class="wrap hero-grid"><div class="hero-copy"><p class="eyebrow"><span class="status-dot"></span>ESTRATÉGIA · IMPLEMENTAÇÃO · IA</p><h1>Inteligência.<br><em>Na prática.</em></h1><p class="hero-intro">O potencial da IA é extraordinário.<br>O que faz com ele é que conta.</p><p class="hero-bio">Sou Pedro Febrero. Economista e tecnólogo. Transformo a inteligência artificial em sistemas que trabalham para o seu negócio.</p><div class="hero-actions"><a class="btn" href="#contact-pt">Vamos conversar<span aria-hidden="true">↗</span></a><a class="text-link" href="#work-pt">Explorar o trabalho<span aria-hidden="true">↓</span></a></div><p class="hero-location">LISBOA, PORTUGAL · A TRABALHAR GLOBALMENTE</p></div>
+ <div class="hero-art"><div class="art-halo" aria-hidden="true"></div><canvas class="chrome-sculpture" aria-hidden="true"></canvas><div class="art-fallback" aria-hidden="true">✳</div><div class="art-caption"><span>F / 01</span><span>ECONOMIA × TECNOLOGIA</span><button class="motion-toggle" type="button" aria-label="Pause animation">Ⅱ</button></div></div></div>
+ <div class="wrap hero-bottom"><span>DA ESTRATÉGIA À EXECUÇÃO</span><a href="#work-pt">CONTINUE A EXPLORAR<span aria-hidden="true">↓</span></a></div>
+ </header><div class="credentials"><div class="wrap"><span class="credential-label">Liderança, investigação e ensino</span><div class="credential-names"><span>RealFevr</span><span>Mantovani<span class="small-word"> HORSES</span></span><span class="nova">NOVA<span class="small-word"> UNIVERSITY</span></span><span>University of Leeds</span><span>DiamondNXT</span></div></div></div>
 
-<section>
-  <div class="wrap">
-    <h2>O que faço, por área</h2>
+<section class="work-section" id="work-pt">
+  <div class="wrap"><div class="section-heading"><p class="eyebrow">01 / TRABALHO SELECIONADO</p><h2>Trabalho real.<br><em>Impacto concreto.</em></h2></div>
     <p class="lead">A prova mais útil que tenho não é uma apresentação: são sistemas meus a correr todos os dias e trabalho já entregue a clientes.</p>
 
     <h3 class="area">Comunicação e publicidade</h3>
@@ -196,22 +91,22 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Sistemas que encontram o cliente, falam com ele e só me passam a decisão.</p>
     <div class="grid g2 projects">
       <div class="proj">
-        <img src="img/machine.jpg" alt="Máquina de captação e resposta">
+        <img loading="lazy" decoding="async" src="img/machine.jpg" alt="Máquina de captação e resposta">
         <div class="pb"><b>Máquina de captação e resposta</b><span class="url">Operação própria</span>
           <p>Uma base de cerca de 4.900 empresas, com auditoria automática da presença online de cada uma. O sistema escolhe quem contactar, escreve a mensagem adaptada ao negócio, envia em horários definidos, lê as respostas, classifica-as e prepara a resposta — que só sai depois de eu aprovar no telemóvel. Entregas, aberturas e devoluções são medidas e realimentam as regras.</p></div>
       </div>
       <div class="proj">
-        <img src="img/bots.jpg" alt="Bots de gestão">
+        <img loading="lazy" decoding="async" src="img/bots.jpg" alt="Bots de gestão">
         <div class="pb"><b>Bots de gestão</b><span class="url">Para dentro da empresa</span>
           <p>Assistentes para gerir o negócio: fala-se com eles por mensagem ou por voz, respondem sobre o que está a acontecer na empresa, acompanham mercados e preparam ou executam ordens de compra e venda.</p></div>
       </div>
       <a class="proj" href="https://concierge-production-358f.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/concierge.jpg" alt="Bond Maison Concierge">
+        <img loading="lazy" decoding="async" src="img/concierge.jpg" alt="Bond Maison Concierge">
         <div class="pb"><b>Assistente pessoal para imobiliário</b><span class="url">Bond Maison Concierge</span>
           <p>Uma concierge com voz e vídeo responde no Telegram, apresenta os empreendimentos e acompanha a obra ao vivo, 24 horas por dia.</p></div>
       </a>
       <a class="proj" href="https://remigracao.com/" target="_blank" rel="noopener">
-        <img src="img/remigracao.jpg" alt="remigracao.com" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/remigracao.jpg" alt="remigracao.com">
         <div class="pb"><b>Site de campanha e de livro</b><span class="url">remigracao.com</span>
           <p>Página de apresentação e venda do livro de Afonso Gonçalves sobre política de imigração, com o contexto e a proposta do autor.</p></div>
       </a>
@@ -221,12 +116,12 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Transformar conteúdo e coleções em algo que se compra num toque.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://sic-shop-production.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/sic-shop.jpg" alt="SIC Shop">
+        <img loading="lazy" decoding="async" src="img/sic-shop.jpg" alt="SIC Shop">
         <div class="pb"><b>Televisão que se compra</b><span class="url">SIC Shop</span>
           <p>Cada peça de roupa vista nos programas fica à venda num toque, organizada por concorrente e por episódio.</p></div>
       </a>
       <a class="proj" href="https://fuse.cards/" target="_blank" rel="noopener">
-        <img src="img/fuse-cards.jpg" alt="fuse.cards" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/fuse-cards.jpg" alt="fuse.cards">
         <div class="pb"><b>Álbum digital de cartas</b><span class="url">fuse.cards</span>
           <p>Organiza a coleção por páginas, importa listas de cartas e funde duas numa nova, no laboratório de fusão.</p></div>
       </a>
@@ -236,12 +131,12 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Onde a economia do ativo é o produto: desenho económico, mercado e a plataforma que o suporta.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://pump.horse/" target="_blank" rel="noopener">
-        <img src="img/pump-horse.jpg" alt="pump.horse" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/pump-horse.jpg" alt="pump.horse">
         <div class="pb"><b>Cavalos lusitanos como ativo</b><span class="url">pump.horse</span>
           <p>Plataforma da Mantovani Horses: exposição fracionada a cavalos lusitanos de alta competição, com histórico de valorização, participações e sorteios.</p></div>
       </a>
       <a class="proj" href="https://memes.army/" target="_blank" rel="noopener">
-        <img src="img/memes-army.jpg" alt="memes.army" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/memes-army.jpg" alt="memes.army">
         <div class="pb"><b>Painel de mercado cripto</b><span class="url">memes.army</span>
           <p>Preços ao vivo, índice de retorno e um mapa de batalha que mostra onde está a pressão de compra e de venda.</p></div>
       </a>
@@ -251,12 +146,12 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Sites que vendem a experiência, e experiências que só existem no browser.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://evora-safari-tours-production.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/evora-safari.jpg" alt="Alentours" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/evora-safari.jpg" alt="Alentours">
         <div class="pb"><b>Site de reservas de turismo</b><span class="url">Alentours · Évora</span>
           <p>Para uma empresa familiar de Évora: passeios de Land Rover pelo Alentejo, com rotas, galeria e marcação online em português e inglês.</p></div>
       </a>
       <a class="proj" href="https://trenches.wtf/" target="_blank" rel="noopener">
-        <img src="img/trenches.jpg" alt="trenches.wtf" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/trenches.jpg" alt="trenches.wtf">
         <div class="pb"><b>Jogo arcade no browser</b><span class="url">trenches.wtf</span>
           <p>Corrida 3D pela trincheira, com multijogador e classificações — um teste ao que cabe dentro de uma página web.</p></div>
       </a>
@@ -264,15 +159,15 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
+<section class="perspective-section" id="perspective-pt">
   <div class="wrap">
-    <h2>O problema para que costumo ser chamado</h2>
+    <div class="perspective-title"><p class="eyebrow">02 / A PERSPETIVA</p><h2>O problema para que costumo ser chamado</h2></div>
     <p>A maioria das empresas que se aproxima da IA fica entre dois maus conselheiros: um vende uma demonstração que nunca chega a produção; o outro vende uma apresentação de estratégia sem ideia do que custa implementar.</p>
     <p>Passei nove anos no meio pouco glamoroso desse problema, com uma tecnologia que chegou uma década antes e cometeu os mesmos erros. Que processos vale mesmo a pena automatizar. Quanto custa a integração. O que é que parte. Quem precisa de formação e quem resiste em silêncio. Fui economista antes de ser tecnólogo, por isso avalio trabalho em período de retorno — e depois dirigi a equipa que teve de o entregar.</p>
   </div>
 </section>
 
-<section>
+<section class="sectors-section" id="sectors-pt">
   <div class="wrap">
     <h2>Por onde começa cada setor</h2>
     <div class="card">
@@ -288,9 +183,8 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <h2>Como trabalho</h2>
+<section class="method-section" id="approach-pt">
+  <div class="wrap"><div class="section-heading"><p class="eyebrow">03 / COMO TRABALHO</p><h2>Da oportunidade<br><em>à operação.</em></h2></div>
     <div class="card">
       <div class="item"><b>Avaliação de oportunidades de IA</b><span class="d">Duas semanas. Reviso os processos, ordeno-os por retorno e entrego uma lista curta com custo e prazo estimados. Pode avançar comigo ou sozinho.</span></div>
       <div class="item"><b>Direção de IA a tempo parcial</b><span class="d">Alguns dias por mês, com continuidade. Critério sénior na equipa de gestão sem contratar um quadro sénior.</span></div>
@@ -298,15 +192,14 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
       <div class="item"><b>Implementação financiada (PRR / Portugal 2030)</b><span class="d">Execução e documentação técnica de projetos de IA com apoio aprovado, no formato que a entidade financiadora audita.</span></div>
       <div class="item"><b>Tokenomics e lançamento Web3</b><span class="d">Desenho económico do token, distribuição, incentivos e sequência de lançamento. Âmbito fechado.</span></div>
     </div>
-    <p class="card" style="margin-top:16px;background:#fffaf0;border-color:#f0e2c2">
+    <p class="funding-note">
       <b>Sobre financiamento:</b> nos apoios do PRR e do Portugal 2030 para digitalização e IA, a consultoria e a formação contam como despesa elegível, e não apenas o software. Quem já tem projeto aprovado tem prazo para executar e obrigação de o documentar — que é exatamente onde entro.
     </p>
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <h2>Percurso</h2>
+<section class="about-section" id="about-pt">
+  <div class="wrap"><div class="section-heading"><p class="eyebrow">04 / PERCURSO</p><h2>Economista de formação.<br><em>Tecnólogo por natureza.</em></h2></div>
     <div class="card">
       <div class="role"><span><b>CTO</b> · Mantovani Horses<br><span class="sub">Responsável pela tecnologia da empresa.</span></span><span class="when">jan 2026 —</span></div>
       <div class="role"><span><b>Head of Crypto Research</b> · DiamondNXT<br><span class="sub">Direção da área de blockchain e arquitetura de soluções para clientes.</span></span><span class="when">2025 —</span></div>
@@ -319,7 +212,7 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
+<section class="research-section" id="research-pt">
   <div class="wrap">
     <h2>Formação e investigação</h2>
     <div class="grid g2">
@@ -344,10 +237,9 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
+<section class="contact-section" id="contact-pt">
   <div class="wrap">
-    <div class="cta">
-      <h3>Vinte minutos chegam para saber se faz sentido</h3>
+    <div class="cta"><p class="eyebrow">VAMOS CONVERSAR</p><h2>O próximo passo<br>começa com <em>uma conversa.</em></h2><h3>Vinte minutos. Uma oportunidade real.</h3>
       <p>Diga-me o que a sua equipa faz mais vezes por semana. Digo-lhe se há aí um caso de IA que se pague — e se não houver, também lho digo.</p>
       <a class="btn" href="mailto:pedro@gigacorp.pt?subject=Conversa%20de%2020%20minutos%20sobre%20IA">Escrever um email</a>
       <a class="btn ghost" href="https://wa.me/351936882364">WhatsApp 936 882 364</a>
@@ -355,30 +247,20 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<footer><div class="wrap">Pedro Febrero · Lisboa · atualizado em setembro de 2026</div></footer>
+<footer><div class="wrap footer-inner"><a class="wordmark" href="#top-pt">febrero<span class="brand-star" aria-hidden="true">✳</span><span class="brand-ai">ai</span></a><span>Pedro Febrero · Lisboa, Portugal</span><div><a href="https://www.linkedin.com/in/pedro-febrero-8485093a6/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="privacy.html">Privacidade</a><a href="#top-pt" aria-label="Voltar ao início">↑</a></div></div></footer>
 </div>
 
 <!-- ===================== ENGLISH ===================== -->
 <div class="lang" id="lang-en" hidden>
 
-<header>
-  <div class="wrap">
-    <div class="kicker">Artificial intelligence for business</div>
-    <h1>Pedro Febrero</h1>
-    <p>An economist who ships. I work out where artificial intelligence actually pays back in a company, put it into production, and leave the team able to run it.</p>
-    <div class="meta">
-      <a href="mailto:pedro@gigacorp.pt">pedro@gigacorp.pt</a>
-      <a href="https://wa.me/351936882364">WhatsApp +351 936 882 364</a>
-      <a href="https://www.linkedin.com/in/pedro-febrero-8485093a6/">LinkedIn</a>
-      <span>Lisbon · Portugal · remote</span>
-      <span>Native PT · fluent EN</span>
-    </div>
-  </div>
-</header>
+<header class="hero" id="top-en">
+ <div class="wrap hero-grid"><div class="hero-copy"><p class="eyebrow"><span class="status-dot"></span>STRATEGY · IMPLEMENTATION · AI</p><h1>Intelligence.<br><em>Made real.</em></h1><p class="hero-intro">AI has extraordinary potential.<br>What you do with it is what matters.</p><p class="hero-bio">I’m Pedro Febrero. Economist and technologist. I turn artificial intelligence into systems that work for your business.</p><div class="hero-actions"><a class="btn" href="#contact-en">Let’s talk<span aria-hidden="true">↗</span></a><a class="text-link" href="#work-en">Explore the work<span aria-hidden="true">↓</span></a></div><p class="hero-location">LISBON, PORTUGAL · WORKING WORLDWIDE</p></div>
+ <div class="hero-art"><div class="art-halo" aria-hidden="true"></div><canvas class="chrome-sculpture" aria-hidden="true"></canvas><div class="art-fallback" aria-hidden="true">✳</div><div class="art-caption"><span>F / 01</span><span>ECONOMICS × TECHNOLOGY</span><button class="motion-toggle" type="button" aria-label="Pause animation">Ⅱ</button></div></div></div>
+ <div class="wrap hero-bottom"><span>FROM STRATEGY TO EXECUTION</span><a href="#work-en">SCROLL TO EXPLORE<span aria-hidden="true">↓</span></a></div>
+ </header><div class="credentials"><div class="wrap"><span class="credential-label">Leadership, research & teaching</span><div class="credential-names"><span>RealFevr</span><span>Mantovani<span class="small-word"> HORSES</span></span><span class="nova">NOVA<span class="small-word"> UNIVERSITY</span></span><span>University of Leeds</span><span>DiamondNXT</span></div></div></div>
 
-<section>
-  <div class="wrap">
-    <h2>What I do, by area</h2>
+<section class="work-section" id="work-en">
+  <div class="wrap"><div class="section-heading"><p class="eyebrow">01 / SELECTED WORK</p><h2>Real work.<br><em>Real-world impact.</em></h2></div>
     <p class="lead">The most useful proof I have is not a slide deck: it is systems of mine running every day, and work already delivered for clients.</p>
 
     <h3 class="area">Communication and advertising</h3>
@@ -435,22 +317,22 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Systems that find the customer, talk to them, and hand me only the decision.</p>
     <div class="grid g2 projects">
       <div class="proj">
-        <img src="img/machine.jpg" alt="Prospecting and reply machine">
+        <img loading="lazy" decoding="async" src="img/machine.jpg" alt="Prospecting and reply machine">
         <div class="pb"><b>Prospecting and reply machine</b><span class="url">Own operation</span>
           <p>A database of roughly 4,900 companies, each with an automated audit of its online presence. The system picks who to contact, writes a message fitted to that business, sends on a schedule, reads the replies, classifies them and drafts the answer — which only goes out once I approve it from my phone. Deliveries, opens and bounces are measured and feed back into the rules.</p></div>
       </div>
       <div class="proj">
-        <img src="img/bots.jpg" alt="Management bots">
+        <img loading="lazy" decoding="async" src="img/bots.jpg" alt="Management bots">
         <div class="pb"><b>Management bots</b><span class="url">Inside the company</span>
           <p>Assistants for running the business: talk to them by message or by voice, ask what is going on in the company, follow markets, and prepare or execute buy and sell orders.</p></div>
       </div>
       <a class="proj" href="https://concierge-production-358f.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/concierge.jpg" alt="Bond Maison Concierge">
+        <img loading="lazy" decoding="async" src="img/concierge.jpg" alt="Bond Maison Concierge">
         <div class="pb"><b>Personal assistant for real estate</b><span class="url">Bond Maison Concierge</span>
           <p>A concierge with voice and video answers on Telegram, walks buyers through the developments and follows the construction live, around the clock.</p></div>
       </a>
       <a class="proj" href="https://remigracao.com/" target="_blank" rel="noopener">
-        <img src="img/remigracao.jpg" alt="remigracao.com" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/remigracao.jpg" alt="remigracao.com">
         <div class="pb"><b>Campaign and book site</b><span class="url">remigracao.com</span>
           <p>Landing and sales page for Afonso Gonçalves' book on immigration policy, with the author's context and proposal.</p></div>
       </a>
@@ -460,12 +342,12 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Turning content and collections into something you can buy in one tap.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://sic-shop-production.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/sic-shop.jpg" alt="SIC Shop">
+        <img loading="lazy" decoding="async" src="img/sic-shop.jpg" alt="SIC Shop">
         <div class="pb"><b>Shoppable television</b><span class="url">SIC Shop</span>
           <p>Every garment worn on the shows is buyable in one tap, organised by contestant and by episode.</p></div>
       </a>
       <a class="proj" href="https://fuse.cards/" target="_blank" rel="noopener">
-        <img src="img/fuse-cards.jpg" alt="fuse.cards" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/fuse-cards.jpg" alt="fuse.cards">
         <div class="pb"><b>Digital card binder</b><span class="url">fuse.cards</span>
           <p>Organise a collection across pages, import card lists, and fuse two cards into a new one in the fuse lab.</p></div>
       </a>
@@ -475,12 +357,12 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Where the asset's economics are the product: economic design, the market, and the platform under it.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://pump.horse/" target="_blank" rel="noopener">
-        <img src="img/pump-horse.jpg" alt="pump.horse" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/pump-horse.jpg" alt="pump.horse">
         <div class="pb"><b>Lusitano horses as an asset</b><span class="url">pump.horse</span>
           <p>Mantovani Horses' platform: fractional economic exposure to elite Lusitano dressage horses, with price history, shares and raffles.</p></div>
       </a>
       <a class="proj" href="https://memes.army/" target="_blank" rel="noopener">
-        <img src="img/memes-army.jpg" alt="memes.army" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/memes-army.jpg" alt="memes.army">
         <div class="pb"><b>Crypto market dashboard</b><span class="url">memes.army</span>
           <p>Live prices, a return index and a battle map showing where the buying and selling pressure sits.</p></div>
       </a>
@@ -490,12 +372,12 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
     <p class="area-note">Sites that sell the experience, and experiences that only exist in the browser.</p>
     <div class="grid g2 projects">
       <a class="proj" href="https://evora-safari-tours-production.up.railway.app/" target="_blank" rel="noopener">
-        <img src="img/evora-safari.jpg" alt="Alentours" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/evora-safari.jpg" alt="Alentours">
         <div class="pb"><b>Tourism booking site</b><span class="url">Alentours · Évora</span>
           <p>For a family business in Évora: Land Rover tours across the Alentejo, with routes, gallery and online booking in Portuguese and English.</p></div>
       </a>
       <a class="proj" href="https://trenches.wtf/" target="_blank" rel="noopener">
-        <img src="img/trenches.jpg" alt="trenches.wtf" loading="lazy">
+        <img loading="lazy" decoding="async" src="img/trenches.jpg" alt="trenches.wtf">
         <div class="pb"><b>Browser arcade game</b><span class="url">trenches.wtf</span>
           <p>A 3D trench run with multiplayer and leaderboards — a test of how much fits inside a web page.</p></div>
       </a>
@@ -503,15 +385,15 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
+<section class="perspective-section" id="perspective-en">
   <div class="wrap">
-    <h2>The problem I am usually called about</h2>
+    <div class="perspective-title"><p class="eyebrow">02 / THE PERSPECTIVE</p><h2>The problem I am usually called about</h2></div>
     <p>Most organisations approaching AI are stuck between two bad advisers. One sells a model demo that never reaches production. The other sells a strategy deck with no idea what implementation costs.</p>
     <p>I spent nine years in the unglamorous middle of exactly that problem, for a technology that arrived a decade earlier and made all the same mistakes. Which processes are genuinely worth automating. What the integration really costs. What it breaks. Who needs retraining, and who quietly resists. I was an economist before I was a technologist, so I scope work in payback period rather than parameter count — and I then ran the engineering division that had to deliver it.</p>
   </div>
 </section>
 
-<section>
+<section class="sectors-section" id="sectors-en">
   <div class="wrap">
     <h2>Where each sector starts</h2>
     <div class="card">
@@ -527,9 +409,8 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <h2>How I work</h2>
+<section class="method-section" id="approach-en">
+  <div class="wrap"><div class="section-heading"><p class="eyebrow">03 / HOW I WORK</p><h2>From opportunity<br><em>to operation.</em></h2></div>
     <div class="card">
       <div class="item"><b>AI opportunity assessment</b><span class="d">Two weeks. Every process reviewed for automation value, ranked by payback, ending in a costed shortlist you can act on with me or without me.</span></div>
       <div class="item"><b>Fractional head of AI</b><span class="d">A few days a month, with continuity. Senior AI judgement on your leadership team without the senior headcount.</span></div>
@@ -537,15 +418,14 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
       <div class="item"><b>Grant-funded implementation (PRR / Portugal 2030)</b><span class="d">Delivery and technical documentation for grant-backed AI projects, to the standard the funder audits against.</span></div>
       <div class="item"><b>Tokenomics and Web3 go-to-market</b><span class="d">Token economic design, distribution, incentive modelling and launch sequencing. Fixed scope.</span></div>
     </div>
-    <p class="card" style="margin-top:16px;background:#fffaf0;border-color:#f0e2c2">
+    <p class="funding-note">
       <b>On funding:</b> under Portugal's PRR and Portugal 2030 digitalisation and AI support lines, consultancy and training are eligible spend, not only software. Companies with an approved project have a deadline to execute and an obligation to document it — which is exactly where I come in.
     </p>
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <h2>Track record</h2>
+<section class="about-section" id="about-en">
+  <div class="wrap"><div class="section-heading"><p class="eyebrow">04 / TRACK RECORD</p><h2>Economist by training.<br><em>Technologist by nature.</em></h2></div>
     <div class="card">
       <div class="role"><span><b>CTO</b> · Mantovani Horses<br><span class="sub">Responsible for the company's technology.</span></span><span class="when">Jan 2026 —</span></div>
       <div class="role"><span><b>Head of Crypto Research</b> · DiamondNXT<br><span class="sub">Runs the blockchain division; sets research direction and architects bespoke solutions for clients.</span></span><span class="when">2025 —</span></div>
@@ -558,7 +438,7 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
+<section class="research-section" id="research-en">
   <div class="wrap">
     <h2>Education and research</h2>
     <div class="grid g2">
@@ -583,10 +463,9 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<section>
+<section class="contact-section" id="contact-en">
   <div class="wrap">
-    <div class="cta">
-      <h3>Twenty minutes is enough to know whether this is worth doing</h3>
+    <div class="cta"><p class="eyebrow">LET’S TALK</p><h2>Your next chapter<br>starts with <em>a conversation.</em></h2><h3>Twenty minutes. One real opportunity.</h3>
       <p>Tell me what your team does most often in a week. I will tell you whether there is an AI case in there that pays for itself — and if there is not, I will tell you that too.</p>
       <a class="btn" href="mailto:pedro@gigacorp.pt?subject=20-minute%20conversation%20about%20AI">Send an email</a>
       <a class="btn ghost" href="https://wa.me/351936882364">WhatsApp +351 936 882 364</a>
@@ -594,95 +473,11 @@ footer{padding:26px 0 44px;color:var(--muted);font-size:14px}
   </div>
 </section>
 
-<footer><div class="wrap">Pedro Febrero · Lisbon · updated September 2026</div></footer>
+<footer><div class="wrap footer-inner"><a class="wordmark" href="#top-en">febrero<span class="brand-star" aria-hidden="true">✳</span><span class="brand-ai">ai</span></a><span>Pedro Febrero · Lisbon, Portugal</span><div><a href="https://www.linkedin.com/in/pedro-febrero-8485093a6/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="privacy.html">Privacy</a><a href="#top-en" aria-label="Back to top">↑</a></div></div></footer>
 </div>
 
-<script>
-(function () {
-  var pt = document.getElementById("lang-pt"), en = document.getElementById("lang-en");
-  var bPt = document.getElementById("btn-pt"), bEn = document.getElementById("btn-en");
-  function set(lang, remember) {
-    var isEn = lang === "en";
-    en.hidden = !isEn; pt.hidden = isEn;
-    bEn.setAttribute("aria-pressed", String(isEn));
-    bPt.setAttribute("aria-pressed", String(!isEn));
-    document.documentElement.lang = isEn ? "en" : "pt";
-    document.title = isEn ? "Pedro Febrero — AI advisory and implementation" : "Pedro Febrero — Consultoria e implementação de IA";
-    if (remember) { try { localStorage.setItem("lang", lang); } catch (e) {} }
-  }
-  var saved = null;
-  try { saved = localStorage.getItem("lang"); } catch (e) {}
-  // visitors whose browser is not Portuguese get English first
-  set(saved || ((navigator.language || "pt").toLowerCase().indexOf("pt") === 0 ? "pt" : "en"), false);
-  bPt.onclick = function () { set("pt", true); };
-  bEn.onclick = function () { set("en", true); };
-  var bar = document.getElementById("langbar");
-  function onScroll() { bar.classList.toggle("small", window.scrollY > 60); }
-  addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-})();
-
-// Portfolio section: turn the five "areas" into tabs and fold long grids (both languages).
-(function () {
-  var SHOW = 3; // projects visible before "ver mais" in a grid
-  document.querySelectorAll(".lang").forEach(function (block) {
-    var isEn = block.id === "lang-en";
-    var first = block.querySelector("h3.area");
-    if (!first) return;
-    var wrap = first.parentNode;
-    var heads = Array.prototype.slice.call(wrap.querySelectorAll("h3.area"));
-    var tabs = document.createElement("div");
-    tabs.className = "tabs"; tabs.setAttribute("role", "tablist");
-    var panels = [];
-    heads.forEach(function (h, i) {
-      var panel = document.createElement("div");
-      panel.className = "panel"; panel.setAttribute("role", "tabpanel"); panel.id = block.id + "-panel-" + i;
-      wrap.insertBefore(panel, h);
-      var node = h;
-      while (node && !(node !== h && node.matches && node.matches("h3.area"))) {
-        var next = node.nextSibling; panel.appendChild(node); node = next;
-      }
-      var tab = document.createElement("button");
-      tab.type = "button"; tab.className = "tab"; tab.setAttribute("role", "tab");
-      tab.textContent = h.textContent.trim();
-      tab.setAttribute("aria-controls", panel.id);
-      tab.onclick = function () { select(i); };
-      tabs.appendChild(tab);
-      panels.push({ tab: tab, panel: panel });
-      // videos get a tighter three-column grid; long grids fold behind a button
-      var grid = panel.querySelector(".projects");
-      if (grid && grid.querySelector("video")) grid.classList.add("g3");
-      var projs = grid ? Array.prototype.slice.call(grid.querySelectorAll(".proj")) : [];
-      if (projs.length > SHOW + 1) {
-        var extra = projs.slice(SHOW);
-        extra.forEach(function (p) { p.classList.add("extra"); p.hidden = true; });
-        var btn = document.createElement("button");
-        btn.type = "button"; btn.className = "more";
-        var open = false;
-        var label = function () { btn.textContent = open ? (isEn ? "Show fewer" : "Mostrar menos") : (isEn ? "Show " + extra.length + " more" : "Ver mais " + extra.length); };
-        btn.onclick = function () { open = !open; extra.forEach(function (p) { p.hidden = !open; }); label(); };
-        label();
-        grid.parentNode.insertBefore(btn, grid.nextSibling);
-      }
-    });
-    wrap.insertBefore(tabs, panels[0].panel);
-    function select(i) {
-      panels.forEach(function (p, k) {
-        p.panel.hidden = k !== i;
-        p.tab.setAttribute("aria-selected", String(k === i));
-        p.tab.tabIndex = k === i ? 0 : -1;
-      });
-      // pause any playing video in the panels we just hid
-      block.querySelectorAll(".panel[hidden] video").forEach(function (v) { try { v.pause(); } catch (e) {} });
-    }
-    tabs.addEventListener("keydown", function (e) {
-      var cur = panels.findIndex(function (p) { return p.tab.getAttribute("aria-selected") === "true"; });
-      if (e.key === "ArrowRight") select((cur + 1) % panels.length);
-      if (e.key === "ArrowLeft") select((cur - 1 + panels.length) % panels.length);
-    });
-    select(0);
-  });
-})();
-</script>
+</main>
+<script src="assets/site.js" defer></script>
+<script src="assets/sculpture.js" defer></script>
 </body>
 </html>
