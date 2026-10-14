@@ -71,9 +71,11 @@
       tab.id = `${block.id}-tab-${index}`;
       tab.setAttribute('role', 'tab');
       tab.setAttribute('aria-controls', panel.id);
-      tab.innerHTML = `<span class="tab-number" aria-hidden="true">0${index+1}</span>${names[index]}`;
+      // 2026-10-14, Pedro: the areas "go through without notice" — each tab is now a pill with its project count
+      const count = panel.querySelectorAll('.proj').length;
+      tab.innerHTML = `${names[index]}${count ? `<span class="tab-count" aria-label="${count} ${en ? 'projects' : 'projetos'}">${count}</span>` : ''}`;
       panel.setAttribute('aria-labelledby', tab.id);
-      tab.addEventListener('click', () => select(index));
+      tab.addEventListener('click', () => { select(index); if (panels[index].panel.getBoundingClientRect().top < tabs.getBoundingClientRect().bottom) jump(); });
       tabs.appendChild(tab);
       panels.push({ tab, panel });
       const grid = panel.querySelector('.projects');
@@ -106,6 +108,31 @@
       }
     });
     wrap.insertBefore(tabs, panels[0].panel);
+    // a label above the (sticky) tab bar says there is a choice to make, and how much is behind it
+    const total = panels.reduce((sum, entry) => sum + entry.panel.querySelectorAll('.proj').length, 0);
+    const head = document.createElement('div');
+    head.className = 'tabs-head';
+    head.innerHTML = `<span class="tabs-hint">${en ? 'Choose an area' : 'Escolha uma área'}<span aria-hidden="true">↓</span></span><span class="tabs-total">${panels.length} ${en ? 'areas' : 'áreas'} · ${total} ${en ? 'projects' : 'projetos'}</span>`;
+    wrap.insertBefore(head, tabs);
+    // whoever scrolls to the end of an area is handed the next one
+    panels.forEach(({ panel }, index) => {
+      const to = (index + 1) % panels.length;
+      const next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'next-area';
+      next.innerHTML = `<span>${to ? (en ? 'Next area' : 'Próxima área') : (en ? 'Back to the first area' : 'Voltar à primeira área')}</span><b>${names[to]}</b><span aria-hidden="true">→</span>`;
+      next.addEventListener('click', () => { select(to); jump(); });
+      panel.appendChild(next);
+    });
+    // bring the start of the chosen area back under the sticky tab bar
+    function jump() {
+      const nav = document.getElementById('langbar')?.offsetHeight || 0;
+      scrollTo({ top: head.getBoundingClientRect().top + scrollY - nav - 12, behavior: 'smooth' });
+    }
+    // on phones the bar scrolls sideways: fade its right edge until the end is reached
+    const edge = () => tabs.classList.toggle('at-end', tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 4);
+    tabs.addEventListener('scroll', edge, { passive:true });
+    addEventListener('resize', edge, { passive:true });
     function select(index, focus = false) {
       panels.forEach((entry, key) => {
         entry.panel.hidden = key !== index;
@@ -114,7 +141,10 @@
         if (key !== index) entry.panel.querySelectorAll('video').forEach(video => video.pause());
       });
       if (focus) panels[index].tab.focus({ preventScroll:true });
-      if (focus) panels[index].tab.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'instant' });
+      // keep the chosen pill in view inside a sideways-scrolling bar without moving the page
+      const tab = panels[index].tab;
+      if (tabs.scrollWidth > tabs.clientWidth) tabs.scrollTo({ left: tab.offsetLeft - 24, behavior: focus ? 'instant' : 'smooth' }); // .tabs is sticky = the pills' offsetParent
+      edge();
     }
     tabs.addEventListener('keydown', event => {
       const current = panels.findIndex(entry => entry.tab.getAttribute('aria-selected') === 'true');
