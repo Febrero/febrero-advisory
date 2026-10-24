@@ -17,9 +17,11 @@
 <link rel="stylesheet" href="estilo.css?v=3">
 <link rel="stylesheet" href="acabamento.css?v=1">
 <link rel="stylesheet" href="detalhes.css?v=1">
+<link rel="stylesheet" href="guia.css?v=1">
 </head>
 <body>
 <div class="wrap">
+  <div class="demo-faixa" id="demo-faixa" hidden><span><b>Demonstração</b> · dados de exemplo, nada é real</span><span class="demo-bts"><button class="linkbtn" type="button" id="demo-rever">Ver outra vez</button><button class="btn" type="button" id="demo-sair">Sair da demonstração</button></span></div>
   <header class="masthead">
     <div class="masthead-brand"><span class="brand-mark" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5C6 4 9 4 12 6c3-2 6-2 9-.5V19c-3-1.5-6-1.5-9 .5-3-2-6-2-9-.5z"/><path d="M12 6v13.5"/></svg></span><span>Resumo da Turma<span class="masthead-caption">O caderno do 1.º B</span></span></div>
     <span class="school-label"><span aria-hidden="true"></span>Colégio Manuel Bernardes</span>
@@ -37,6 +39,7 @@
       <p class="hand sign">— uma ajuda entre pais</p>
       <div class="hero-footnote"><span class="tiny-check" aria-hidden="true">✓</span>Da turma. Para as famílias da turma.</div>
     </header>
+    <button class="demo-bt" type="button" id="ver-demo"><span class="demo-play" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></span><span><span class="eyebrow">Demo · 30 segundos</span><b>Veja como funciona antes de entrar</b><span class="soft">Uma visita guiada, com dados de exemplo.</span></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
     <div class="card entrar-c">
       <div class="login-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="3"/><path d="M10 5h4M11 18.5h2"/></svg></div>
       <div class="head"><p class="eyebrow">Bem-vindo ao 1.º B</p><h2>Entre. Está em casa.</h2><p class="panel-intro">O seu número de telemóvel é a única chave de que precisa.</p></div>
@@ -121,6 +124,7 @@
       <div class="cal-nav"><button class="icon-btn" type="button" id="cal-prev" aria-label="Semana anterior"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><button class="icon-btn" type="button" id="cal-next" aria-label="Semana seguinte"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
     </div>
     <div class="legend" aria-hidden="true"><span><i class="tt-teste"></i>Teste</span><span><i class="tt-tpc"></i>TPC</span><span><i class="tt-aula"></i>Aula</span><span><i class="tt-almoco"></i>Almoço</span><span><i class="tt-atend"></i>Atendimento</span><span><i class="tt-feriado"></i>Feriado</span><span><i class="tt-evento"></i>Evento</span></div>
+    <p class="dica" id="dica-agenda"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 10.5V9a1.5 1.5 0 0 1 3 0v2"/><path d="M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.9-2.5L4.3 15a1.5 1.5 0 0 1 2.4-1.8L9 15.5"/></svg><span>Toque num dia e depois numa linha para ver mais: a ementa do almoço, os testes e o TPC.</span><button class="dica-x" type="button" id="dica-x" aria-label="Fechar a dica">×</button></p>
     <div class="dias" id="cal-dias" role="tablist" aria-label="Dias da semana"></div>
     <div class="dia" id="cal-dia"></div>
     <div class="semana" id="cal-semana"></div>
@@ -216,6 +220,14 @@
   <div id="sheet-c" style="display:flex;flex-direction:column;gap:12px"></div>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
-<script type="module" src="app.js?v=5"></script>
+<div class="tour" id="tour" hidden>
+  <div class="tour-foco" id="tour-foco" hidden></div>
+  <div class="tour-balao em-baixo" id="tour-balao" role="dialog" aria-label="Visita guiada" aria-live="polite">
+    <div class="tour-cab"><p class="tour-passo" id="tour-passo"></p><span class="tour-pontos" id="tour-pontos" aria-hidden="true"></span></div>
+    <p class="tour-texto" id="tour-texto"></p>
+    <div class="tour-bts" id="tour-bts"></div>
+  </div>
+</div>
+<script type="module" src="app.js?v=9"></script>
 </body>
 </html>

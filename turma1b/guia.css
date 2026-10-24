@@ -1,0 +1,60 @@
+/* Guide layer: the demonstration (button, banner, guided tour) and the "tap for more" signals in the agenda.
+   Loaded after the design files and only adds to them. */
+
+/* ---------- "tap for more" signals ---------- */
+.ti { width: 16px; height: 16px; flex: none; vertical-align: -3px; margin-right: 6px; color: var(--t, var(--blue)) }
+.mais { display: inline-flex; align-items: center; gap: 1px; flex: none; font-size: 12px; font-weight: 700; line-height: 1; color: var(--blue);
+  background: var(--blue-soft); border-radius: 999px; padding: 5px 6px 5px 10px; white-space: nowrap }
+.mais svg { width: 14px; height: 14px }
+.ev .chev, .aula .chev { color: var(--blue); opacity: 1 !important; font-weight: 700 }
+.aula .s:has(.ti)::before { display: none }
+.aula.tt-almoco { background: color-mix(in srgb, var(--t-almoco) 9%, var(--card)) }
+.aula.tt-almoco .s { font-weight: 600; color: var(--ink) }
+.aula.tt-almoco .s .soft { font-weight: 500 }
+.blk:not([disabled]), .pill, .ev, .aula:not([disabled]) { cursor: pointer }
+@media (hover: hover) {
+  .ev:hover, .aula:not([disabled]):hover { background: color-mix(in srgb, var(--blue) 6%, var(--card)) }
+  .blk:not([disabled]):hover, .pill:hover { box-shadow: 0 4px 14px rgb(0 0 0 / .12); outline: 2px solid color-mix(in srgb, var(--t) 60%, transparent); outline-offset: 0 }
+}
+.dica { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 14px; line-height: 1.4; color: var(--yellow-ink, #65532c);
+  background: var(--yellow, #faf1d8); border: 1px dashed var(--yellow-line, #ecdfb8); border-radius: 14px; padding: 9px 8px 9px 12px }
+.dica svg { flex: none }
+.dica span { flex: 1 }
+.dica-x { border: 0; background: none; color: inherit; font-size: 22px; line-height: 1; padding: 0 6px; cursor: pointer }
+
+/* ---------- demonstration ---------- */
+.demo-bt { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 14px; width: 100%; text-align: left; font: inherit;
+  color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: var(--radius, 22px); padding: 14px 18px 14px 14px;
+  box-shadow: var(--shadow); cursor: pointer }
+.demo-bt b { display: block; font-size: 16px; line-height: 1.3 }
+.demo-bt .soft { display: block; font-size: 13px; line-height: 1.4 }
+.demo-bt .eyebrow { display: block; margin-bottom: 2px; color: var(--blue) }
+.demo-play { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--blue); color: var(--blue-ink) }
+.demo-bt .shortcut-arrow { color: var(--blue); font-weight: 700 }
+@media (hover: hover) { .demo-bt:hover { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)) } }
+
+.demo-faixa { position: sticky; top: 10px; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  font-size: 14px; color: var(--yellow-ink, #65532c); background: var(--yellow, #faf1d8); border: 1px solid var(--yellow-line, #ecdfb8);
+  border-radius: 16px; padding: 8px 8px 8px 14px; box-shadow: var(--shadow) }
+.demo-faixa .demo-bts { display: flex; align-items: center; gap: 6px }
+.demo-faixa .btn { padding: 7px 14px; font-size: 14px }
+.demo-faixa .linkbtn { color: inherit; font-size: 14px }
+
+.tour-foco { position: fixed; z-index: 60; border-radius: 18px; pointer-events: none; box-shadow: 0 0 0 200vmax rgb(12 15 26 / .55);
+  outline: 3px solid var(--blue); outline-offset: 0 }
+.tour-balao { position: fixed; z-index: 61; left: 50%; transform: translateX(-50%); width: min(430px, calc(100% - 24px)); display: flex; flex-direction: column;
+  gap: 10px; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px;
+  box-shadow: 0 14px 44px rgb(0 0 0 / .32) }
+.tour-balao.em-baixo { bottom: calc(100px + env(safe-area-inset-bottom, 0px)) }
+.tour-balao.em-cima { top: 14px }
+.tour-balao.ao-centro { top: 50%; transform: translate(-50%, -50%) }
+.tour-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px }
+.tour-passo { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft) }
+.tour-pontos { display: flex; gap: 5px }
+.tour-pontos i { width: 7px; height: 7px; border-radius: 50%; background: var(--line) }
+.tour-pontos i.on { background: var(--blue) }
+.tour-texto { margin: 0; font-size: 17px; line-height: 1.4; font-weight: 600 }
+.tour-bts { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap }
+.tour-bts .btn { padding: 9px 16px }
+@media (min-width: 1100px) { .tour-balao.em-baixo { bottom: 28px } }
+@media (prefers-reduced-motion: no-preference) { .tour-foco { transition: top .3s ease, left .3s ease, width .3s ease, height .3s ease } }

@@ -16,6 +16,7 @@ const calma = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 let token = store.get(TK);
 let S = null, D = null, HOJE = null, PROXIMO = null;
+let demo = false, respDemo = null; // demonstration: example data, nothing goes to the server
 
 // ---------- API ----------
 async function api(metodo, rota, corpo) {
@@ -41,6 +42,10 @@ function erro(sel, texto) { const el = $(sel); el.textContent = texto || ""; el.
 let numAtual = "", relogio = null;
 
 function mostrarEntrar() {
+  sairDoTour();
+  demo = false;
+  document.body.classList.remove("em-demo");
+  $("#demo-faixa").hidden = true;
   $("#carrega").hidden = true;
   $("#entrar").hidden = false;
   $(".nav").hidden = true;
@@ -125,7 +130,8 @@ async function carregar(primeiraVez = false) {
   $("#rodape").hidden = false;
   desenharInicio();
   desenharDados();
-  $("#docs").innerHTML = D.docs.map((d) => `<div class="doc">${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.titulo)}</a>` : `<span>${esc(d.titulo)}</span>`}<span>${esc(d.fonte)}</span></div>`).join("");
+  $("#docs").innerHTML = D.docs.map((d) => `<div class="doc">${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.titulo)}</a>` : `<span>${esc(d.titulo)}</span>`}<span>${esc(d.fonte)}</span></div>`).join("")
+    + (D.informacoes || []).map((i) => `<div class="doc"><span><b>${esc(i.titulo)}.</b> ${esc(i.texto)}</span><span>${esc(i.fonte)}</span></div>`).join("");
   if (primeiraVez) { show("inicio", true); toast(`Olá${primeiro(S.eu.nome) ? ", " + primeiro(S.eu.nome) : ""}! Já está dentro.`); return; }
   const h = (location.hash || "").slice(1);
   show(tabs.includes(h) ? h : store.get("turma1b-tab") || "inicio");
@@ -186,13 +192,15 @@ const items = new Map();
 let nItem = 0, semana = 0, semana0 = null, diaSel = null;
 const reg = (e) => { const id = "i" + nItem++; items.set(id, e); return id; };
 const fimDoAno = () => D.periodos.at(-1).fim;
+// back to the first week of the school year: past tests, menus and notices stay visible
+const semanaMin = () => Math.min(0, Math.round((dt(segunda(D.inicioAno || D.periodos[0].ini || HOJE)) - dt(semana0)) / (7 * 864e5)));
 const diasDa = (i) => [0, 1, 2, 3, 4].map((n) => mais(semana0, i * 7 + n));
-const evBtn = (e) => `<button class="ev tt-${e.t}" type="button" data-it="${reg(e)}"><span><span class="ev-t">${esc(e.titulo)}</span><br><span class="ev-s">${e.semData ? "aviso" : `${e.d && e.d !== diaSel ? esc(nomeDia(e.d)) + " · " : ""}${e.ini ? `${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : "todo o dia"}`}${e.nota ? " · " + esc(e.nota) : ""}</span></span><span class="chev" aria-hidden="true">›</span></button>`;
+const evBtn = (e) => `<button class="ev tt-${e.t}" type="button" data-it="${reg(e)}"><span><span class="ev-t">${icone(e.t)}${esc(e.titulo)}</span><br><span class="ev-s">${e.semData ? "aviso" : `${e.d && e.d !== diaSel ? esc(nomeDia(e.d)) + " · " : ""}${e.ini ? `${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : "todo o dia"}`}${e.nota ? " · " + esc(e.nota) : ""}</span></span><span class="mais" aria-hidden="true">${e.t === "almoco" ? "ementa" : "ver"}${SETA}</span></button>`;
 function desenhar() {
   items.clear(); nItem = 0;
   const dias = diasDa(semana), a = dt(dias[0]), b = dt(dias[4]);
   $("#cal-titulo").textContent = a.getUTCMonth() === b.getUTCMonth() ? `${a.getUTCDate()} a ${b.getUTCDate()} de ${MES[b.getUTCMonth()]}` : `${a.getUTCDate()} de ${MES[a.getUTCMonth()]} a ${b.getUTCDate()} de ${MES[b.getUTCMonth()]}`;
-  $("#cal-prev").disabled = semana <= -2;
+  $("#cal-prev").disabled = semana <= semanaMin();
   $("#cal-next").disabled = mais(dias[0], 7) > fimDoAno();
   if (!dias.includes(diaSel)) diaSel = dias[0];
   $("#cal-dias").innerHTML = dias.map((iso) => {
@@ -205,20 +213,26 @@ function desenhar() {
   $("#cal-dia").innerHTML = `<p class="dia-t">${nomeDia(diaSel)}${marca}</p>`
     + (hi.length ? `<div class="grupo"><h3>Destaques</h3>${hi.map(evBtn).join("")}</div>` : "")
     + (almoco ? `<div class="grupo"><h3>Almoço</h3>${evBtn(almoco)}</div>` : "")
-    + (aulas.length ? `<div class="grupo"><h3>Horário do dia</h3><div class="horario">${aulas.map((e) => `<button class="aula tt-${e.t}${e.t === "pausa" || e.t === "almoco" ? " pausa" : ""}" type="button" ${e.t === "pausa" ? "disabled" : `data-it="${reg(e)}"`}><span class="h">${e.ini}–${e.fim}</span><span class="s">${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</span><span class="chev" aria-hidden="true">${e.t === "pausa" ? "" : "›"}</span></button>`).join("")}</div></div>` : "")
+    + (aulas.length ? `<div class="grupo"><h3>Horário do dia</h3><div class="horario">${aulas.map((e) => {
+      const pausa = e.t === "pausa";
+      // the dish is already in the "Almoço" group above; here, squeezed between the time and the pill, it would wrap word by word
+      const rotulo = e.t === "almoco" ? `${icone("almoco")}Almoço` :`${e.t === "teste" ? icone("teste") : ""}${esc(e.titulo)}`;
+      const fim = pausa ? "" : e.t === "almoco" && e.menu ? `<span class="mais" aria-hidden="true">ementa${SETA}</span>` : '<span class="chev" aria-hidden="true">›</span>';
+      return `<button class="aula tt-${e.t}${pausa ? " pausa" : ""}" type="button" ${pausa ? "disabled" : `data-it="${reg(e)}"`}><span class="h">${e.ini}–${e.fim}</span><span class="s">${rotulo}</span>${fim}</button>`;
+    }).join("")}</div></div>` : "")
     + (!todos.length ? '<p class="vazio">Sem aulas neste dia.</p>' : "");
   const H0 = 9, H1 = 16, PX = 56;
   let g = '<div class="sm-c"></div>' + dias.map((iso) => { const d = dt(iso); return `<div class="sm-h${iso === PROXIMO ? " prox" : ""}"><b>${d.getUTCDate()}</b><span>${DC[d.getUTCDay()]}</span></div>`; }).join("");
-  g += '<div class="sm-lbl">Dia</div>' + dias.map((iso) => `<div class="sm-allday">${itens(D, iso).filter((e) => !e.ini || e.allday).map((e) => `<button class="pill tt-${e.t}" type="button" data-it="${reg(e)}" title="${esc(e.titulo)}">${esc(e.t === "atend" ? `Atendimento ${e.ini}` : e.ini ? `${e.ini} ${e.titulo}` : e.titulo)}</button>`).join("")}</div>`).join("");
+  g += '<div class="sm-lbl">Dia</div>' + dias.map((iso) => `<div class="sm-allday">${itens(D, iso).filter((e) => !e.ini || e.allday).map((e) => `<button class="pill tt-${e.t}" type="button" data-it="${reg(e)}" title="${esc(e.titulo)}">${icone(e.t)}${esc(e.t === "atend" ? `Atendimento ${e.ini}` : e.ini ? `${e.ini} ${e.titulo}` : e.titulo)}</button>`).join("")}</div>`).join("");
   g += `<div class="sm-horas" style="height:${(H1 - H0) * PX}px">${Array.from({ length: H1 - H0 - 1 }, (_, k) => `<span style="top:${(k + 1) * PX}px">${String(H0 + k + 1).padStart(2, "0")}:00</span>`).join("")}</div>`;
   g += dias.map((iso) => `<div class="sm-col${D.feriados[iso] ? " fer" : ""}" style="height:${(H1 - H0) * PX}px">${itens(D, iso).filter((e) => e.ini && !e.allday).map((e) => {
     const top = (minutos(e.ini) - H0 * 60) / 60 * PX, alt = Math.max(22, (minutos(e.fim) - minutos(e.ini)) / 60 * PX - 2);
-    const pausa = e.t === "pausa" || e.t === "almoco";
-    return `<button class="blk tt-${e.t}${pausa ? " pausa" : ""}" type="button" ${e.t === "pausa" ? "disabled" : `data-it="${reg(e)}"`} style="top:${top + 1}px;height:${alt}px"><b>${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</b>${alt > 34 ? `<span>${e.ini}–${e.fim}</span>` : ""}</button>`;
+    const pausa = e.t === "pausa";
+    return `<button class="blk tt-${e.t}${pausa ? " pausa" : ""}" type="button" ${pausa ? "disabled" : `data-it="${reg(e)}" title="${e.t === "almoco" ? "Ver a ementa" : "Ver mais"}"`} style="top:${top + 1}px;height:${alt}px"><b>${e.t === "almoco" ? icone("almoco") + "Almoço" : (e.t === "teste" ? icone("teste") : "") + esc(e.titulo)}</b>${alt > 34 ? `<span>${e.ini}–${e.fim}</span>` : ""}</button>`;
   }).join("")}</div>`).join("");
   $("#cal-semana").innerHTML = g;
 }
-$("#cal-prev").addEventListener("click", () => { semana = Math.max(-2, semana - 1); diaSel = diasDa(semana)[0]; desenhar(); });
+$("#cal-prev").addEventListener("click", () => { semana = Math.max(semanaMin(), semana - 1); diaSel = diasDa(semana)[0]; desenhar(); });
 $("#cal-next").addEventListener("click", () => { semana++; diaSel = diasDa(semana)[0]; desenhar(); });
 $("#cal-dias").addEventListener("click", (e) => { const b = e.target.closest("[data-dia]"); if (b) { diaSel = b.dataset.dia; desenhar(); } });
 
@@ -242,6 +256,7 @@ function abrir(e) {
   });
 }
 function abrirCalendario() {
+  if (demo) return toast("Depois de entrar, um toque põe a agenda no calendário do seu telemóvel.");
   const c = S?.calendario;
   if (!c) return;
   folha(`<span class="tipo" style="--t:var(--blue)">Calendário</span><h3 id="sh-t">A agenda no seu telemóvel</h3>
@@ -300,6 +315,10 @@ function abrirTpc() {
     erro("#e-tpc");
     const texto = $("#tpc-txt").value.trim();
     if (!texto && !foto) return erro("#e-tpc", "Escreva o TPC ou tire uma foto da folha.");
+    if (demo) {
+      $("#sheet-c").innerHTML = `<span class="tipo">TPC</span><h3 id="sh-t">É assim que funciona!</h3><p>Depois de entrar, o TPC fica logo na agenda, marcado «por confirmar». Quando outra família envia o mesmo, passa a «confirmado».</p><p class="fonte">Na demonstração nada é enviado.</p>`;
+      return;
+    }
     const b = $("#b-tpc");
     b.disabled = true; b.textContent = foto ? "A ler a foto…" : "A partilhar…";
     try {
@@ -363,7 +382,8 @@ async function perguntar(texto) {
   t.className = "typing"; t.textContent = "A Daniela está a escrever…";
   chat.append(t); chat.scrollTop = chat.scrollHeight;
   try {
-    const r = await api("POST", "/api/daniela", { mensagens: historico.slice(-8) });
+    const r = demo ? await new Promise((ok) => setTimeout(() => ok({ resposta: respDemo(S, texto) }), calma() ? 0 : 900))
+      : await api("POST", "/api/daniela", { mensagens: historico.slice(-8) });
     historico.push({ role: "assistant", content: r.resposta });
     t.remove();
     bolha(formatar(r.resposta), "ai");
@@ -376,7 +396,7 @@ async function perguntar(texto) {
 }
 function ola() {
   const p = primeiro(S?.eu?.nome);
-  bolha(`<p>Olá${p ? `, ${esc(p)}` : ""}! Sou a Daniela, a assistente de IA da turma. Respondo com o horário, a agenda e os avisos do 1.º B, e digo sempre de onde vem cada resposta.</p>`, "ai");
+  bolha(`<p>Olá${p ? `, ${esc(p)}` : ""}! Sou a Daniela, a assistente de IA da turma. Respondo com o horário, a agenda e os avisos do 1.º B, e digo sempre de onde vem cada resposta.${demo ? " Nesta demonstração, experimente as perguntas sugeridas." : ""}</p>`, "ai");
 }
 // Short labels so several fit on one line; each sends the full question.
 [["Próximo teste?", "Quando é o próximo teste?"], ["Há TPC?", "Há TPC?"], ["Material?", "O que é preciso de material?"], ["Aulas de amanhã?", "Que aulas há amanhã?"],
@@ -386,12 +406,13 @@ $("#ask").addEventListener("submit", (e) => { e.preventDefault(); const q = $("#
 
 // ---------- data + session ----------
 function desenharDados() {
-  $("#sessao-info").textContent = `Entrou como ${S.eu.nome}. A sessão dura 4 meses neste aparelho.`;
+  $("#sessao-info").textContent = demo ? "Isto é uma demonstração, com dados de exemplo." : `Entrou como ${S.eu.nome}. A sessão dura 4 meses neste aparelho.`;
   const painel = $("#painel");
   painel.hidden = !S.painel;
   if (S.painel) painel.href = S.painel;
 }
 async function terminar(todas) {
+  if (demo) return sairDemo();
   try { await api("POST", "/api/sair", { todas }); } catch {}
   esquecer();
   historico.length = 0;
@@ -402,5 +423,119 @@ async function terminar(todas) {
 $("#sair").addEventListener("click", () => terminar(false));
 $("#sair-todos").addEventListener("click", () => terminar(true));
 
+// ---------- "tap for more" signals ----------
+const ICONES = {
+  almoco: '<path d="M4 11h16M5 11a7 7 0 0 0 14 0M12 4v3"/>',
+  teste: '<path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/>',
+  tpc: '<path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5z"/><path d="M12 6v13.5"/>',
+  atend: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5"/>',
+  feriado: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+  evento: '<path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
+};
+function icone(t) { return ICONES[t] ? `<svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[t]}</svg>` : ""; }
+const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+if (store.get("turma1b-dica")) $("#dica-agenda").hidden = true;
+$("#dica-x").addEventListener("click", () => { $("#dica-agenda").hidden = true; store.set("turma1b-dica", "1"); });
+
+// ---------- demonstration (example data, guided tour) ----------
+const hojeLisboa = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Lisbon" }).format(new Date());
+const visivel = (sel) => { const el = $(sel); return el && el.offsetParent !== null ? el : null; };
+const almocoVisivel = () => visivel("#cal-dia .aula.tt-almoco") || visivel("#cal-semana .blk.tt-almoco");
+async function entrarDemo() {
+  const m = await import("./demo.js?v=1");
+  respDemo = m.respostaDemo;
+  demo = true;
+  S = m.sessaoDemo(hojeLisboa()); D = S.dados; HOJE = S.hoje; PROXIMO = S.proximo;
+  semana0 = segunda(PROXIMO); semana = 0; diaSel = PROXIMO;
+  historico.length = 0; chat.innerHTML = "";
+  document.body.classList.add("em-demo");
+  $("#demo-faixa").hidden = false;
+  $("#entrar").hidden = true; $("#carrega").hidden = true; $(".nav").hidden = false; $("#rodape").hidden = false;
+  $("#docs").innerHTML = "";
+  desenharDados();
+  show("inicio", true);
+  iniciarTour();
+}
+function sairDemo() {
+  sairDoTour();
+  demo = false; S = null;
+  historico.length = 0; chat.innerHTML = "";
+  if (location.hash === "#demo") history.replaceState(null, "", location.pathname + location.search);
+  if (token) { document.body.classList.remove("em-demo"); $("#demo-faixa").hidden = true; return carregar(); }
+  mostrarEntrar();
+}
+const PASSOS = [
+  { tab: "inicio", alvo: () => $("#c-amanha"), texto: "Todos os dias, o essencial do próximo dia de aulas: testes, TPC e almoço." },
+  { tab: "hoje", antes: () => { diaSel = S.dias[1]; desenhar(); }, alvo: () => visivel("#cal-dias") || visivel("#cal-semana"), texto: "Na agenda, toque num dia para ver as aulas, os testes e o almoço." },
+  { tab: "hoje", alvo: almocoVisivel, texto: "Toque no almoço…", dur: 3500 },
+  { tab: "hoje", antes: () => { const b = almocoVisivel(); if (b && items.has(b.dataset.it)) abrir(items.get(b.dataset.it)); }, alvo: () => $("#sheet"), texto: "…e aparece a ementa do dia. Os testes, o TPC e os avisos abrem da mesma maneira.", dur: 5000, depois: () => fechar() },
+  { tab: "daniela", antes: () => { if (!historico.length) perguntar("O que há para o almoço amanhã?"); }, alvo: () => $("#p-daniela"), texto: "Uma dúvida? Pergunte à Daniela: responde em segundos, sempre com a fonte.", dur: 6500 },
+  { tab: "inicio", alvo: () => $(".tpc-c"), texto: "Viu o TPC na mochila? Partilhe-o com uma foto e ajuda a turma inteira." },
+];
+let tour = null;
+function iniciarTour() { sairDoTour(); tour = { i: -1, timer: null, medir: null }; $("#tour").hidden = false; passo(0); }
+function sairDoTour() {
+  if (!tour) return;
+  clearTimeout(tour.timer);
+  tour = null;
+  $("#tour").hidden = true; $("#tour-foco").hidden = true;
+  if (!$("#sheet").hidden) fechar();
+}
+function botoesTour(html) { $("#tour-bts").innerHTML = html; }
+function passo(i) {
+  if (!tour) return;
+  clearTimeout(tour.timer);
+  PASSOS[tour.i]?.depois?.();
+  tour.i = i;
+  if (i >= PASSOS.length) return fimDoTour();
+  const p = PASSOS[i];
+  if (p.tab) show(p.tab, false);
+  p.antes?.();
+  $("#tour-passo").textContent = `Demonstração · ${i + 1} de ${PASSOS.length}`;
+  $("#tour-pontos").innerHTML = PASSOS.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("");
+  $("#tour-texto").textContent = p.texto;
+  botoesTour('<button class="linkbtn" type="button" data-tour="sair">Saltar</button><button class="btn primary" type="button" data-tour="seguinte">Seguinte ›</button>');
+  setTimeout(() => { if (tour && tour.i === i) focar(p.alvo()); }, 150);
+  tour.timer = setTimeout(() => passo(i + 1), (p.dur || 4500) + 150);
+}
+function focar(el) {
+  const f = $("#tour-foco"), b = $("#tour-balao");
+  if (!el) { f.hidden = true; b.className = "tour-balao em-baixo"; return; }
+  if (el.id !== "sheet") el.scrollIntoView({ block: "center", behavior: calma() ? "auto" : "smooth" });
+  const medir = () => {
+    if (!tour) return;
+    const r = el.getBoundingClientRect();
+    const top = Math.max(r.top - 6, 4), fundo = Math.min(r.bottom + 6, innerHeight - 4);
+    Object.assign(f.style, { top: `${top}px`, left: `${r.left - 6}px`, width: `${r.width + 12}px`, height: `${Math.max(fundo - top, 40)}px` });
+    f.hidden = false;
+    b.className = `tour-balao ${(r.top + r.bottom) / 2 > innerHeight * 0.55 ? "em-cima" : "em-baixo"}`;
+  };
+  tour.medir = medir;
+  [0, 180, 360, 700].forEach((ms) => setTimeout(medir, ms)); // again after the sheet's 0.28 s entrance and the smooth scroll
+}
+function fimDoTour() {
+  $("#tour-foco").hidden = true;
+  $("#tour-balao").className = "tour-balao ao-centro";
+  $("#tour-passo").textContent = "Pronto!";
+  $("#tour-pontos").innerHTML = "";
+  $("#tour-texto").textContent = "É assim o Resumo da Turma. Para ver a turma a sério, entre com o seu número de telemóvel.";
+  botoesTour('<button class="linkbtn" type="button" data-tour="rever">Ver outra vez</button><button class="linkbtn" type="button" data-tour="explorar">Explorar sozinho</button><button class="btn primary" type="button" data-tour="entrar">Entrar com o meu número</button>');
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-tour]");
+  if (!t || !tour) return;
+  const a = t.dataset.tour;
+  if (a === "seguinte") passo(tour.i + 1);
+  else if (a === "sair" || a === "explorar") sairDoTour();
+  else if (a === "rever") iniciarTour();
+  else if (a === "entrar") sairDemo();
+});
+addEventListener("scroll", () => tour?.medir?.(), { passive: true });
+addEventListener("resize", () => tour?.medir?.());
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && tour) sairDoTour(); });
+$("#ver-demo").addEventListener("click", () => entrarDemo());
+$("#demo-sair").addEventListener("click", () => sairDemo());
+$("#demo-rever").addEventListener("click", () => iniciarTour());
+
 // ---------- start ----------
-if (token) carregar(); else mostrarEntrar();
+if (location.hash === "#demo") entrarDemo(); else if (token) carregar(); else mostrarEntrar();
