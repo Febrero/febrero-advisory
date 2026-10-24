@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="api" content="https://turma1b-production.up.railway.app">
+<meta name="theme-color" content="#2445c6">
+<title>Resumo da Turma 1.º B</title>
+<meta name="description" content="Horário, testes, almoço e avisos do 1.º B, só para os pais da turma.">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap">
+<link rel="stylesheet" href="estilo.css?v=1">
+</head>
+<body>
+<div class="wrap">
+  <!-- ENTRAR -->
+  <section id="entrar" class="wrap" hidden>
+    <header class="hero">
+      <div class="hero-top">
+        <span class="class">1.º B · 2026/27</span>
+        <span class="postit">só para<br>os pais</span>
+      </div>
+      <h1>Resumo da Turma</h1>
+      <p class="lead">O horário, os testes, os feriados e o almoço do 1.º B, <mark>num só sítio</mark>. E a Daniela, para perguntas.</p>
+      <p class="hand sign">— uma ajuda entre pais</p>
+    </header>
+    <div class="card entrar-c">
+      <div class="head"><p class="eyebrow">Entrar</p><h2>Com o seu telemóvel</h2></div>
+      <form id="f-num" novalidate>
+        <label class="campo" for="num">Número que usa no grupo da turma
+          <span class="tel"><span>+351</span><input id="num" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="912 345 678" maxlength="20"></span>
+        </label>
+        <p class="erro" id="e-num" role="alert" hidden></p>
+        <button class="btn primary full" type="submit" id="b-num">Receber código por SMS</button>
+      </form>
+      <form id="f-cod" novalidate hidden>
+        <p>Se o número <b id="cod-num"></b> estiver na lista da turma, chega um SMS com 6 números dentro de segundos.</p>
+        <label class="campo" for="cod">Código do SMS
+          <input class="cod" id="cod" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······">
+        </label>
+        <p class="erro" id="e-cod" role="alert" hidden></p>
+        <button class="btn primary full" type="submit" id="b-cod">Entrar</button>
+        <div class="btns"><button class="linkbtn" type="button" id="reenviar" disabled>Reenviar código</button><button class="linkbtn" type="button" id="mudar">Mudar número</button></div>
+      </form>
+      <div class="seguro"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8.2-7.5 9.5-4.3-1.3-7.5-5-7.5-9.5V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.6"/></svg>
+        <p>Só entram os números do grupo de WhatsApp do 1.º B. Não pedimos palavras-passe nem dados das crianças. Não recebeu o SMS? Fale com o Pedro no grupo.</p></div>
+    </div>
+    <footer class="foot"><p>Resumo da Turma · feito por Pedro Febrero, pai da Leia do 1.º B</p><p>Não é um canal oficial do colégio.</p></footer>
+  </section>
+
+  <p class="carrega" id="carrega">A abrir…</p>
+
+  <!-- INÍCIO -->
+  <section id="p-inicio" role="tabpanel" aria-labelledby="t-inicio" class="wrap" hidden>
+    <header class="hero">
+      <div class="hero-top">
+        <span class="class">1.º B · 2026/27</span>
+        <span class="postit" id="ola">olá!</span>
+      </div>
+      <h1>Resumo da Turma</h1>
+      <p class="lead">O horário, os testes, os feriados e o almoço do 1.º B, <mark>num só sítio</mark>. E a Daniela, para perguntas.</p>
+      <p class="hand sign">— uma ajuda entre pais</p>
+    </header>
+
+    <div class="card amanha" id="c-amanha">
+      <div class="head"><p class="eyebrow">Próximo dia de aulas</p><h2 id="am-titulo"></h2></div>
+      <ul id="am-linhas"></ul>
+      <div class="btns"><button class="btn primary" type="button" id="am-ver">Ver o dia</button><button class="btn" type="button" data-go="daniela">Perguntar à Daniela</button></div>
+    </div>
+
+    <div class="card" id="c-avisos" hidden>
+      <div class="head"><p class="eyebrow">Do colégio e do grupo</p><h2>Avisos</h2></div>
+      <div class="avisos" id="avisos"></div>
+    </div>
+
+    <div class="card">
+      <div class="head"><h2>O que está aqui</h2></div>
+      <div class="feats">
+        <div class="feat"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><p><b>A agenda da turma</b><span>Horário de cada dia, testes à hora certa, feriados, períodos e atendimento da professora.</span></p></div>
+        <div class="feat"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16M5 11a7 7 0 0 0 14 0M12 4v3"/></svg></span><p><b>O almoço e o lanche de cada dia</b><span>Da ementa publicada pelo colégio.</span></p></div>
+        <div class="feat"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M15 17l2 2 4-4"/></svg></span><p><b>Avisos e TPC</b><span>O que chega nos emails gerais do colégio e o TPC partilhado, depois de o Pedro confirmar.</span></p></div>
+        <div class="feat"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5v6a3.5 3.5 0 0 1-3.5 3.5H11l-5 4v-4.2A3.5 3.5 0 0 1 4 12.5z"/></svg></span><p><b>A Daniela, para perguntas</b><span>«Quando é o próximo teste?», «o que há para almoço?». Responde com a fonte.</span></p></div>
+      </div>
+      <div class="btns"><button class="btn primary" type="button" data-go="hoje">Ver a agenda</button><button class="btn" type="button" data-cal>Pôr no meu calendário</button></div>
+    </div>
+  </section>
+
+  <!-- AGENDA -->
+  <section id="p-hoje" role="tabpanel" aria-labelledby="t-hoje" class="card" hidden>
+    <div class="cal-head">
+      <div class="head"><p class="eyebrow">Agenda do 1.º B</p><h2 id="cal-titulo"></h2></div>
+      <div class="cal-nav"><button class="icon-btn" type="button" id="cal-prev" aria-label="Semana anterior"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><button class="icon-btn" type="button" id="cal-next" aria-label="Semana seguinte"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
+    </div>
+    <div class="legend" aria-hidden="true"><span><i class="tt-teste"></i>Teste</span><span><i class="tt-tpc"></i>TPC</span><span><i class="tt-aula"></i>Aula</span><span><i class="tt-almoco"></i>Almoço</span><span><i class="tt-atend"></i>Atendimento</span><span><i class="tt-feriado"></i>Feriado</span><span><i class="tt-evento"></i>Evento</span></div>
+    <div class="dias" id="cal-dias" role="tablist" aria-label="Dias da semana"></div>
+    <div class="dia" id="cal-dia"></div>
+    <div class="semana" id="cal-semana"></div>
+    <div class="btns">
+      <button class="btn primary" type="button" data-cal>Pôr no meu calendário</button>
+      <button class="btn" type="button" data-go="daniela">Perguntar à Daniela</button>
+    </div>
+    <details class="arquivo"><summary>Documentos do colégio usados aqui</summary><div class="docs" id="docs"></div></details>
+  </section>
+
+  <!-- DANIELA -->
+  <section id="p-daniela" role="tabpanel" aria-labelledby="t-daniela" class="card" hidden>
+    <div class="who-head">
+      <img class="avatar" src="daniela.jpg" alt="Daniela, assistente de IA" width="46" height="46">
+      <div><h2 style="font-size:20px">Daniela</h2><p class="small"><span class="online">● disponível</span> <span class="soft">· assistente de IA da turma</span></p></div>
+    </div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="sugg" id="sugg" aria-label="Perguntas sugeridas"></div>
+    <form class="ask" id="ask">
+      <input id="q" type="text" placeholder="Escreva uma pergunta…" autocomplete="off" maxlength="500" aria-label="Pergunta para a Daniela">
+      <button class="icon-btn" type="button" aria-label="Falar com a Daniela (em breve)" data-toast="Em breve: falar com a Daniela por voz.">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+      <button class="icon-btn send" type="submit" aria-label="Enviar" id="enviar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+    <p class="small soft">A Daniela é uma inteligência artificial: responde só com os dados desta página e diz de onde vem cada resposta. Se não souber, diz que não sabe.</p>
+  </section>
+
+  <!-- RECEBER -->
+  <section id="p-receber" role="tabpanel" aria-labelledby="t-receber" class="card" hidden>
+    <div class="head"><p class="eyebrow">Sem formulários</p><h2>Como receber</h2></div>
+    <div class="passos">
+      <div class="passo"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5v6a3.5 3.5 0 0 1-3.5 3.5H11l-5 4v-4.2A3.5 3.5 0 0 1 4 12.5z"/></svg></span><p><b>No grupo de WhatsApp, às 18h00</b><span class="soft">O resumo do dia seguinte aparece no grupo da turma. Não precisa de fazer nada.</span></p></div>
+      <div class="passo"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></span><p><b>Esta página no ecrã principal</b><span class="soft">No iPhone: botão Partilhar e «Adicionar ao ecrã principal». No Android: menu ⋮ e «Adicionar ao ecrã principal». Fica como uma app.</span></p></div>
+      <div class="passo"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><p><b>No calendário do telemóvel</b><span class="soft">Testes, feriados e avisos com data, sempre atualizados.</span><button class="linkbtn" type="button" data-cal>Pôr no meu calendário ›</button></p></div>
+    </div>
+    <p class="small soft">Para partilhar o TPC ou corrigir alguma coisa, fale com o Pedro no grupo.</p>
+  </section>
+
+  <!-- DADOS -->
+  <section id="p-dados" role="tabpanel" aria-labelledby="t-dados" class="card" hidden>
+    <div class="head"><p class="eyebrow">Privacidade</p><h2>Os dados, em palavras simples</h2></div>
+    <div class="lists">
+      <div class="list yes"><h3>✓ O que entra</h3><ul>
+        <li>O que é igual para toda a turma: horário, testes, feriados, períodos e atendimento da professora.</li>
+        <li>Documentos públicos do site do colégio: calendário dos testes, ementa, lista de material.</li>
+        <li>Os emails gerais do colégio e o TPC partilhado, só depois de o Pedro os confirmar.</li>
+      </ul></div>
+      <div class="list no"><h3>✕ O que nunca entra</h3><ul>
+        <li>Nada do que é de cada criança: notas, faltas, comportamento, caderneta, avaliações.</li>
+        <li>Nomes ou fotografias das crianças.</li>
+        <li>Conversas do grupo de WhatsApp.</li>
+        <li>Palavras-passe: nunca as pedimos.</li>
+      </ul></div>
+      <div class="list how"><h3>Quem vê e o que se guarda</h3><ul>
+        <li>Só os números do grupo da turma entram, com um código por SMS.</li>
+        <li>Guardamos só o seu número (para entrar) e a data da última visita.</li>
+        <li>As perguntas à Daniela vão para a IA (Claude) só para obter a resposta e não ficam guardadas aqui.</li>
+        <li id="regiao">O servidor fica na União Europeia.</li>
+      </ul></div>
+    </div>
+    <div class="list how"><h3>A sua sessão</h3>
+      <p id="sessao-info" class="small"></p>
+      <div class="btns"><button class="btn" type="button" id="sair">Sair</button><button class="btn" type="button" id="sair-todos">Sair em todos os aparelhos</button><a class="btn primary" id="painel" href="#" target="_blank" rel="noopener" hidden>Abrir o painel</a></div>
+    </div>
+    <p class="small soft">Feito por Pedro Febrero, pai da Leia do 1.º B. Não é um canal oficial do colégio nem substitui as comunicações do colégio e do Inovar. Para os pais não custa nada.</p>
+  </section>
+
+  <footer class="foot" id="rodape" hidden>
+    <p>Resumo da Turma · feito por Pedro Febrero, pai da Leia do 1.º B</p>
+    <p>Fontes: Inovar, site e emails do colégio. Não é um canal oficial do colégio.</p>
+  </footer>
+</div>
+
+<nav class="nav" role="tablist" aria-label="Secções" hidden>
+  <button role="tab" id="t-inicio" aria-controls="p-inicio" aria-selected="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg><span>Início</span></button>
+  <button role="tab" id="t-hoje" aria-controls="p-hoje" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 14.5l2 2 4-4"/></svg><span>Agenda</span></button>
+  <button role="tab" id="t-daniela" aria-controls="p-daniela" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5v6a3.5 3.5 0 0 1-3.5 3.5H11l-5 4v-4.2A3.5 3.5 0 0 1 4 12.5z"/></svg><span>Daniela</span></button>
+  <button role="tab" id="t-receber" aria-controls="p-receber" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 19h14"/></svg><span>Receber</span></button>
+  <button role="tab" id="t-dados" aria-controls="p-dados" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8.2-7.5 9.5-4.3-1.3-7.5-5-7.5-9.5V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.6"/></svg><span>Dados</span></button>
+</nav>
+<div class="sheet-bg" id="sheet-bg" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t" hidden>
+  <span class="grab" aria-hidden="true"></span>
+  <button class="sheet-x" id="sheet-x" type="button" aria-label="Fechar">×</button>
+  <div id="sheet-c" style="display:flex;flex-direction:column;gap:12px"></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script type="module" src="app.js?v=1"></script>
+</body>
+</html>

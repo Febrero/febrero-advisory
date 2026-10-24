@@ -1,0 +1,340 @@
+// Resumo da Turma 1.º B: sign in with the phone (SMS code), then the class agenda, notices and Daniela.
+// Works both on febreroai.com/turma1b (calls the API on Railway, set in <meta name="api">) and on the API's own host.
+import { DC, MES, destaque, diaSemana, dt, itens, mais, minutos, nomeDia, segunda } from "./agenda.js?v=1";
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (t) => String(t ?? "").replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+const META = ($('meta[name="api"]')?.content || "").replace(/\/$/, "");
+const BASE = !META || new URL(META).origin === location.origin ? "" : META;
+const TK = "turma1b-token";
+const calma = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let token = store.get(TK);
+let S = null, D = null, HOJE = null, PROXIMO = null;
+
+// ---------- API ----------
+async function api(metodo, rota, corpo) {
+  let r;
+  try {
+    r = await fetch(BASE + rota, {
+      method: metodo,
+      headers: { ...(corpo ? { "Content-Type": "application/json" } : {}), ...(token ? { Authorization: "Bearer " + token } : {}) },
+      body: corpo ? JSON.stringify(corpo) : undefined,
+    });
+  } catch { throw Object.assign(new Error("Sem ligação à internet. Tente outra vez."), { status: 0 }); }
+  let j = {};
+  try { j = await r.json(); } catch {}
+  if (r.status === 401 && token) { esquecer(); throw Object.assign(new Error(j.erro || "Sessão terminada."), { status: 401 }); }
+  if (!r.ok) throw Object.assign(new Error(j.erro || "Algo correu mal. Tente outra vez."), { status: r.status });
+  return j;
+}
+function esquecer() { token = null; store.del(TK); }
+
+// ---------- sign in ----------
+const fmtNum = (n) => n.replace(/^\+351(\d{3})(\d{3})(\d{3})$/, "+351 $1 $2 $3");
+function erro(sel, texto) { const el = $(sel); el.textContent = texto || ""; el.hidden = !texto; }
+let numAtual = "", relogio = null;
+
+function mostrarEntrar() {
+  $("#carrega").hidden = true;
+  $("#entrar").hidden = false;
+  $(".nav").hidden = true;
+  $("#rodape").hidden = true;
+  $$('[role="tabpanel"]').forEach((p) => (p.hidden = true));
+  $("#f-num").hidden = false;
+  $("#f-cod").hidden = true;
+  setTimeout(() => $("#num").focus(), 50);
+}
+function contagem() {
+  let s = 30;
+  const b = $("#reenviar");
+  b.disabled = true;
+  clearInterval(relogio);
+  const pinta = () => (b.textContent = s > 0 ? `Reenviar código (${s} s)` : "Reenviar código");
+  pinta();
+  relogio = setInterval(() => { s--; pinta(); if (s <= 0) { clearInterval(relogio); b.disabled = false; } }, 1000);
+}
+async function pedir(numero) {
+  const r = await api("POST", "/api/codigo", { numero });
+  numAtual = r.numero;
+  $("#cod-num").textContent = fmtNum(numAtual);
+  $("#f-num").hidden = true;
+  $("#f-cod").hidden = false;
+  $("#cod").value = "";
+  erro("#e-cod");
+  contagem();
+  setTimeout(() => $("#cod").focus(), 50);
+}
+$("#f-num").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  erro("#e-num");
+  const n = $("#num").value.trim();
+  if (!n) return erro("#e-num", "Escreva o seu número de telemóvel.");
+  const b = $("#b-num");
+  b.disabled = true; b.textContent = "A enviar…";
+  try { await pedir(n); } catch (x) { erro("#e-num", x.message); }
+  finally { b.disabled = false; b.textContent = "Receber código por SMS"; }
+});
+$("#cod").addEventListener("input", () => {
+  const c = $("#cod");
+  c.value = c.value.replace(/\D/g, "").slice(0, 6);
+  if (c.value.length === 6) $("#f-cod").requestSubmit();
+});
+$("#f-cod").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  erro("#e-cod");
+  const codigo = $("#cod").value;
+  if (codigo.length !== 6) return erro("#e-cod", "O código tem 6 números.");
+  const b = $("#b-cod");
+  b.disabled = true; b.textContent = "A entrar…";
+  try {
+    const r = await api("POST", "/api/entrar", { numero: numAtual, codigo });
+    token = r.token;
+    store.set(TK, token);
+    clearInterval(relogio);
+    $("#entrar").hidden = true;
+    await carregar(true);
+  } catch (x) { erro("#e-cod", x.message); $("#cod").select(); }
+  finally { b.disabled = false; b.textContent = "Entrar"; }
+});
+$("#reenviar").addEventListener("click", async () => {
+  try { await pedir(numAtual); toast("Pedimos um novo código."); } catch (x) { erro("#e-cod", x.message); }
+});
+$("#mudar").addEventListener("click", () => { clearInterval(relogio); $("#f-cod").hidden = true; $("#f-num").hidden = false; $("#num").focus(); });
+
+// ---------- load ----------
+async function carregar(primeiraVez = false) {
+  $("#carrega").hidden = false;
+  $("#carrega").textContent = "A abrir…";
+  try { S = await api("GET", "/api/turma"); }
+  catch (x) {
+    if (x.status === 401 || !token) return mostrarEntrar();
+    $("#carrega").innerHTML = `${esc(x.message)} <button class="linkbtn" type="button" id="tentar">Tentar de novo</button>`;
+    $("#tentar").addEventListener("click", () => carregar());
+    return;
+  }
+  D = S.dados; HOJE = S.hoje; PROXIMO = S.proximo || S.hoje;
+  semana0 = segunda(PROXIMO); semana = 0; diaSel = PROXIMO;
+  $("#carrega").hidden = true;
+  $(".nav").hidden = false;
+  $("#rodape").hidden = false;
+  desenharInicio();
+  desenharDados();
+  $("#docs").innerHTML = D.docs.map((d) => `<div class="doc">${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.titulo)}</a>` : `<span>${esc(d.titulo)}</span>`}<span>${esc(d.fonte)}</span></div>`).join("");
+  if (primeiraVez) { show("inicio", true); toast(`Olá${primeiro(S.eu.nome) ? ", " + primeiro(S.eu.nome) : ""}! Já está dentro.`); return; }
+  const h = (location.hash || "").slice(1);
+  show(tabs.includes(h) ? h : store.get("turma1b-tab") || "inicio");
+}
+const primeiro = (nome) => (/^utilizador/i.test(nome || "") ? "" : String(nome || "").trim().split(/\s+/)[0]);
+
+// ---------- start ----------
+const forte = (t) => esc(t).replace(/\*(.+?)\*/g, "<b>$1</b>");
+function desenharInicio() {
+  const p = primeiro(S.eu.nome);
+  $("#ola").textContent = p ? `olá, ${p}!` : "olá!";
+  const R = S.resumo;
+  if (R) {
+    $("#am-titulo").textContent = R.titulo;
+    $("#am-linhas").innerHTML = (R.linhas.length ? R.linhas : [["📚", "Um dia normal de aulas."]]).map(([i, t]) => `<li><span aria-hidden="true">${i}</span><span>${forte(t)}</span></li>`).join("");
+    $("#am-ver").onclick = () => { irPara(R.alvo); };
+  } else {
+    $("#am-titulo").textContent = "Sem aulas nos próximos dias";
+    $("#am-linhas").innerHTML = "";
+    $("#am-ver").onclick = () => show("hoje", true);
+  }
+  const avisos = D.avisos.filter((a) => (a.data ? a.data >= HOJE && a.data <= mais(HOJE, 21) : !a.ate || a.ate >= HOJE))
+    .sort((a, b) => (a.data || "0").localeCompare(b.data || "0"));
+  $("#c-avisos").hidden = !avisos.length;
+  items.clear();
+  $("#avisos").innerHTML = avisos.map((a) => evBtn({ t: { teste: "teste", tpc: "tpc", feriado: "feriado" }[a.tipo] || "evento", titulo: a.titulo, ini: a.ini, fim: a.fim, det: a.det, fonte: a.fonte, d: a.data, semData: !a.data })).join("");
+}
+function irPara(iso) {
+  semana = Math.round((dt(segunda(iso)) - dt(semana0)) / (7 * 864e5));
+  diaSel = iso;
+  show("hoje", true);
+}
+
+// ---------- tabs ----------
+const tabs = ["inicio", "hoje", "daniela", "receber", "dados"];
+function show(id, scroll) {
+  if (!tabs.includes(id)) id = "inicio";
+  tabs.forEach((t) => { $("#t-" + t).setAttribute("aria-selected", t === id); $("#p-" + t).hidden = t !== id; });
+  if (id === "daniela" && !$("#chat").children.length) ola();
+  if (id === "inicio") desenharInicio(); // the agenda reuses the item map, so the notice buttons are drawn again
+  store.set("turma1b-tab", id);
+  document.body.classList.toggle("largo", id === "hoje");
+  if (id === "hoje") desenhar();
+  if (scroll) scrollTo({ top: 0, behavior: calma() ? "auto" : "smooth" });
+}
+$$(".nav button").forEach((b) => b.addEventListener("click", () => show(b.id.slice(2), true)));
+document.addEventListener("click", (e) => {
+  const go = e.target.closest("[data-go]"); if (go) { e.preventDefault(); show(go.dataset.go, true); }
+  const t = e.target.closest("[data-toast]"); if (t) toast(t.dataset.toast);
+  const c = e.target.closest("[data-cal]"); if (c) abrirCalendario();
+});
+let toastTimer;
+function toast(text) { const el = $("#toast"); el.textContent = text; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (el.hidden = true), 3400); }
+
+// ---------- agenda ----------
+const items = new Map();
+let nItem = 0, semana = 0, semana0 = null, diaSel = null;
+const reg = (e) => { const id = "i" + nItem++; items.set(id, e); return id; };
+const fimDoAno = () => D.periodos.at(-1).fim;
+const diasDa = (i) => [0, 1, 2, 3, 4].map((n) => mais(semana0, i * 7 + n));
+const evBtn = (e) => `<button class="ev tt-${e.t}" type="button" data-it="${reg(e)}"><span><span class="ev-t">${esc(e.titulo)}</span><br><span class="ev-s">${e.semData ? "aviso" : `${e.d && e.d !== diaSel ? esc(nomeDia(e.d)) + " · " : ""}${e.ini ? `${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : "todo o dia"}`}</span></span><span class="chev" aria-hidden="true">›</span></button>`;
+function desenhar() {
+  items.clear(); nItem = 0;
+  const dias = diasDa(semana), a = dt(dias[0]), b = dt(dias[4]);
+  $("#cal-titulo").textContent = a.getUTCMonth() === b.getUTCMonth() ? `${a.getUTCDate()} a ${b.getUTCDate()} de ${MES[b.getUTCMonth()]}` : `${a.getUTCDate()} de ${MES[a.getUTCMonth()]} a ${b.getUTCDate()} de ${MES[b.getUTCMonth()]}`;
+  $("#cal-prev").disabled = semana <= -2;
+  $("#cal-next").disabled = mais(dias[0], 7) > fimDoAno();
+  if (!dias.includes(diaSel)) diaSel = dias[0];
+  $("#cal-dias").innerHTML = dias.map((iso) => {
+    const x = dt(iso), tipos = [...new Set(itens(D, iso).filter(destaque).map((e) => e.t))];
+    return `<button class="dchip" role="tab" type="button" aria-selected="${iso === diaSel}" data-dia="${iso}"><span class="dn">${DC[x.getUTCDay()]}</span><span class="dd">${x.getUTCDate()}</span><span class="dots">${tipos.map((t) => `<i class="tt-${t}"></i>`).join("")}</span></button>`;
+  }).join("");
+  const todos = itens(D, diaSel), hi = todos.filter(destaque), almoco = todos.find((e) => e.t === "almoco");
+  const aulas = todos.filter((e) => ["aula", "teste", "pausa", "almoco"].includes(e.t)).sort((p, q) => minutos(p.ini) - minutos(q.ini));
+  const marca = diaSel === HOJE ? ' <span class="chip info">hoje</span>' : diaSel === PROXIMO ? ' <span class="chip info">próximo dia de aulas</span>' : "";
+  $("#cal-dia").innerHTML = `<p class="dia-t">${nomeDia(diaSel)}${marca}</p>`
+    + (hi.length ? `<div class="grupo"><h3>Destaques</h3>${hi.map(evBtn).join("")}</div>` : "")
+    + (almoco ? `<div class="grupo"><h3>Almoço</h3>${evBtn(almoco)}</div>` : "")
+    + (aulas.length ? `<div class="grupo"><h3>Horário do dia</h3><div class="horario">${aulas.map((e) => `<button class="aula tt-${e.t}${e.t === "pausa" || e.t === "almoco" ? " pausa" : ""}" type="button" ${e.t === "pausa" ? "disabled" : `data-it="${reg(e)}"`}><span class="h">${e.ini}–${e.fim}</span><span class="s">${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</span><span class="chev" aria-hidden="true">${e.t === "pausa" ? "" : "›"}</span></button>`).join("")}</div></div>` : "")
+    + (!todos.length ? '<p class="vazio">Sem aulas neste dia.</p>' : "");
+  const H0 = 9, H1 = 16, PX = 56;
+  let g = '<div class="sm-c"></div>' + dias.map((iso) => { const d = dt(iso); return `<div class="sm-h${iso === PROXIMO ? " prox" : ""}"><b>${d.getUTCDate()}</b><span>${DC[d.getUTCDay()]}</span></div>`; }).join("");
+  g += '<div class="sm-lbl">Dia</div>' + dias.map((iso) => `<div class="sm-allday">${itens(D, iso).filter((e) => !e.ini || e.allday).map((e) => `<button class="pill tt-${e.t}" type="button" data-it="${reg(e)}" title="${esc(e.titulo)}">${esc(e.t === "atend" ? `Atendimento ${e.ini}` : e.ini ? `${e.ini} ${e.titulo}` : e.titulo)}</button>`).join("")}</div>`).join("");
+  g += `<div class="sm-horas" style="height:${(H1 - H0) * PX}px">${Array.from({ length: H1 - H0 - 1 }, (_, k) => `<span style="top:${(k + 1) * PX}px">${String(H0 + k + 1).padStart(2, "0")}:00</span>`).join("")}</div>`;
+  g += dias.map((iso) => `<div class="sm-col${D.feriados[iso] ? " fer" : ""}" style="height:${(H1 - H0) * PX}px">${itens(D, iso).filter((e) => e.ini && !e.allday).map((e) => {
+    const top = (minutos(e.ini) - H0 * 60) / 60 * PX, alt = Math.max(22, (minutos(e.fim) - minutos(e.ini)) / 60 * PX - 2);
+    const pausa = e.t === "pausa" || e.t === "almoco";
+    return `<button class="blk tt-${e.t}${pausa ? " pausa" : ""}" type="button" ${e.t === "pausa" ? "disabled" : `data-it="${reg(e)}"`} style="top:${top + 1}px;height:${alt}px"><b>${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</b>${alt > 34 ? `<span>${e.ini}–${e.fim}</span>` : ""}</button>`;
+  }).join("")}</div>`).join("");
+  $("#cal-semana").innerHTML = g;
+}
+$("#cal-prev").addEventListener("click", () => { semana = Math.max(-2, semana - 1); diaSel = diasDa(semana)[0]; desenhar(); });
+$("#cal-next").addEventListener("click", () => { semana++; diaSel = diasDa(semana)[0]; desenhar(); });
+$("#cal-dias").addEventListener("click", (e) => { const b = e.target.closest("[data-dia]"); if (b) { diaSel = b.dataset.dia; desenhar(); } });
+
+// ---------- detail sheet ----------
+const TIPO = { teste: "Teste", aula: "Aula", almoco: "Almoço", evento: "Evento", feriado: "Feriado", atend: "Atendimento", tpc: "TPC" };
+let ultimoFoco = null;
+function folha(html, classe = "") {
+  ultimoFoco = document.activeElement;
+  $("#sheet").className = `sheet ${classe}`;
+  $("#sheet-c").innerHTML = html;
+  $("#sheet-bg").hidden = false; $("#sheet").hidden = false; $("#sheet-x").focus();
+}
+function abrir(e) {
+  const quando = e.semData ? "Aviso" : `${nomeDia(e.d)}${e.ini ? ` · ${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : " · todo o dia"}`;
+  const corpo = e.menu ? `<ul><li><b>Sopa:</b> ${esc(e.menu.sopa)}</li><li><b>Prato:</b> ${esc(e.menu.prato)}</li><li><b>Dieta:</b> ${esc(e.menu.dieta)}</li><li><b>Sobremesa:</b> ${esc(e.menu.sobremesa)}</li><li><b>Lanche:</b> ${esc(e.menu.lanche)}</li></ul>` : e.det ? `<p>${esc(e.det)}</p>` : "";
+  folha(`<span class="tipo">${TIPO[e.t] || ""}</span><h3 id="sh-t">${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</h3><p class="quando">${esc(quando)}</p>${corpo}${e.fonte ? `<p class="fonte">fonte: ${esc(e.fonte)}</p>` : ""}
+    <div class="btns"><button class="btn" type="button" id="sh-ask">Perguntar à Daniela</button></div>`, `tt-${e.t}`);
+  $("#sh-ask").addEventListener("click", () => {
+    fechar(); show("daniela", true);
+    perguntar(e.t === "teste" ? "Quando é o próximo teste?" : e.t === "almoco" ? "O que há para o almoço esta semana?" : e.t === "atend" ? "Quando é o atendimento da professora?" : e.t === "aula" ? `Que aulas há na ${nomeDia(e.d).split(",")[0].toLowerCase()}?` : `Fala-me de: ${e.titulo}`);
+  });
+}
+function abrirCalendario() {
+  const c = S?.calendario;
+  if (!c) return;
+  folha(`<span class="tipo" style="--t:var(--blue)">Calendário</span><h3 id="sh-t">A agenda no seu telemóvel</h3>
+    <p>Testes, feriados, períodos e avisos com data entram no calendário do telemóvel e atualizam-se sozinhos.</p>
+    <div class="cal-opts">
+      <a class="btn primary" href="${esc(c.webcal)}">iPhone, iPad ou Mac</a>
+      <a class="btn" href="${esc(c.google)}" target="_blank" rel="noopener">Google Calendar</a>
+      <button class="btn" type="button" id="cal-copiar">Copiar o link (Outlook e outros)</button>
+    </div>
+    <p class="fonte">No Android, o Google Calendar abre melhor no computador: depois aparece sozinho no telemóvel. O link é só seu: não o partilhe.</p>`);
+  $("#cal-copiar").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(c.https); toast("Link copiado."); } catch { prompt("Copie o link:", c.https); }
+  });
+}
+function fechar() { $("#sheet").hidden = true; $("#sheet-bg").hidden = true; if (ultimoFoco && ultimoFoco.isConnected) ultimoFoco.focus(); }
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-it]"); if (b && items.has(b.dataset.it)) abrir(items.get(b.dataset.it)); });
+$("#sheet-x").addEventListener("click", fechar);
+$("#sheet-bg").addEventListener("click", fechar);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#sheet").hidden) fechar(); });
+
+// ---------- Daniela ----------
+const chat = $("#chat");
+const historico = [];
+// Her answers: plain text with "- " lists, **bold** and a final "fonte: …" line. Escaped first, then formatted.
+function formatar(texto) {
+  const linhas = esc(texto).split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  let out = "", lista = false;
+  for (const l of linhas) {
+    const li = /^[-•*]\s+(.*)$/.exec(l);
+    if (li && !lista) { out += "<ul>"; lista = true; }
+    if (!li && lista) { out += "</ul>"; lista = false; }
+    const f = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+    if (li) out += `<li>${f(li[1])}</li>`;
+    else if (/^fontes?:/i.test(l)) out += `<span class="src">${f(l)}</span>`;
+    else out += `<p>${f(l)}</p>`;
+  }
+  return out + (lista ? "</ul>" : "");
+}
+function bolha(html, quem) {
+  const m = document.createElement("div");
+  m.className = "msg " + quem;
+  m.innerHTML = quem === "ai" ? `<span class="who"><img src="daniela.jpg" alt="">Daniela · IA</span>${html}` : html;
+  chat.append(m);
+  chat.scrollTop = chat.scrollHeight;
+  return m;
+}
+let aPensar = false;
+async function perguntar(texto) {
+  texto = String(texto || "").trim();
+  if (!texto || aPensar) return;
+  aPensar = true;
+  $("#enviar").disabled = true;
+  bolha(esc(texto), "me");
+  historico.push({ role: "user", content: texto });
+  const t = document.createElement("div");
+  t.className = "typing"; t.textContent = "A Daniela está a escrever…";
+  chat.append(t); chat.scrollTop = chat.scrollHeight;
+  try {
+    const r = await api("POST", "/api/daniela", { mensagens: historico.slice(-8) });
+    historico.push({ role: "assistant", content: r.resposta });
+    t.remove();
+    bolha(formatar(r.resposta), "ai");
+  } catch (x) {
+    historico.pop();
+    t.remove();
+    if (x.status === 401) return mostrarEntrar();
+    bolha(`<p>${esc(x.message)}</p>`, "ai");
+  } finally { aPensar = false; $("#enviar").disabled = false; }
+}
+function ola() {
+  const p = primeiro(S?.eu?.nome);
+  bolha(`<p>Olá${p ? `, ${esc(p)}` : ""}! Sou a Daniela, a assistente de IA da turma. Respondo com o horário, a agenda e os avisos do 1.º B, e digo sempre de onde vem cada resposta.</p>`, "ai");
+}
+["Quando é o próximo teste?", "O que há para o almoço amanhã?", "Que aulas há amanhã?", "Quando é o atendimento da professora?", "Quando acaba o período?", "O que é preciso de material?", "Há TPC?"]
+  .forEach((q) => { const b = document.createElement("button"); b.type = "button"; b.textContent = q; b.addEventListener("click", () => perguntar(q)); $("#sugg").append(b); });
+$("#ask").addEventListener("submit", (e) => { e.preventDefault(); const q = $("#q"); perguntar(q.value); q.value = ""; });
+
+// ---------- data + session ----------
+function desenharDados() {
+  $("#sessao-info").textContent = `Entrou como ${S.eu.nome}. A sessão dura 4 meses neste aparelho.`;
+  const painel = $("#painel");
+  painel.hidden = !S.painel;
+  if (S.painel) painel.href = S.painel;
+}
+async function terminar(todas) {
+  try { await api("POST", "/api/sair", { todas }); } catch {}
+  esquecer();
+  historico.length = 0;
+  chat.innerHTML = "";
+  toast(todas ? "Saiu em todos os aparelhos." : "Saiu. Até breve!");
+  mostrarEntrar();
+}
+$("#sair").addEventListener("click", () => terminar(false));
+$("#sair-todos").addEventListener("click", () => terminar(true));
+
+// ---------- start ----------
+if (token) carregar(); else mostrarEntrar();
