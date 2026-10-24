@@ -544,6 +544,7 @@ addEventListener("scroll", () => tour?.medir?.(), { passive: true });
 addEventListener("resize", () => tour?.medir?.());
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && tour) sairDoTour(); });
 $("#ver-demo").addEventListener("click", () => entrarDemo());
+$("#demo-cab").addEventListener("click", () => (demo ? iniciarTour() : entrarDemo()));
 $("#demo-sair").addEventListener("click", () => sairDemo());
 $("#demo-rever").addEventListener("click", () => iniciarTour());
 

@@ -68,3 +68,10 @@
   background: var(--card); color: var(--ink); cursor: pointer; padding: 0 }
 .tema-bt:hover { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)) }
 :root[data-theme="dark"] .tema-bt .lua, :root:not([data-theme="dark"]) .tema-bt .sol { display: none }
+
+/* "▶ DEMO" pill in the masthead, on every screen */
+.demo-cab { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px 0 11px; flex: none; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); background: var(--blue-soft); color: var(--blue);
+  font: 700 12px/1 var(--f-body); letter-spacing: .08em; cursor: pointer }
+.demo-cab svg { width: 15px; height: 15px }
+.demo-cab:hover { border-color: var(--blue) }
