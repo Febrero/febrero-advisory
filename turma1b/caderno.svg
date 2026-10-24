@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="330" viewBox="0 0 420 330" fill="none">
+  <defs>
+    <filter id="shadow" x="-40%" y="-30%" width="180%" height="190%"><feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#34385E" flood-opacity=".12"/></filter>
+    <pattern id="lines" width="200" height="25" patternUnits="userSpaceOnUse"><path d="M0 24.5h200" stroke="#DFE3EF" stroke-width="1"/></pattern>
+    <linearGradient id="cover" x1="110" y1="50" x2="330" y2="290" gradientUnits="userSpaceOnUse"><stop stop-color="#6674DB"/><stop offset="1" stop-color="#4657BC"/></linearGradient>
+  </defs>
+  <circle cx="228" cy="169" r="132" fill="#E7E8F6"/>
+  <circle cx="228" cy="169" r="113" stroke="#D9DCEC" stroke-dasharray="2 7"/>
+  <g transform="rotate(10 217 173)" filter="url(#shadow)">
+    <rect x="121" y="49" width="196" height="250" rx="13" fill="#384895"/>
+    <path d="M132 53h170v241H132z" fill="#F3EFE4"/>
+    <path d="M136 60h166M136 66h166M136 285h166M136 290h166" stroke="#D9D6CD"/>
+    <rect x="113" y="42" width="196" height="246" rx="12" fill="url(#cover)"/>
+    <path d="M129 43v244" stroke="#A7B1F7" stroke-opacity=".5"/>
+    <path d="M290 43v244" stroke="#303E97" stroke-width="5" stroke-opacity=".35"/>
+    <rect x="147" y="87" width="124" height="125" rx="3" fill="#FFFCF3"/>
+    <rect x="153" y="93" width="112" height="113" rx="1" stroke="#D9DCD9"/>
+    <text x="209" y="118" text-anchor="middle" font-family="Georgia,serif" font-size="10" letter-spacing="1.7" fill="#7F837E">O NOSSO CADERNO</text>
+    <text x="209" y="169" text-anchor="middle" font-family="Georgia,serif" font-size="47" font-weight="bold" fill="#404FA8">1.º B</text>
+    <path d="M175 181h68" stroke="#D7BB68" stroke-width="3" stroke-linecap="round"/>
+    <text x="209" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" letter-spacing="1.5" fill="#818681">2026 — 2027</text>
+    <path d="M276 247v54l-8-7-8 7v-54" fill="#D9AF63"/>
+  </g>
+  <g transform="rotate(-12 104 184)" filter="url(#shadow)">
+    <rect x="41" y="125" width="125" height="143" rx="4" fill="#FFFEF9"/>
+    <path d="M41 145h125v113H41z" fill="url(#lines)"/>
+    <path d="M62 125v143" stroke="#EBC5BB"/>
+    <path d="M71 159l5 5 9-10M71 184l5 5 9-10M71 209l5 5 9-10" stroke="#63947C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M95 159h44M95 184h38M95 209h45" stroke="#B7BCD3" stroke-width="3" stroke-linecap="round"/>
+    <path d="M85 120v-13a6 6 0 0 1 12 0v24a4 4 0 0 1-8 0v-18" stroke="#A2A9C4" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  <g transform="rotate(23 345 181)" filter="url(#shadow)">
+    <path d="M338 103a7 7 0 0 1 14 0v16h-14z" fill="#D9998F"/>
+    <path d="M338 119h14v13h-14z" fill="#CFD3DB"/>
+    <path d="M338 132h14v110h-14z" fill="#F1CE76"/>
+    <path d="M341 132h3v110h-3z" fill="#F7DFA3"/>
+    <path d="m338 242 7 23 7-23" fill="#DBC3A0"/>
+    <path d="m342.5 257 2.5 8 2.5-8" fill="#36405E"/>
+  </g>
+  <g stroke="#B4A05B" stroke-width="2" stroke-linecap="round">
+    <circle cx="75" cy="67" r="12" fill="#F4DF93" stroke="none"/>
+    <path d="M75 46v-5M75 88v5M54 67h-5M96 67h5M60 52l-4-4M90 82l4 4M60 82l-4 4M90 52l4-4"/>
+  </g>
+  <path d="m342 58 3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#929DC9"/>
+  <path d="m87 283 2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#93AE9C"/>
+  <path d="M367 273c-3-7-13-3-8 4l8 8 8-8c5-7-5-11-8-4" stroke="#B78E83" stroke-width="1.7" stroke-linecap="round"/>
+</svg>

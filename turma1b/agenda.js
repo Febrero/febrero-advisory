@@ -36,7 +36,8 @@ export function itens(D, iso) {
   const comAvisos = () => {
     for (const a of avisos) {
       if (a.tipo === "teste" && (D.testes || []).some((x) => x.data === iso && a.titulo.toLowerCase().includes(x.disciplina.toLowerCase()))) continue;
-      add({ t: TIPO_AVISO[a.tipo] || "evento", titulo: a.titulo, ini: a.ini || null, fim: a.fim || a.ini || null, allday: true, det: a.det || "", fonte: a.fonte || "email do colégio", aviso: a.id });
+      add({ t: TIPO_AVISO[a.tipo] || "evento", titulo: a.tipo === "tpc" ? `TPC · ${a.titulo}` : a.titulo, ini: a.ini || null, fim: a.fim || a.ini || null, allday: true, det: a.det || "",
+        fonte: a.fonte || "email do colégio", nota: a.nota || null, aviso: a.id });
     }
     return out;
   };
@@ -90,7 +91,7 @@ export function resumoDe(D, alvo, hoje, site = "febreroai.com/turma1b") {
   const L = [];
   for (const e of dia.filter((x) => x.t === "teste")) L.push(["📝", `*${e.titulo}*, ${fmtH(e.ini)}${e.fim ? ` (${minutos(e.fim) - minutos(e.ini)} min)` : ""}`]);
   for (const e of dia.filter((x) => x.t === "evento" || x.t === "feriado")) L.push(["🗓️", e.titulo]);
-  for (const e of dia.filter((x) => x.t === "tpc")) L.push(["📚", `TPC: ${e.titulo}`]);
+  for (const e of dia.filter((x) => x.t === "tpc")) L.push(["📚", `${e.titulo.replace(/^TPC · /, "TPC: ")}${e.nota ? ` (${e.nota})` : ""}`]);
   for (const r of lembretes(D, alvo)) L.push(["🎒", r]);
   const em = D.ementa[alvo];
   if (em) L.push(["🍽️", `Almoço: ${em.prato}`]);
