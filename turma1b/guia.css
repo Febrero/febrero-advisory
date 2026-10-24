@@ -61,3 +61,10 @@
 
 /* the demo button and the sign-in card share the login grid's right column (computer) or stack (phone) */
 .entrar-lado { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+
+/* theme button in the masthead: shows the sun in dark mode (to go light) and the moon in light mode */
+.masthead-fim { display: flex; align-items: center; gap: 8px }
+.tema-bt { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink); cursor: pointer; padding: 0 }
+.tema-bt:hover { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)) }
+:root[data-theme="dark"] .tema-bt .lua, :root:not([data-theme="dark"]) .tema-bt .sol { display: none }

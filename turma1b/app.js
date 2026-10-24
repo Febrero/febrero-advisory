@@ -437,6 +437,16 @@ const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 if (store.get("turma1b-dica")) $("#dica-agenda").hidden = true;
 $("#dica-x").addEventListener("click", () => { $("#dica-agenda").hidden = true; store.set("turma1b-dica", "1"); });
 
+// ---------- dark by default; the sun/moon button switches, remembered on this device ----------
+function aplicarTema(t) {
+  document.documentElement.dataset.theme = t;
+  store.set("turma1b-tema", t);
+  $('meta[name="theme-color"]').content = t === "dark" ? "#151820" : "#f7f6f2";
+  $("#tema").setAttribute("aria-label", t === "dark" ? "Mudar para o modo claro" : "Mudar para o modo escuro");
+}
+$("#tema").addEventListener("click", () => aplicarTema(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
+aplicarTema(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+
 // ---------- demonstration (example data, guided tour) ----------
 const hojeLisboa = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Lisbon" }).format(new Date());
 const visivel = (sel) => { const el = $(sel); return el && el.offsetParent !== null ? el : null; };
