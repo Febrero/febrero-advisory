@@ -1510,7 +1510,7 @@ const INICIAR = { painel: iniciarPainel, pedidos: iniciarPedidos, planta: inicia
 document.addEventListener("DOMContentLoaded", () => {
   pintarIcones();
   $("#marca-nome").textContent = D.empresa.nome;
-  $(".nav-item").forEach((a) => {
+  $$(".nav-item").forEach((a) => {
     a.onclick = () => mostrar(a.dataset.vista);
     a.tabIndex = 0;
     a.setAttribute("role", "button");
