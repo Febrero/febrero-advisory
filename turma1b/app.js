@@ -314,8 +314,10 @@ function ola() {
   const p = primeiro(S?.eu?.nome);
   bolha(`<p>Olá${p ? `, ${esc(p)}` : ""}! Sou a Daniela, a assistente de IA da turma. Respondo com o horário, a agenda e os avisos do 1.º B, e digo sempre de onde vem cada resposta.</p>`, "ai");
 }
-["Quando é o próximo teste?", "O que há para o almoço amanhã?", "Que aulas há amanhã?", "Quando é o atendimento da professora?", "Quando acaba o período?", "O que é preciso de material?", "Há TPC?"]
-  .forEach((q) => { const b = document.createElement("button"); b.type = "button"; b.textContent = q; b.addEventListener("click", () => perguntar(q)); $("#sugg").append(b); });
+// Short labels so several fit on one line; each sends the full question.
+[["Próximo teste?", "Quando é o próximo teste?"], ["Há TPC?", "Há TPC?"], ["Material?", "O que é preciso de material?"], ["Aulas de amanhã?", "Que aulas há amanhã?"],
+  ["Fim do período?", "Quando acaba o período?"], ["Almoço de amanhã?", "O que há para o almoço amanhã?"], ["Atendimento da professora?", "Quando é o atendimento da professora?"]]
+  .forEach(([rotulo, q]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = rotulo; b.addEventListener("click", () => perguntar(q)); $("#sugg").append(b); });
 $("#ask").addEventListener("submit", (e) => { e.preventDefault(); const q = $("#q"); perguntar(q.value); q.value = ""; });
 
 // ---------- data + session ----------

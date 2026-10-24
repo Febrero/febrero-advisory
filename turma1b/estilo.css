@@ -173,9 +173,9 @@ details.arquivo summary { cursor: pointer; font-weight: 700; color: var(--blue) 
 .msg ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px }
 .msg .src { font-size: 12px; color: var(--ink-soft) }
 .typing { align-self: flex-start; font-size: 13px; color: var(--ink-soft); padding-left: 4px }
-.sugg { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none }
-.sugg::-webkit-scrollbar { display: none }
-.sugg button { border: 1px solid var(--blue); color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 7px 12px; font-size: 14px; font-weight: 700; white-space: nowrap }
+/* the questions wrap onto several lines: a sideways row with a hidden scrollbar can't be scrolled with a mouse */
+.sugg { display: flex; flex-wrap: wrap; gap: 6px }
+.sugg button { border: 1px solid var(--blue); color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 7px 12px; font-size: 14px; font-weight: 700; line-height: 1.25; text-align: left }
 .ask { display: flex; gap: 8px }
 .ask input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--paper); border-radius: 14px; padding: 12px 13px }
 
