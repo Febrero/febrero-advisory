@@ -235,4 +235,10 @@ details.arquivo summary { cursor: pointer; font-weight: 700; color: var(--blue) 
 .cal-opts { display: grid; gap: 8px }
 .cal-opts a, .cal-opts button { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; color: inherit }
 .cal-opts .btn.primary { color: var(--blue-ink) }
+.tpc-c { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px }
+.tpc-c > div { flex: 1 1 220px }
+.tpc-f { display: flex; flex-direction: column; gap: 12px }
+.tpc-f select, .tpc-f textarea { font: inherit; color: inherit; border: 1px solid var(--line); background: var(--paper); border-radius: 14px; padding: 11px 12px; width: 100% }
+.btn.foto { display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border-style: dashed }
+.tpc-prev { max-height: 180px; max-width: 100%; object-fit: contain; border-radius: 12px; border: 1px solid var(--line); align-self: flex-start }
 .carrega { display: grid; place-items: center; min-height: 40vh; color: var(--ink-soft); font-weight: 600 }

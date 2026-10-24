@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap">
-<link rel="stylesheet" href="estilo.css?v=2">
+<link rel="stylesheet" href="estilo.css?v=3">
 </head>
 <body>
 <div class="wrap">
@@ -73,6 +73,11 @@
       <div class="btns"><button class="btn primary" type="button" id="am-ver">Ver o dia</button><button class="btn" type="button" data-go="daniela">Perguntar à Daniela</button></div>
     </div>
 
+    <div class="card tpc-c">
+      <div><p class="eyebrow">TPC</p><p><b>Viu o TPC na mochila?</b><br><span class="soft">Partilhe-o com a turma em 10 segundos, por escrito ou com uma foto da folha.</span></p></div>
+      <button class="btn primary" type="button" data-tpc>Partilhar o TPC</button>
+    </div>
+
     <div class="card" id="c-avisos" hidden>
       <div class="head"><p class="eyebrow">Do colégio e do grupo</p><h2>Avisos</h2></div>
       <div class="avisos" id="avisos"></div>
@@ -101,7 +106,8 @@
     <div class="dia" id="cal-dia"></div>
     <div class="semana" id="cal-semana"></div>
     <div class="btns">
-      <button class="btn primary" type="button" data-cal>Pôr no meu calendário</button>
+      <button class="btn primary" type="button" data-tpc>Partilhar o TPC</button>
+      <button class="btn" type="button" data-cal>Pôr no meu calendário</button>
       <button class="btn" type="button" data-go="daniela">Perguntar à Daniela</button>
     </div>
     <details class="arquivo"><summary>Documentos do colégio usados aqui</summary><div class="docs" id="docs"></div></details>
@@ -145,7 +151,8 @@
       <div class="list yes"><h3>✓ O que entra</h3><ul>
         <li>O que é igual para toda a turma: horário, testes, feriados, períodos e atendimento da professora.</li>
         <li>Documentos públicos do site do colégio: calendário dos testes, ementa, lista de material.</li>
-        <li>Os emails gerais do colégio e o TPC partilhado, só depois de o Pedro os confirmar.</li>
+        <li>Os emails gerais do colégio, só depois de o Pedro os confirmar.</li>
+        <li>O TPC partilhado pelas famílias: só o texto da tarefa. As fotos são lidas pela IA e apagadas logo a seguir.</li>
       </ul></div>
       <div class="list no"><h3>✕ O que nunca entra</h3><ul>
         <li>Nada do que é de cada criança: notas, faltas, comportamento, caderneta, avaliações.</li>
@@ -187,6 +194,6 @@
   <div id="sheet-c" style="display:flex;flex-direction:column;gap:12px"></div>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
-<script type="module" src="app.js?v=3"></script>
+<script type="module" src="app.js?v=5"></script>
 </body>
 </html>

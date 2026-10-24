@@ -176,6 +176,7 @@ document.addEventListener("click", (e) => {
   const go = e.target.closest("[data-go]"); if (go) { e.preventDefault(); show(go.dataset.go, true); }
   const t = e.target.closest("[data-toast]"); if (t) toast(t.dataset.toast);
   const c = e.target.closest("[data-cal]"); if (c) abrirCalendario();
+  const tp = e.target.closest("[data-tpc]"); if (tp) abrirTpc();
 });
 let toastTimer;
 function toast(text) { const el = $("#toast"); el.textContent = text; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (el.hidden = true), 3400); }
@@ -186,7 +187,7 @@ let nItem = 0, semana = 0, semana0 = null, diaSel = null;
 const reg = (e) => { const id = "i" + nItem++; items.set(id, e); return id; };
 const fimDoAno = () => D.periodos.at(-1).fim;
 const diasDa = (i) => [0, 1, 2, 3, 4].map((n) => mais(semana0, i * 7 + n));
-const evBtn = (e) => `<button class="ev tt-${e.t}" type="button" data-it="${reg(e)}"><span><span class="ev-t">${esc(e.titulo)}</span><br><span class="ev-s">${e.semData ? "aviso" : `${e.d && e.d !== diaSel ? esc(nomeDia(e.d)) + " · " : ""}${e.ini ? `${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : "todo o dia"}`}</span></span><span class="chev" aria-hidden="true">›</span></button>`;
+const evBtn = (e) => `<button class="ev tt-${e.t}" type="button" data-it="${reg(e)}"><span><span class="ev-t">${esc(e.titulo)}</span><br><span class="ev-s">${e.semData ? "aviso" : `${e.d && e.d !== diaSel ? esc(nomeDia(e.d)) + " · " : ""}${e.ini ? `${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : "todo o dia"}`}${e.nota ? " · " + esc(e.nota) : ""}</span></span><span class="chev" aria-hidden="true">›</span></button>`;
 function desenhar() {
   items.clear(); nItem = 0;
   const dias = diasDa(semana), a = dt(dias[0]), b = dt(dias[4]);
@@ -233,7 +234,7 @@ function folha(html, classe = "") {
 function abrir(e) {
   const quando = e.semData ? "Aviso" : `${nomeDia(e.d)}${e.ini ? ` · ${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : " · todo o dia"}`;
   const corpo = e.menu ? `<ul><li><b>Sopa:</b> ${esc(e.menu.sopa)}</li><li><b>Prato:</b> ${esc(e.menu.prato)}</li><li><b>Dieta:</b> ${esc(e.menu.dieta)}</li><li><b>Sobremesa:</b> ${esc(e.menu.sobremesa)}</li><li><b>Lanche:</b> ${esc(e.menu.lanche)}</li></ul>` : e.det ? `<p>${esc(e.det)}</p>` : "";
-  folha(`<span class="tipo">${TIPO[e.t] || ""}</span><h3 id="sh-t">${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</h3><p class="quando">${esc(quando)}</p>${corpo}${e.fonte ? `<p class="fonte">fonte: ${esc(e.fonte)}</p>` : ""}
+  folha(`<span class="tipo">${TIPO[e.t] || ""}</span><h3 id="sh-t">${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</h3><p class="quando">${esc(quando)}</p>${e.nota ? `<span class="chip ${e.nota === "confirmado" ? "ok" : "warn"}" style="align-self:flex-start">${esc(e.nota === "confirmado" ? "confirmado por 2 famílias" : "por confirmar: só uma família o enviou")}</span>` : ""}${corpo}${e.fonte ? `<p class="fonte">fonte: ${esc(e.fonte)}</p>` : ""}
     <div class="btns"><button class="btn" type="button" id="sh-ask">Perguntar à Daniela</button></div>`, `tt-${e.t}`);
   $("#sh-ask").addEventListener("click", () => {
     fechar(); show("daniela", true);
@@ -253,6 +254,69 @@ function abrirCalendario() {
     <p class="fonte">No Android, o Google Calendar abre melhor no computador: depois aparece sozinho no telemóvel. O link é só seu: não o partilhe.</p>`);
   $("#cal-copiar").addEventListener("click", async () => {
     try { await navigator.clipboard.writeText(c.https); toast("Link copiado."); } catch { prompt("Copie o link:", c.https); }
+  });
+}
+// ---------- share the homework ----------
+// Photos are shrunk on the phone (longest side 1600 px, JPEG) before going up; the server reads and drops them.
+async function reduzir(ficheiro, max = 1600) {
+  const url = URL.createObjectURL(ficheiro);
+  try {
+    const img = await new Promise((ok, falha) => { const i = new Image(); i.onload = () => ok(i); i.onerror = falha; i.src = url; });
+    const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.85);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function atualizar() {
+  try { S = await api("GET", "/api/turma"); D = S.dados; HOJE = S.hoje; PROXIMO = S.proximo || S.hoje; desenharInicio(); if (!$("#p-hoje").hidden) desenhar(); } catch {}
+}
+function abrirTpc() {
+  if (!S) return;
+  const dias = S.tpcDias || [];
+  folha(`<span class="tipo">TPC</span><h3 id="sh-t">Partilhar o TPC</h3>
+    <p>Viu o TPC na mochila ou no caderno? Escreva-o ou tire uma foto da folha, e fica na agenda para todas as famílias.</p>
+    <form id="f-tpc" class="tpc-f" novalidate>
+      <label class="campo">Para quando?<select id="tpc-dia">${dias.map((d, i) => `<option value="${d}"${i === 0 ? " selected" : ""}>${esc(nomeDia(d))}</option>`).join("")}<option value="">Não sei</option></select></label>
+      <label class="campo">O que é?<textarea id="tpc-txt" rows="3" maxlength="500" placeholder="Ex.: Matemática, ficha da página 23"></textarea></label>
+      <label class="btn foto"><input type="file" id="tpc-foto" accept="image/*" hidden><span aria-hidden="true">📷</span> <span id="tpc-foto-t">Tirar ou escolher uma foto</span></label>
+      <img id="tpc-prev" class="tpc-prev" alt="Foto escolhida" hidden>
+      <p class="erro" id="e-tpc" role="alert" hidden></p>
+      <button class="btn primary full" type="submit" id="b-tpc">Partilhar</button>
+      <p class="fonte">A foto é lida pela IA só para tirar o texto do TPC e é apagada logo a seguir. Evite fotografar nomes ou caras.</p>
+    </form>`, "tt-tpc");
+  let foto = null, diaEscolhido = false; // an untouched day lets the AI take the day written in the photo or text
+  $("#tpc-dia").addEventListener("change", () => (diaEscolhido = true));
+  $("#tpc-foto").addEventListener("change", async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    erro("#e-tpc");
+    try { foto = await reduzir(f); $("#tpc-prev").src = foto; $("#tpc-prev").hidden = false; $("#tpc-foto-t").textContent = "Trocar a foto"; }
+    catch { foto = null; erro("#e-tpc", "Não consegui abrir esta foto. Tente outra."); }
+  });
+  $("#f-tpc").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    erro("#e-tpc");
+    const texto = $("#tpc-txt").value.trim();
+    if (!texto && !foto) return erro("#e-tpc", "Escreva o TPC ou tire uma foto da folha.");
+    const b = $("#b-tpc");
+    b.disabled = true; b.textContent = foto ? "A ler a foto…" : "A partilhar…";
+    try {
+      const r = await api("POST", "/api/tpc", { data: diaEscolhido ? $("#tpc-dia").value : "", texto, foto });
+      $("#sheet-c").innerHTML = r.revisao
+        ? `<span class="tipo">TPC</span><h3 id="sh-t">Obrigado!</h3><p>Não consegui ler um TPC claro. O Pedro vai ver e, se estiver certo, aparece na agenda.</p>`
+        : `<span class="tipo">TPC</span><h3 id="sh-t">Obrigado!</h3><p>Ficou na agenda de <b>${esc(nomeDia(r.data))}</b>:</p>
+          <ul>${r.tarefas.map((t) => `<li>${esc(t.titulo)} <span class="soft">· ${t.confirmado ? "confirmado por 2 famílias" : "por confirmar"}</span></li>`).join("")}</ul>
+          <p class="fonte">Quando outra família enviar o mesmo, passa a «confirmado».</p>
+          <div class="btns"><button class="btn primary" type="button" id="tpc-ver">Ver na agenda</button></div>`;
+      await atualizar();
+      $("#tpc-ver")?.addEventListener("click", () => { fechar(); irPara(r.data); });
+    } catch (x) {
+      if (x.status === 401) { fechar(); return mostrarEntrar(); }
+      erro("#e-tpc", x.message);
+      b.disabled = false; b.textContent = "Partilhar";
+    }
   });
 }
 function fechar() { $("#sheet").hidden = true; $("#sheet-bg").hidden = true; if (ultimoFoco && ultimoFoco.isConnected) ultimoFoco.focus(); }
