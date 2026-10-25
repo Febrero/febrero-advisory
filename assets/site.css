@@ -47,3 +47,13 @@ section{padding:96px 0;border-bottom:1px solid var(--line)}.section-heading .eye
 .tabs .tab{flex-shrink:0;padding:9px 14px;font-size:12px}
 .next-area{padding:16px 18px;gap:12px;font-size:10px}.next-area b{font-size:15px}
 }
+
+/* Equal cards (Pedro, 2026-10-25: «as caixas variam de tamanho, fica horrível»): every card in a row is as tall as the
+   tallest one, every card's media (image, video or text visual) has the same 4:3 frame, and the text starts at the
+   same line. Specific selectors so they win over the per-section <style> blocks in the page. */
+.projects{align-items:stretch}
+.projects .proj{display:flex;flex-direction:column;height:100%}
+.projects .proj .pb{flex:1 1 auto}
+.projects .proj img,.projects .proj video,.projects .proj .proc-visual{width:100%;height:auto;aspect-ratio:4/3;flex:none}
+.projects .proj img{object-fit:cover;object-position:top}
+.projects .proj video{object-fit:contain;background:#08070c}
