@@ -1,0 +1,35 @@
+# Febrero AI (Pedro Febrero)
+
+> AI consultancy and implementation from Lisbon, Portugal, working worldwide. Pedro Febrero, economist and technologist, finds where AI pays off in a company and puts it to work on top of the systems it already runs (ERP, CRM, email, Excel: Cegid Primavera, PHC, SAP, Sage, Dynamics), with the documentation grant funders require (PRR / Portugal 2030). Site in Portuguese and English.
+
+Nothing to migrate and nothing new for the team to learn, so adoption is fast. Example: at a construction company in Portugal, going from the architect's drawings to the final model (quantities, budget, bill of materials) took 30 to 60 days; with an AI layer on the ERP it already used (Cegid Primavera) it takes a few hours. It starts with a two-week assessment: the two or three processes with the fastest payback, each with cost and timeline.
+
+## Services
+- AI opportunity assessment: Two weeks: every process reviewed for automation value, ranked by payback, ending in a costed shortlist.
+- AI layer on existing systems: AI that reads and writes where the team already works (ERP, CRM, email, Excel): nothing to migrate, processes from days to hours.
+- Fractional head of AI: A few days a month of senior AI judgement on the leadership team.
+- Board and executive workshop: Half a day on what AI does, what it costs and what competitors do.
+- Grant-funded implementation (PRR / Portugal 2030): Delivery and technical documentation for grant-backed AI projects, to the funder's audit standard.
+- AI video presenters and advertising: Synthetic presenters with cloned voices: from a script to a ready-to-publish ad in minutes.
+- Tokenomics and Web3 go-to-market: Token economic design, distribution, incentives and launch sequencing.
+
+## Work, by area (each page lists the cases)
+- [Organisational processes](https://febreroai.com/en/work/processes/): An AI layer on top of the systems the company already runs: ERP, CRM, email, spreadsheets. Nothing to migrate and nothing new for the team to learn, so adoption is easy — and processes that take days start taking hours. Clients and projects: Construction company · Portugal.
+- [Communication and advertising](https://febreroai.com/en/work/advertising/): Synthetic presenters with cloned voices, animated from a single still image, with automated editing, music and captions. From script to a publishable ad in minutes and for a few euros — which is what makes weekly content viable for a small business. Pieces like these have passed 50,000 views. Clients and projects: CHAZE, Kids & Nits · Lisbon, Kids & Nits, Dez Studio · Lisbon, MJF · Olivais Shopping, Anna Walker Boutique, agrada.me, SOLVE · Lisbon, Centro do Yoga do Lumiar, CORE Studio · Lumiar, Vila Alice, Gigacorp, CC Pontinha, Imed · Parque das Nações, Pilates studio.
+- [Stays and real estate](https://febreroai.com/en/work/stays-real-estate/): Short videos for country houses, rural tourism, glamping and property developments, made from the photos the place already has — nobody needs to go and film. Each one ends with the contacts and where to book. Clients and projects: Quinta Magnólia · Mexilhoeira Grande, Apimonte · Montesinho Natural Park, Casa da Eira · Tábua, Green Paradise Glamping · Vila Nova de Cerveira, Casa Pelourinho · Melo, Gouveia, Bond Maison Concierge.
+- [Client acquisition and sales](https://febreroai.com/en/work/clients-sales/): Systems that find the customer, talk to them, and hand me only the decision. Clients and projects: Bond Maison Concierge, remigracao.com.
+- [Commerce and retail](https://febreroai.com/en/work/commerce-retail/): Turning content and collections into something you can buy in one tap. Clients and projects: SIC Shop, fuse.cards.
+- [Assets, markets and Web3](https://febreroai.com/en/work/markets-web3/): Where the asset's economics are the product: economic design, the market, and the platform under it. Clients and projects: pump.horse, memes.army.
+- [Tourism and web experiences](https://febreroai.com/en/work/web-experiences/): Sites that sell the experience, and experiences that only exist in the browser. Clients and projects: Alentours · Évora, trenches.wtf.
+- [Interactive demo for construction companies](https://febreroai.com/demo/construcao/): a fictitious builder with the AI layer working.
+
+## Background
+- AI Implementation Consultant (2026–). Earlier: VP of Web3 Engineering and Head of Blockchain at RealFevr; lecturer at NOVA University and the University of Leeds (blockchain, crypto economics, DeFi), 2018–2025; co-host of CryptoCafe; peer-reviewed publication in IEEE Transactions on Engineering Management (DOI 10.1109/TEM.2020.3030202).
+
+## Contact
+- Email: pedro@gigacorp.pt
+- LinkedIn: https://www.linkedin.com/in/pedro-febrero-8485093a6/
+- Website: https://febreroai.com/ (Portuguese) and https://febreroai.com/en/ (English); first step: a 20-minute conversation.
+
+## Optional
+- [All cases in full](https://febreroai.com/llms-full.txt)

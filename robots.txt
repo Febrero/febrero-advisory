@@ -1,0 +1,54 @@
+# febreroai.com: search engines and AI assistants are welcome to read and cite this site.
+User-agent: *
+Allow: /
+Disallow: /turma1b/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /turma1b/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /turma1b/
+
+User-agent: Claude-User
+Allow: /
+Disallow: /turma1b/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /turma1b/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /turma1b/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /turma1b/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /turma1b/
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /turma1b/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /turma1b/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /turma1b/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /turma1b/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /turma1b/
+
+Sitemap: https://febreroai.com/sitemap.xml
