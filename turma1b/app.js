@@ -1,6 +1,6 @@
 // Resumo da Turma 1.º B: sign in with the phone (SMS code), then the class agenda, notices and Daniela.
 // Works both on febreroai.com/turma1b (calls the API on Railway, set in <meta name="api">) and on the API's own host.
-import { DC, MES, destaque, diaSemana, dt, itens, mais, minutos, nomeDia, segunda } from "./agenda.js?v=1";
+import { DC, MES, destaque, diaSemana, dt, fmtH, itens, mais, minutos, nomeDia, segunda } from "./agenda.js?v=2";
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (t) => String(t ?? "").replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -123,7 +123,7 @@ async function carregar(primeiraVez = false) {
     $("#tentar").addEventListener("click", () => carregar());
     return;
   }
-  D = S.dados; HOJE = S.hoje; PROXIMO = S.proximo || S.hoje;
+  D = S.dados; D.minhasAtividades = S.atividades?.minhas || []; HOJE = S.hoje; PROXIMO = S.proximo || S.hoje;
   semana0 = segunda(PROXIMO); semana = 0; diaSel = PROXIMO;
   $("#carrega").hidden = true;
   $(".nav").hidden = false;
@@ -146,7 +146,8 @@ function desenharInicio() {
   const R = S.resumo;
   if (R) {
     $("#am-titulo").textContent = R.titulo;
-    $("#am-linhas").innerHTML = (R.linhas.length ? R.linhas : [["📚", "Um dia normal de aulas."]]).map(([i, t]) => `<li><span aria-hidden="true">${i}</span><span>${forte(t)}</span></li>`).join("");
+    const minhas = demo ? [] : itens(D, R.alvo).filter((e) => e.t === "atividade").map((e) => ["⭐", `*${e.titulo}*, ${fmtH(e.ini)}–${fmtH(e.fim)} (só a sua família vê)`]);
+    $("#am-linhas").innerHTML = [...(R.linhas.length ? R.linhas : [["📚", "Um dia normal de aulas."]]), ...minhas].map(([i, t]) => `<li><span aria-hidden="true">${i}</span><span>${forte(t)}</span></li>`).join("");
     $("#am-ver").onclick = () => { irPara(R.alvo); };
   } else {
     $("#am-titulo").textContent = "Sem aulas nos próximos dias";
@@ -320,7 +321,7 @@ function desenhar() {
     return `<button class="dchip" role="tab" type="button" aria-selected="${iso === diaSel}" data-dia="${iso}"><span class="dn">${DC[x.getUTCDay()]}</span><span class="dd">${x.getUTCDate()}</span><span class="dots">${tipos.map((t) => `<i class="tt-${t}"></i>`).join("")}</span></button>`;
   }).join("");
   const todos = itens(D, diaSel), hi = todos.filter(destaque), almoco = todos.find((e) => e.t === "almoco");
-  const aulas = todos.filter((e) => ["aula", "teste", "pausa", "almoco"].includes(e.t)).sort((p, q) => minutos(p.ini) - minutos(q.ini));
+  const aulas = todos.filter((e) => ["aula", "teste", "pausa", "almoco", "atividade"].includes(e.t)).sort((p, q) => minutos(p.ini) - minutos(q.ini));
   const marca = diaSel === HOJE ? ' <span class="chip info">hoje</span>' : diaSel === PROXIMO ? ' <span class="chip info">próximo dia de aulas</span>' : "";
   $("#cal-dia").innerHTML = `<p class="dia-t">${nomeDia(diaSel)}${marca}</p>`
     + (hi.length ? `<div class="grupo"><h3>Destaques</h3>${hi.map(evBtn).join("")}</div>` : "")
@@ -328,28 +329,91 @@ function desenhar() {
     + (aulas.length ? `<div class="grupo"><h3>Horário do dia</h3><div class="horario">${aulas.map((e) => {
       const pausa = e.t === "pausa";
       // the dish is already in the "Almoço" group above; here, squeezed between the time and the pill, it would wrap word by word
-      const rotulo = e.t === "almoco" ? `${icone("almoco")}Almoço` :`${e.t === "teste" ? icone("teste") : ""}${esc(e.titulo)}`;
+      const rotulo = e.t === "almoco" ? `${icone("almoco")}Almoço` :`${["teste", "atividade"].includes(e.t) ? icone(e.t) : ""}${esc(e.titulo)}`;
       const fim = pausa ? "" : e.t === "almoco" && e.menu ? `<span class="mais" aria-hidden="true">ementa${SETA}</span>` : '<span class="chev" aria-hidden="true">›</span>';
       return `<button class="aula tt-${e.t}${pausa ? " pausa" : ""}" type="button" ${pausa ? "disabled" : `data-it="${reg(e)}"`}><span class="h">${e.ini}–${e.fim}</span><span class="s">${rotulo}</span>${fim}</button>`;
     }).join("")}</div></div>` : "")
     + (!todos.length ? '<p class="vazio">Sem aulas neste dia.</p>' : "");
-  const H0 = 9, H1 = 16, PX = 56;
+  // the grid opens earlier or later for the family's own activities (judo at 8h10, inglês until 17h35)
+  const minhas = D.minhasAtividades || [], PX = 56;
+  const H0 = Math.min(9, ...minhas.map((a) => Math.floor(minutos(a.ini) / 60))), H1 = Math.max(16, ...minhas.map((a) => Math.ceil(minutos(a.fim) / 60)));
   let g = '<div class="sm-c"></div>' + dias.map((iso) => { const d = dt(iso); return `<div class="sm-h${iso === PROXIMO ? " prox" : ""}"><b>${d.getUTCDate()}</b><span>${DC[d.getUTCDay()]}</span></div>`; }).join("");
   g += '<div class="sm-lbl">Dia</div>' + dias.map((iso) => `<div class="sm-allday">${itens(D, iso).filter((e) => !e.ini || e.allday).map((e) => `<button class="pill tt-${e.t}" type="button" data-it="${reg(e)}" title="${esc(e.titulo)}">${icone(e.t)}${esc(e.t === "atend" ? `Atendimento ${e.ini}` : e.ini ? `${e.ini} ${e.titulo}` : e.titulo)}</button>`).join("")}</div>`).join("");
   g += `<div class="sm-horas" style="height:${(H1 - H0) * PX}px">${Array.from({ length: H1 - H0 - 1 }, (_, k) => `<span style="top:${(k + 1) * PX}px">${String(H0 + k + 1).padStart(2, "0")}:00</span>`).join("")}</div>`;
   g += dias.map((iso) => `<div class="sm-col${D.feriados[iso] ? " fer" : ""}" style="height:${(H1 - H0) * PX}px">${itens(D, iso).filter((e) => e.ini && !e.allday).map((e) => {
     const top = (minutos(e.ini) - H0 * 60) / 60 * PX, alt = Math.max(22, (minutos(e.fim) - minutos(e.ini)) / 60 * PX - 2);
     const pausa = e.t === "pausa";
-    return `<button class="blk tt-${e.t}${pausa ? " pausa" : ""}" type="button" ${pausa ? "disabled" : `data-it="${reg(e)}" title="${e.t === "almoco" ? "Ver a ementa" : "Ver mais"}"`} style="top:${top + 1}px;height:${alt}px"><b>${e.t === "almoco" ? icone("almoco") + "Almoço" : (e.t === "teste" ? icone("teste") : "") + esc(e.titulo)}</b>${alt > 34 ? `<span>${e.ini}–${e.fim}</span>` : ""}</button>`;
+    return `<button class="blk tt-${e.t}${pausa ? " pausa" : ""}" type="button" ${pausa ? "disabled" : `data-it="${reg(e)}" title="${e.t === "almoco" ? "Ver a ementa" : "Ver mais"}"`} style="top:${top + 1}px;height:${alt}px"><b>${e.t === "almoco" ? icone("almoco") + "Almoço" : (["teste", "atividade"].includes(e.t) ? icone(e.t) : "") + esc(e.titulo)}</b>${alt > 34 ? `<span>${e.ini}–${e.fim}</span>` : ""}</button>`;
   }).join("")}</div>`).join("");
   $("#cal-semana").innerHTML = g;
+  desenharAtividades();
 }
+// «As atividades do seu filho»: the family's own list (only this number sees it, in this agenda and its calendar feed)
+const DIAS_CURTOS = ["", "seg", "ter", "qua", "qui", "sex"];
+const diasTexto = (dias) => (dias.length === 5 ? "todos os dias" : dias.map((d) => DIAS_CURTOS[d]).join(", ").replace(/, ([^,]*)$/, " e $1"));
+function desenharAtividades() {
+  const c = $("#ativ");
+  if (!c) return;
+  c.hidden = demo || !S?.atividades;
+  if (c.hidden) return;
+  const minhas = S.atividades.minhas || [];
+  $("#ativ-lista").innerHTML = minhas.map((a, i) => `<li class="ativ-item tt-atividade">${icone("atividade")}<span><b>${esc(a.nome)}</b><span class="soft">${esc(diasTexto(a.dias))} · ${esc(fmtH(a.ini))}–${esc(fmtH(a.fim))}</span></span>`
+    + `<button class="ativ-x" type="button" data-tirar="${i}" aria-label="Tirar ${esc(a.nome)}">×</button></li>`).join("");
+  $("#ativ-intro").hidden = minhas.length > 0;
+}
+async function guardarAtividades(lista) {
+  const r = await api("POST", "/api/atividades", { lista });
+  S.atividades.minhas = r.minhas;
+  D.minhasAtividades = r.minhas;
+  desenhar();
+  desenharInicio();
+}
+function formAtividade() {
+  const cat = S.atividades.catalogo || [];
+  const qual = $("#ativ-qual"), hor = $("#ativ-hor");
+  qual.innerHTML = cat.map((c) => `<option value="${esc(c.id)}">${esc(c.nome)}</option>`).join("");
+  const marcar = (dias) => $$("#ativ-form .ativ-dias input").forEach((x) => { x.checked = dias.includes(+x.value); });
+  const usar = (h) => { if (!h) return; marcar(h.dias); $("#ativ-ini").value = h.ini; $("#ativ-fim").value = h.fim; };
+  const mudou = () => {
+    const c = cat.find((x) => x.id === qual.value) || {};
+    $("#ativ-nome-l").hidden = c.id !== "outra";
+    $("#ativ-hor-l").hidden = (c.horarios || []).length < 2;
+    hor.innerHTML = (c.horarios || []).map((h, i) => `<option value="${i}">${esc(diasTexto(h.dias))}, ${esc(fmtH(h.ini))}–${esc(fmtH(h.fim))}</option>`).join("");
+    if (c.horarios?.length) usar(c.horarios[0]); else { marcar([]); $("#ativ-ini").value = ""; $("#ativ-fim").value = ""; }
+    $("#ativ-nota").textContent = c.horarios?.length ? `Horário do colégio para o 1.º ano${c.nota ? ` (${c.nota})` : ""}: tire os dias em que o seu filho não vai.` : c.nota || "";
+    $("#ativ-erro").hidden = true;
+  };
+  qual.onchange = mudou;
+  hor.onchange = () => usar((cat.find((x) => x.id === qual.value)?.horarios || [])[+hor.value]);
+  mudou();
+}
+(function ligarAtividades() {
+  if (!$("#ativ")) return;
+  $("#ativ-mais").onclick = () => { formAtividade(); $("#ativ-form").hidden = false; $("#ativ-mais").hidden = true; $("#ativ-qual").focus(); };
+  const fecharForm = () => { $("#ativ-form").hidden = true; $("#ativ-mais").hidden = false; };
+  $("#ativ-cancelar").onclick = fecharForm;
+  $("#ativ-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const nova = { id: $("#ativ-qual").value, nome: $("#ativ-nome").value.trim(), ini: $("#ativ-ini").value, fim: $("#ativ-fim").value,
+      dias: $$("#ativ-form .ativ-dias input").filter((x) => x.checked).map((x) => +x.value) };
+    try { await guardarAtividades([...(S.atividades.minhas || []), nova]); fecharForm(); toast(`${nova.id === "outra" ? nova.nome : $("#ativ-qual").selectedOptions[0].text} está na sua agenda.`); }
+    catch (err) { $("#ativ-erro").textContent = err.message || "Não consegui guardar. Tente outra vez."; $("#ativ-erro").hidden = false; }
+  };
+  $("#ativ-lista").onclick = async (e) => {
+    const b = e.target.closest("[data-tirar]");
+    if (!b) return;
+    const lista = [...(S.atividades.minhas || [])];
+    const [tirada] = lista.splice(+b.dataset.tirar, 1);
+    try { await guardarAtividades(lista); toast(`${tirada.nome} saiu da sua agenda.`); } catch (err) { toast(err.message || "Não consegui tirar. Tente outra vez."); }
+  };
+})();
+
 $("#cal-prev").addEventListener("click", () => { semana = Math.max(semanaMin(), semana - 1); diaSel = diasDa(semana)[0]; desenhar(); });
 $("#cal-next").addEventListener("click", () => { semana++; diaSel = diasDa(semana)[0]; desenhar(); });
 $("#cal-dias").addEventListener("click", (e) => { const b = e.target.closest("[data-dia]"); if (b) { diaSel = b.dataset.dia; desenhar(); } });
 
 // ---------- detail sheet ----------
-const TIPO = { teste: "Teste", aula: "Aula", almoco: "Almoço", evento: "Evento", feriado: "Feriado", atend: "Atendimento", tpc: "TPC" };
+const TIPO = { teste: "Teste", aula: "Aula", almoco: "Almoço", evento: "Evento", feriado: "Feriado", atend: "Atendimento", tpc: "TPC", atividade: "Atividade · só a sua família vê" };
 let ultimoFoco = null;
 function folha(html, classe = "") {
   ultimoFoco = document.activeElement;
@@ -361,8 +425,9 @@ function abrir(e) {
   const quando = e.semData ? "Aviso" : `${nomeDia(e.d)}${e.ini ? ` · ${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : " · todo o dia"}`;
   const corpo = e.menu ? `<ul><li><b>Sopa:</b> ${esc(e.menu.sopa)}</li><li><b>Prato:</b> ${esc(e.menu.prato)}</li><li><b>Dieta:</b> ${esc(e.menu.dieta)}</li><li><b>Sobremesa:</b> ${esc(e.menu.sobremesa)}</li><li><b>Lanche:</b> ${esc(e.menu.lanche)}</li></ul>` : e.det ? `<p>${esc(e.det)}</p>` : "";
   folha(`<span class="tipo">${TIPO[e.t] || ""}</span><h3 id="sh-t">${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</h3><p class="quando">${esc(quando)}</p>${e.nota ? `<span class="chip ${e.nota === "confirmado" ? "ok" : "warn"}" style="align-self:flex-start">${esc(e.nota === "confirmado" ? "confirmado por 2 famílias" : "por confirmar: só uma família o enviou")}</span>` : ""}${corpo}${e.fonte ? `<p class="fonte">fonte: ${esc(e.fonte)}</p>` : ""}
-    <div class="btns"><button class="btn" type="button" id="sh-ask">Perguntar à Daniela</button></div>`, `tt-${e.t}`);
+    <div class="btns"><button class="btn" type="button" id="sh-ask">${e.t === "atividade" ? "Mudar as atividades" : "Perguntar à Daniela"}</button></div>`, `tt-${e.t}`);
   $("#sh-ask").addEventListener("click", () => {
+    if (e.t === "atividade") { fechar(); show("hoje", true); $("#ativ").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
     fechar(); show("daniela", true);
     perguntar(e.t === "teste" ? "Quando é o próximo teste?" : e.t === "almoco" ? "O que há para o almoço esta semana?" : e.t === "atend" ? "Quando é o atendimento da professora?" : e.t === "aula" ? `Que aulas há na ${nomeDia(e.d).split(",")[0].toLowerCase()}?` : `Fala-me de: ${e.titulo}`);
   });
@@ -397,7 +462,7 @@ async function reduzir(ficheiro, max = 1600) {
   } finally { URL.revokeObjectURL(url); }
 }
 async function atualizar() {
-  try { S = await api("GET", "/api/turma"); D = S.dados; HOJE = S.hoje; PROXIMO = S.proximo || S.hoje; desenharInicio(); if (!$("#p-hoje").hidden) desenhar(); } catch {}
+  try { S = await api("GET", "/api/turma"); D = S.dados; D.minhasAtividades = S.atividades?.minhas || []; HOJE = S.hoje; PROXIMO = S.proximo || S.hoje; desenharInicio(); if (!$("#p-hoje").hidden) desenhar(); } catch {}
 }
 function abrirTpc() {
   if (!S) return;
@@ -541,6 +606,7 @@ const ICONES = {
   teste: '<path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/>',
   tpc: '<path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5z"/><path d="M12 6v13.5"/>',
   atend: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5"/>',
+  atividade: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
   feriado: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
   evento: '<path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
 };
@@ -564,10 +630,10 @@ const hojeLisboa = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Li
 const visivel = (sel) => { const el = $(sel); return el && el.offsetParent !== null ? el : null; };
 const almocoVisivel = () => visivel("#cal-dia .aula.tt-almoco") || visivel("#cal-semana .blk.tt-almoco");
 async function entrarDemo() {
-  const m = await import("./demo.js?v=1");
+  const m = await import("./demo.js?v=2");
   respDemo = m.respostaDemo;
   demo = true;
-  S = m.sessaoDemo(hojeLisboa()); D = S.dados; HOJE = S.hoje; PROXIMO = S.proximo;
+  S = m.sessaoDemo(hojeLisboa()); D = S.dados; D.minhasAtividades = S.atividades?.minhas || []; HOJE = S.hoje; PROXIMO = S.proximo;
   semana0 = segunda(PROXIMO); semana = 0; diaSel = PROXIMO;
   historico.length = 0; chat.innerHTML = "";
   document.body.classList.add("em-demo");

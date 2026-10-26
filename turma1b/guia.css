@@ -122,3 +122,32 @@
   font: 700 12px/1.3 var(--f-body); cursor: pointer }
 .disc-chip::first-letter { text-transform: uppercase }
 @media (min-width: 900px) { .disc-lista { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+
+/* «As atividades do seu filho» (2026-10-26): each family's own after-school activities, only in its agenda and calendar */
+:root { --t-atividade: #c2417a }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --t-atividade: #ff8fc0 } }
+:root[data-theme="dark"] { --t-atividade: #ff8fc0 }
+.tt-atividade { --t: var(--t-atividade) }
+.aula.tt-atividade { background: color-mix(in srgb, var(--t-atividade) 9%, var(--card)) }
+.blk.tt-atividade { background: color-mix(in srgb, var(--t-atividade) 16%, var(--card)); border-left-width: 3px }
+.ativ { margin-top: 18px; padding: 16px; border: 1px dashed color-mix(in srgb, var(--t-atividade) 45%, var(--line)); border-radius: 18px; display: grid; gap: 10px }
+.ativ-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap }
+.ativ-cab h3 { margin: 2px 0 0; font-size: 18px }
+.ativ-cab .eyebrow { color: var(--t-atividade) }
+.ativ-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px }
+.ativ-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); background: var(--paper); color: var(--ink) }
+.ativ-item > .ti { color: var(--t-atividade); flex: none }
+.ativ-item > span { display: grid; gap: 2px; flex: 1; min-width: 0 }
+.ativ-item .soft { font-size: 13px }
+.ativ-x { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--ink-soft); font-size: 18px; line-height: 1; cursor: pointer; flex: none }
+.ativ-x:hover { border-color: var(--stop); color: var(--stop) }
+.ativ-form { display: grid; gap: 10px; padding: 12px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line) }
+.ativ-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--ink-soft) }
+.ativ-form select, .ativ-form input[type="time"], .ativ-form input[maxlength] { height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 15px var(--f-body); color-scheme: light dark }
+.ativ-dias { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px }
+.ativ-dias legend { font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; padding: 0 }
+.ativ-dias label { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-weight: 600; cursor: pointer }
+.ativ-dias label:has(input:checked) { border-color: var(--t-atividade); background: color-mix(in srgb, var(--t-atividade) 12%, var(--card)) }
+.ativ-dias input { accent-color: var(--t-atividade); margin: 0 }
+.ativ-horas { display: flex; gap: 10px; flex-wrap: wrap }
+.ativ-horas label { flex: 1 1 120px }

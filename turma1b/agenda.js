@@ -64,6 +64,11 @@ export function itens(D, iso) {
     const nome = D.nomes[cod] || cod;
     add({ t: "aula", titulo: nome, cod, ini, fim, det: `${nome}${D.salas[cod] ? ` (${D.salas[cod]})` : ""}, das ${fmtH(ini)} às ${fmtH(fim)}.`, fonte: D.fonteHorario });
   });
+  // the family's own after-school activities (only its page and its calendar feed carry D.minhasAtividades)
+  for (const a of D.minhasAtividades || []) if (a.dias.includes(wd) && iso >= (a.desde || "")) {
+    add({ t: "atividade", titulo: a.nome, ini: a.ini, fim: a.fim, det: `${a.nome}, das ${fmtH(a.ini)} às ${fmtH(a.fim)}. Só a sua família vê esta atividade.`,
+      fonte: "acrescentada pela sua família" });
+  }
   if (D.intervalo) add({ t: "pausa", titulo: "Intervalo", ini: D.intervalo[0], fim: D.intervalo[1] });
   const em = D.ementa[iso];
   add({ t: "almoco", titulo: em ? `Almoço · ${em.prato}` : "Almoço", ini: D.almoco[0], fim: D.almoco[1], menu: em || null,

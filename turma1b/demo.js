@@ -1,7 +1,7 @@
 // Demonstration data: a made-up class built around today's date, so the tour always shows "tomorrow", a test this
 // week, a menu and a TPC. Nothing here is real and nothing is sent to the server: the real class data stays behind
 // the SMS sign-in.
-import { DN, fmtH, mais, nomeDia, proximoDiaDeAulas, resumoDe } from "./agenda.js?v=1";
+import { DN, fmtH, mais, nomeDia, proximoDiaDeAulas, resumoDe } from "./agenda.js?v=2";
 
 export function turmaDemo(hoje) {
   const D = {
