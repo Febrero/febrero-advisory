@@ -226,7 +226,11 @@ async function mostrarDia(dia) {
   $("#disc-dia-txt").textContent = nomeDiaDisc(dia);
   const data = $("#disc-data");
   data.value = dia; data.max = HOJE; if (dias[0]) data.min = dias[0];
-  $("#disc-atual").textContent = D ? `Atualizado ${haQuanto(D.atualizado)}${D.lidas ? ` · ${D.lidas} mensagens lidas neste dia` : ""}` : "";
+  // the newest day: when the summary last changed and when Daniela last looked at the group (every 5 minutes), so a
+  // quiet evening doesn't look like a stopped reader (Pedro: «Atualizado há 31 min… actualiza automaticamente?»)
+  const w = DISC.X?.whatsapp, recente = dia === DISC.X?.ultimo?.dia;
+  $("#disc-atual").textContent = D ? [recente ? `Atualizado às ${horaLx(D.atualizado)}` : "", D.lidas ? `${D.lidas} mensagens lidas neste dia` : "",
+    recente && w?.ligado ? `a Daniela verificou o grupo ${haQuanto(w.visto)}` : ""].filter(Boolean).join(" · ") : "";
   $("#disc-lista").innerHTML = D?.temas?.length ? D.temas.map((t) => temaHtml(t)).join("")
     : `<li class="disc vazio"><p>${dias.length ? "Sem discussões sobre a turma neste dia." : "Ainda não há discussões resumidas."}</p></li>`;
 }
