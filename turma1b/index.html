@@ -104,7 +104,20 @@
     </div>
 
     <div class="card discussoes" id="c-discussoes" hidden>
-      <div class="head"><p class="eyebrow">Grupo de WhatsApp da turma · resumido pela Daniela</p><h2>Discussões de pais</h2></div>
+      <div class="disc-cab">
+        <div class="head"><p class="eyebrow">Grupo de WhatsApp da turma · resumido pela Daniela</p><h2>Discussões de pais</h2></div>
+        <p class="disc-wa" id="disc-wa" role="status" hidden><span class="avatar-wrap"><img src="daniela.jpg" alt="" width="30" height="30"><i aria-hidden="true"></i></span><span><b>Daniela · WhatsApp</b><small id="disc-wa-txt"></small></span></p>
+      </div>
+      <div class="disc-barra">
+        <div class="disc-nav">
+          <button class="disc-seta" type="button" id="disc-ant" aria-label="Dia anterior com discussões">‹</button>
+          <button class="disc-dia" type="button" id="disc-dia" aria-label="Escolher o dia"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span id="disc-dia-txt"></span></button>
+          <input class="disc-data" type="date" id="disc-data" tabindex="-1" aria-hidden="true">
+          <button class="disc-seta" type="button" id="disc-seg" aria-label="Dia seguinte com discussões">›</button>
+          <button class="linkbtn disc-hoje" type="button" id="disc-recente" hidden>Mais recente</button>
+        </div>
+        <form class="disc-procura" id="disc-procura" role="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" id="disc-q" placeholder="Procurar: matemática, visita, lanche…" aria-label="Procurar nas discussões de todos os dias" enterkeyhint="search" autocomplete="off"><button class="disc-limpar" type="button" id="disc-limpar" aria-label="Limpar a procura" hidden>×</button></form>
+      </div>
       <p class="disc-atual" id="disc-atual"></p>
       <ul class="disc-lista" id="disc-lista"></ul>
     </div>

@@ -160,23 +160,112 @@ function desenharInicio() {
   items.clear();
   $("#avisos").innerHTML = avisos.map((a) => evBtn({ t: { teste: "teste", tpc: "tpc", feriado: "feriado" }[a.tipo] || "evento", titulo: a.titulo, ini: a.ini, fim: a.fim, det: a.det, fonte: a.fonte, d: a.data, semData: !a.data })).join("");
 }
-// «Discussões de pais»: Daniela's summary of the class WhatsApp group, refreshed every minute while the page is open
+// «Discussões de pais»: Daniela's summary of the class WhatsApp group, one per day (‹ › and the calendar go through the
+// days, the search looks in all of them), refreshed every minute while the page is open; the dot is Daniela's WhatsApp
 const ESTADO_DISC = { "em aberto": "Em aberto", combinado: "Combinado", "informação": "Informação" };
 const haQuanto = (ms) => {
   const m = Math.max(0, Math.round((Date.now() - ms) / 60000));
   return m < 1 ? "agora mesmo" : m < 60 ? `há ${m} min` : m < 1440 ? `há ${Math.round(m / 60)} h` : `há ${Math.round(m / 1440)} dias`;
 };
+const DISC = { X: null, dia: null, cache: {}, versao: 0, q: "", pedido: 0 };   // dia null = follow the newest day
+const nomeDiaDisc = (iso) => {
+  if (iso === HOJE) return "Hoje";
+  if (iso === mais(HOJE, -1)) return "Ontem";
+  return new Intl.DateTimeFormat("pt-PT", { timeZone: "UTC", weekday: "long", day: "2-digit", month: "2-digit" }).format(new Date(iso + "T12:00:00Z"));
+};
+const horaLx = (ms) => new Intl.DateTimeFormat("pt-PT", { timeZone: "Europe/Lisbon", hour: "2-digit", minute: "2-digit" }).format(ms);
+const temaHtml = (t, realce = (x) => esc(x)) => `<li class="disc"><div class="disc-top"><b>${realce(t.titulo)}</b><span class="disc-estado" data-e="${esc(t.estado)}">${esc(ESTADO_DISC[t.estado] || t.estado)}</span></div>`
+  + `<p>${realce(t.resumo)}</p>${t.quando ? `<span class="disc-q">${esc(t.quando)}</span>` : ""}</li>`;
+
+function desenharWhatsapp(w) {
+  const el = $("#disc-wa");
+  el.hidden = !w;
+  if (!w) return;
+  el.dataset.ok = w.ligado ? "1" : "0";
+  $("#disc-wa-txt").textContent = w.ligado ? "a ler o grupo" : `sem acesso desde ${w.desde ? horaLx(w.desde) : "há pouco"}`;
+  el.title = w.ligado ? `A Daniela está ligada ao grupo (verificado ${haQuanto(w.visto)}).`
+    : `A Daniela está sem acesso ao grupo: o resumo pode estar atrasado.${S?.eu?.admin && w.motivo ? ` (${w.motivo})` : ""}`;
+}
+
 function desenharDiscussoes(X) {
   const c = $("#c-discussoes");
   if (!c) return;
   c.hidden = !X;
   if (!X) return;
-  $("#disc-atual").textContent = `Atualizado ${haQuanto(X.atualizado)}` + (X.desde ? ` · conversas desde ${X.desde}` : "");
-  $("#disc-lista").innerHTML = X.temas.length
-    ? X.temas.map((t) => `<li class="disc"><div class="disc-top"><b>${esc(t.titulo)}</b><span class="disc-estado" data-e="${esc(t.estado)}">${esc(ESTADO_DISC[t.estado] || t.estado)}</span></div>`
-      + `<p>${esc(t.resumo)}</p>${t.quando ? `<span class="disc-q">${esc(t.quando)}</span>` : ""}</li>`).join("")
-    : `<li class="disc vazio"><p>Sem discussões sobre a turma nos últimos dias.</p></li>`;
+  if (X.atualizado !== DISC.versao) { DISC.cache = {}; DISC.versao = X.atualizado; }
+  DISC.X = X;
+  if (X.ultimo) DISC.cache[X.ultimo.dia] = X.ultimo;
+  desenharWhatsapp(X.whatsapp);
+  if (!DISC.q) mostrarDia(DISC.dia || X.ultimo?.dia || HOJE);
 }
+
+async function mostrarDia(dia) {
+  const n = ++DISC.pedido;
+  if (!(dia in DISC.cache)) {
+    try { DISC.cache[dia] = (await api("GET", `/api/discussoes?dia=${dia}`)).dia; } catch { DISC.cache[dia] = null; }
+    if (n !== DISC.pedido) return;
+  }
+  const dias = DISC.X?.dias || [], D = DISC.cache[dia];
+  const ant = dias.filter((d) => d < dia).at(-1), seg = dias.find((d) => d > dia);
+  $("#disc-ant").disabled = !ant; $("#disc-ant").dataset.dia = ant || "";
+  $("#disc-seg").disabled = !seg; $("#disc-seg").dataset.dia = seg || "";
+  $("#disc-recente").hidden = !DISC.dia || DISC.dia === DISC.X?.ultimo?.dia;
+  $("#disc-dia-txt").textContent = nomeDiaDisc(dia);
+  const data = $("#disc-data");
+  data.value = dia; data.max = HOJE; if (dias[0]) data.min = dias[0];
+  $("#disc-atual").textContent = D ? `Atualizado ${haQuanto(D.atualizado)}${D.lidas ? ` · ${D.lidas} mensagens lidas neste dia` : ""}` : "";
+  $("#disc-lista").innerHTML = D?.temas?.length ? D.temas.map((t) => temaHtml(t)).join("")
+    : `<li class="disc vazio"><p>${dias.length ? "Sem discussões sobre a turma neste dia." : "Ainda não há discussões resumidas."}</p></li>`;
+}
+
+function irParaDiaDisc(dia) {
+  if (!dia) return;
+  DISC.dia = dia === DISC.X?.ultimo?.dia ? null : dia;
+  mostrarDia(dia);
+}
+
+// the search: every word (accents and case don't matter), in all the days; a result opens its day
+const VOGAIS = { a: "[aáàâã]", e: "[eéèê]", i: "[iíì]", o: "[oóòôõ]", u: "[uúùü]", c: "[cç]" };
+function realcador(q) {
+  const termos = q.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().split(/[^a-z0-9ºª]+/).filter((x) => x.length >= 2);
+  if (!termos.length) return (x) => esc(x);
+  const re = new RegExp(termos.map((x) => [...x].map((ch) => VOGAIS[ch] || ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("")).join("|"), "gi");
+  return (texto) => {
+    let out = "", ultimo = 0;
+    for (const m of String(texto).matchAll(re)) { out += esc(texto.slice(ultimo, m.index)) + `<mark>${esc(m[0])}</mark>`; ultimo = m.index + m[0].length; }
+    return out + esc(String(texto).slice(ultimo));
+  };
+}
+let procuraTimer = null;
+async function procurarDisc(q) {
+  DISC.q = q.trim();
+  $("#disc-limpar").hidden = !DISC.q;
+  if (DISC.q.length < 2) { DISC.q = ""; return desenharDiscussoes(DISC.X); }
+  const n = ++DISC.pedido;
+  let r;
+  try { r = await api("GET", `/api/discussoes?q=${encodeURIComponent(DISC.q)}`); } catch { return; }
+  if (n !== DISC.pedido) return;
+  const realce = realcador(DISC.q), res = r.resultados || [];
+  $("#disc-atual").textContent = res.length ? `${res.length === 40 ? "40 ou mais" : res.length} tema${res.length === 1 ? "" : "s"} com «${DISC.q}»` : `Nada encontrado com «${DISC.q}».`;
+  $("#disc-lista").innerHTML = res.map((t) => temaHtml(t, realce).replace('<li class="disc">',
+    `<li class="disc"><button class="disc-chip" type="button" data-dia="${esc(t.dia)}">${esc(nomeDiaDisc(t.dia))} ›</button>`)).join("");
+}
+(function ligarDiscussoes() {
+  if (!$("#c-discussoes")) return;
+  const limparProcura = () => { $("#disc-q").value = ""; DISC.q = ""; $("#disc-limpar").hidden = true; };
+  $("#disc-ant").onclick = (e) => irParaDiaDisc(e.currentTarget.dataset.dia);
+  $("#disc-seg").onclick = (e) => irParaDiaDisc(e.currentTarget.dataset.dia);
+  $("#disc-recente").onclick = () => { DISC.dia = null; mostrarDia(DISC.X?.ultimo?.dia || HOJE); };
+  $("#disc-dia").onclick = () => { const d = $("#disc-data"); try { d.showPicker(); } catch { d.focus(); d.click(); } };
+  $("#disc-data").onchange = (e) => { if (/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) { limparProcura(); irParaDiaDisc(e.target.value); } };
+  $("#disc-q").oninput = (e) => { clearTimeout(procuraTimer); procuraTimer = setTimeout(() => procurarDisc(e.target.value), 350); };
+  $("#disc-procura").onsubmit = (e) => { e.preventDefault(); clearTimeout(procuraTimer); procurarDisc($("#disc-q").value); $("#disc-q").blur(); };
+  $("#disc-limpar").onclick = () => { limparProcura(); desenharDiscussoes(DISC.X); $("#disc-q").focus(); };
+  $("#disc-lista").onclick = (e) => {
+    const b = e.target.closest(".disc-chip");
+    if (b) { limparProcura(); irParaDiaDisc(b.dataset.dia); $("#c-discussoes").scrollIntoView({ behavior: "smooth", block: "start" }); }
+  };
+})();
 setInterval(async () => {
   if (demo || !token || !S || document.visibilityState !== "visible" || $("#p-inicio").hidden) return;
   try { const r = await api("GET", "/api/discussoes"); S.discussoes = r.discussoes; desenharDiscussoes(S.discussoes); } catch {}
