@@ -1,6 +1,7 @@
 // Resumo da Turma 1.º B: sign in with the phone (SMS code), then the class agenda, notices and Daniela.
 // Works both on febreroai.com/turma1b (calls the API on Railway, set in <meta name="api">) and on the API's own host.
 import { DC, MES, destaque, diaSemana, dt, fmtH, itens, mais, minutos, nomeDia, segunda } from "./agenda.js?v=2";
+import { validarAtividades } from "./atividades.js?v=1";
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (t) => String(t ?? "").replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -146,7 +147,7 @@ function desenharInicio() {
   const R = S.resumo;
   if (R) {
     $("#am-titulo").textContent = R.titulo;
-    const minhas = demo ? [] : itens(D, R.alvo).filter((e) => e.t === "atividade").map((e) => ["⭐", `*${e.titulo}*, ${fmtH(e.ini)}–${fmtH(e.fim)} (só a sua família vê)`]);
+    const minhas = itens(D, R.alvo).filter((e) => e.t === "atividade").map((e) => ["⭐", `*${e.titulo}*, ${fmtH(e.ini)}–${fmtH(e.fim)} (só a sua família vê)`]);
     $("#am-linhas").innerHTML = [...(R.linhas.length ? R.linhas : [["📚", "Um dia normal de aulas."]]), ...minhas].map(([i, t]) => `<li><span aria-hidden="true">${i}</span><span>${forte(t)}</span></li>`).join("");
     $("#am-ver").onclick = () => { irPara(R.alvo); };
   } else {
@@ -154,7 +155,7 @@ function desenharInicio() {
     $("#am-linhas").innerHTML = "";
     $("#am-ver").onclick = () => show("hoje", true);
   }
-  desenharDiscussoes(demo ? null : S.discussoes);
+  desenharDiscussoes(S.discussoes);
   const avisos = D.avisos.filter((a) => (a.data ? a.data >= HOJE && a.data <= mais(HOJE, 21) : !a.ate || a.ate >= HOJE))
     .sort((a, b) => (a.data || "0").localeCompare(b.data || "0"));
   $("#c-avisos").hidden = !avisos.length;
@@ -169,6 +170,17 @@ const haQuanto = (ms) => {
   return m < 1 ? "agora mesmo" : m < 60 ? `há ${m} min` : m < 1440 ? `há ${Math.round(m / 60)} h` : `há ${Math.round(m / 1440)} dias`;
 };
 const DISC = { X: null, dia: null, cache: {}, versao: 0, q: "", pedido: 0 };   // dia null = follow the newest day
+const limparDisc = () => { Object.assign(DISC, { X: null, dia: null, cache: {}, versao: 0, q: "" }); const q = $("#disc-q"); if (q) q.value = ""; };
+// one day (?dia=) or a search (?q=); the demonstration answers from its example days, nothing goes to the server
+function pedirDisc(rota) {
+  if (!demo) return api("GET", rota);
+  const u = new URL(rota, location.origin), dias = S.discussoesDias || {}, dia = u.searchParams.get("dia");
+  if (dia) return Promise.resolve({ dia: dias[dia] ? { dia, ...dias[dia] } : null });
+  const dobra = (x) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const termos = dobra(u.searchParams.get("q") || "").split(/[^a-z0-9ºª]+/).filter((t) => t.length >= 2);
+  const todos = Object.keys(dias).sort().reverse().flatMap((d) => dias[d].temas.map((t) => ({ dia: d, ...t })));
+  return Promise.resolve({ resultados: termos.length ? todos.filter((t) => termos.every((x) => dobra(`${t.titulo} ${t.resumo}`).includes(x))) : [] });
+}
 const nomeDiaDisc = (iso) => {
   if (iso === HOJE) return "Hoje";
   if (iso === mais(HOJE, -1)) return "Ontem";
@@ -203,7 +215,7 @@ function desenharDiscussoes(X) {
 async function mostrarDia(dia) {
   const n = ++DISC.pedido;
   if (!(dia in DISC.cache)) {
-    try { DISC.cache[dia] = (await api("GET", `/api/discussoes?dia=${dia}`)).dia; } catch { DISC.cache[dia] = null; }
+    try { DISC.cache[dia] = (await pedirDisc(`/api/discussoes?dia=${dia}`)).dia; } catch { DISC.cache[dia] = null; }
     if (n !== DISC.pedido) return;
   }
   const dias = DISC.X?.dias || [], D = DISC.cache[dia];
@@ -228,7 +240,7 @@ function irParaDiaDisc(dia) {
 // the search: every word (accents and case don't matter), in all the days; a result opens its day
 const VOGAIS = { a: "[aáàâã]", e: "[eéèê]", i: "[iíì]", o: "[oóòôõ]", u: "[uúùü]", c: "[cç]" };
 function realcador(q) {
-  const termos = q.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().split(/[^a-z0-9ºª]+/).filter((x) => x.length >= 2);
+  const termos = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(/[^a-z0-9ºª]+/).filter((x) => x.length >= 2);
   if (!termos.length) return (x) => esc(x);
   const re = new RegExp(termos.map((x) => [...x].map((ch) => VOGAIS[ch] || ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("")).join("|"), "gi");
   return (texto) => {
@@ -244,7 +256,7 @@ async function procurarDisc(q) {
   if (DISC.q.length < 2) { DISC.q = ""; return desenharDiscussoes(DISC.X); }
   const n = ++DISC.pedido;
   let r;
-  try { r = await api("GET", `/api/discussoes?q=${encodeURIComponent(DISC.q)}`); } catch { return; }
+  try { r = await pedirDisc(`/api/discussoes?q=${encodeURIComponent(DISC.q)}`); } catch { return; }
   if (n !== DISC.pedido) return;
   const realce = realcador(DISC.q), res = r.resultados || [];
   $("#disc-atual").textContent = res.length ? `${res.length === 40 ? "40 ou mais" : res.length} tema${res.length === 1 ? "" : "s"} com «${DISC.q}»` : `Nada encontrado com «${DISC.q}».`;
@@ -354,7 +366,7 @@ const diasTexto = (dias) => (dias.length === 5 ? "todos os dias" : dias.map((d) 
 function desenharAtividades() {
   const c = $("#ativ");
   if (!c) return;
-  c.hidden = demo || !S?.atividades;
+  c.hidden = !S?.atividades;
   if (c.hidden) return;
   const minhas = S.atividades.minhas || [];
   $("#ativ-lista").innerHTML = minhas.map((a, i) => `<li class="ativ-item tt-atividade">${icone("atividade")}<span><b>${esc(a.nome)}</b><span class="soft">${esc(diasTexto(a.dias))} · ${esc(fmtH(a.ini))}–${esc(fmtH(a.fim))}</span></span>`
@@ -362,9 +374,14 @@ function desenharAtividades() {
   $("#ativ-intro").hidden = minhas.length > 0;
 }
 async function guardarAtividades(lista) {
-  const r = await api("POST", "/api/atividades", { lista });
-  S.atividades.minhas = r.minhas;
-  D.minhasAtividades = r.minhas;
+  let minhas;
+  if (demo) {                                   // the demonstration checks them here and keeps nothing
+    const r = validarAtividades(lista, D.periodos[0].ini, D.periodos[0].ini);
+    if (r.erro) throw new Error(r.erro);
+    minhas = r.lista;
+  } else minhas = (await api("POST", "/api/atividades", { lista })).minhas;
+  S.atividades.minhas = minhas;
+  D.minhasAtividades = minhas;
   desenhar();
   desenharInicio();
 }
@@ -396,7 +413,7 @@ function formAtividade() {
     e.preventDefault();
     const nova = { id: $("#ativ-qual").value, nome: $("#ativ-nome").value.trim(), ini: $("#ativ-ini").value, fim: $("#ativ-fim").value,
       dias: $$("#ativ-form .ativ-dias input").filter((x) => x.checked).map((x) => +x.value) };
-    try { await guardarAtividades([...(S.atividades.minhas || []), nova]); fecharForm(); toast(`${nova.id === "outra" ? nova.nome : $("#ativ-qual").selectedOptions[0].text} está na sua agenda.`); }
+    try { await guardarAtividades([...(S.atividades.minhas || []), nova]); fecharForm(); toast(`${nova.id === "outra" ? nova.nome : $("#ativ-qual").selectedOptions[0].text} está na sua agenda.${demo ? " (Na demonstração nada fica guardado.)" : ""}`); }
     catch (err) { $("#ativ-erro").textContent = err.message || "Não consegui guardar. Tente outra vez."; $("#ativ-erro").hidden = false; }
   };
   $("#ativ-lista").onclick = async (e) => {
@@ -630,9 +647,10 @@ const hojeLisboa = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Li
 const visivel = (sel) => { const el = $(sel); return el && el.offsetParent !== null ? el : null; };
 const almocoVisivel = () => visivel("#cal-dia .aula.tt-almoco") || visivel("#cal-semana .blk.tt-almoco");
 async function entrarDemo() {
-  const m = await import("./demo.js?v=2");
+  const m = await import("./demo.js?v=3");
   respDemo = m.respostaDemo;
   demo = true;
+  limparDisc();
   S = m.sessaoDemo(hojeLisboa()); D = S.dados; D.minhasAtividades = S.atividades?.minhas || []; HOJE = S.hoje; PROXIMO = S.proximo;
   semana0 = segunda(PROXIMO); semana = 0; diaSel = PROXIMO;
   historico.length = 0; chat.innerHTML = "";
@@ -647,6 +665,7 @@ async function entrarDemo() {
 function sairDemo() {
   sairDoTour();
   demo = false; S = null;
+  limparDisc();
   historico.length = 0; chat.innerHTML = "";
   if (location.hash === "#demo") history.replaceState(null, "", location.pathname + location.search);
   if (token) { document.body.classList.remove("em-demo"); $("#demo-faixa").hidden = true; return carregar(); }
@@ -654,9 +673,13 @@ function sairDemo() {
 }
 const PASSOS = [
   { tab: "inicio", alvo: () => $("#c-amanha"), texto: "Todos os dias, o essencial do próximo dia de aulas: testes, TPC e almoço." },
+  { tab: "inicio", alvo: () => $("#c-discussoes"), texto: "A Daniela está no grupo de WhatsApp da turma: lê as mensagens e as fotos das fichas e resume aqui os temas de cada dia. O ponto verde diz que está a ler o grupo.", dur: 7000 },
+  { tab: "inicio", antes: () => { $("#disc-q").value = "visita"; procurarDisc("visita"); }, alvo: () => $(".disc-barra"), texto: "Com as setas ou o calendário anda pelos dias; a pesquisa encontra um tema em qualquer dia.", dur: 5500,
+    depois: () => { $("#disc-q").value = ""; $("#disc-limpar").hidden = true; DISC.q = ""; desenharDiscussoes(DISC.X); } },
   { tab: "hoje", antes: () => { diaSel = S.dias[1]; desenhar(); }, alvo: () => visivel("#cal-dias") || visivel("#cal-semana"), texto: "Na agenda, toque num dia para ver as aulas, os testes e o almoço." },
   { tab: "hoje", alvo: almocoVisivel, texto: "Toque no almoço…", dur: 3500 },
   { tab: "hoje", antes: () => { const b = almocoVisivel(); if (b && items.has(b.dataset.it)) abrir(items.get(b.dataset.it)); }, alvo: () => $("#sheet"), texto: "…e aparece a ementa do dia. Os testes, o TPC e os avisos abrem da mesma maneira.", dur: 5000, depois: () => fechar() },
+  { tab: "hoje", alvo: () => $("#ativ"), texto: "Acrescente as atividades do seu filho (judo, inglês, o Estudo…): entram na sua agenda e no calendário do telemóvel. Só a sua família as vê.", dur: 6500 },
   { tab: "daniela", antes: () => { if (!historico.length) perguntar("O que há para o almoço amanhã?"); }, alvo: () => $("#p-daniela"), texto: "Uma dúvida? Pergunte à Daniela: responde em segundos, sempre com a fonte.", dur: 6500 },
   { tab: "inicio", alvo: () => $(".tpc-c"), texto: "Viu o TPC na mochila? Partilhe-o com uma foto e ajuda a turma inteira." },
 ];

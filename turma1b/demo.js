@@ -2,6 +2,7 @@
 // week, a menu and a TPC. Nothing here is real and nothing is sent to the server: the real class data stays behind
 // the SMS sign-in.
 import { DN, fmtH, mais, nomeDia, proximoDiaDeAulas, resumoDe } from "./agenda.js?v=2";
+import { CATALOGO, FONTE_CATALOGO } from "./atividades.js?v=1";
 
 export function turmaDemo(hoje) {
   const D = {
@@ -40,10 +41,39 @@ export function turmaDemo(hoje) {
   return { D, dias };
 }
 
+// «Discussões de pais» in the demonstration: what Daniela would have summarised from the class WhatsApp group, by day
+// (made up; the photo of a worksheet shows that she reads the pictures too)
+export function discussoesDemo(hoje, agora = Date.now()) {
+  const h = 3600e3;
+  return {
+    [mais(hoje, -3)]: { lidas: 9, atualizado: agora - 70 * h, temas: [
+      { titulo: "Horário do Estudo à sexta", resumo: "Houve dúvidas sobre a hora a que acaba o Estudo à sexta-feira. Ficou de se confirmar com a secretaria.", estado: "em aberto", quando: "21:05" },
+    ] },
+    [mais(hoje, -1)]: { lidas: 14, atualizado: agora - 20 * h, temas: [
+      { titulo: "Material de Expressão Plástica", resumo: "É preciso levar um rolo de papel de cozinha vazio até quarta-feira para a aula de Expressão Plástica.", estado: "informação", quando: "20:15" },
+      { titulo: "Leitura de Português", resumo: "Ficou esclarecido que a leitura da página 24 é para fazer em voz alta com os pais, sem ficha escrita.", estado: "combinado", quando: "19:02" },
+    ] },
+    [hoje]: { lidas: 23, atualizado: agora - 4 * 60e3, temas: [
+      { titulo: "Ficha de Matemática: exercício 4", resumo: "Perguntou-se se o exercício 4 era para fazer em casa. Pela foto partilhada, é uma ficha de completar subtrações e o enunciado está certo; falta confirmar com a professora.", estado: "em aberto", quando: "18:40" },
+      { titulo: "Visita ao Oceanário: autorização", resumo: "A autorização da visita de estudo tem de ser entregue assinada até quinta-feira. Ficou combinado levar lanche e boné.", estado: "combinado", quando: "17:55" },
+      { titulo: "Perdido: casaco azul", resumo: "Desapareceu um casaco azul-marinho com capuz depois da Educação Física. Quem o encontrar avisa no grupo.", estado: "informação", quando: "12:10" },
+    ] },
+  };
+}
+
 // What the page gets from /api/turma, for the demonstration.
 export function sessaoDemo(hoje) {
   const { D, dias } = turmaDemo(hoje);
-  return { eu: { nome: "Família exemplo", admin: false }, hoje, hora: "17:00", proximo: dias[0], dados: D, resumo: resumoDe(D, dias[0], hoje), calendario: null, painel: null, tpcDias: dias.slice(0, 5), dias };
+  const agora = Date.now(), disc = discussoesDemo(hoje, agora), lista = Object.keys(disc).sort(), ultimo = lista.at(-1);
+  const desde = D.periodos[0].ini;
+  return { eu: { nome: "Família exemplo", admin: false }, hoje, hora: "17:00", proximo: dias[0], dados: D, resumo: resumoDe(D, dias[0], hoje), calendario: null, painel: null, tpcDias: dias.slice(0, 5), dias,
+    discussoes: { atualizado: disc[ultimo].atualizado, dias: lista, ultimo: { dia: ultimo, ...disc[ultimo] },
+      whatsapp: { ligado: true, desde: agora - 3 * 864e5, visto: agora - 2 * 60e3, okEm: agora - 2 * 60e3, motivo: "" } },
+    discussoesDias: disc,
+    atividades: { catalogo: CATALOGO, fonte: FONTE_CATALOGO, minhas: [
+      { id: "judo", nome: "Judo", dias: [1, 3], ini: "16:20", fim: "17:00", desde },
+      { id: "estudo", nome: "Estudo", dias: [2, 4], ini: "16:00", fim: "17:30", desde },
+    ] } };
 }
 
 // Daniela in the demonstration answers the suggested questions from the example data, without calling the AI.
