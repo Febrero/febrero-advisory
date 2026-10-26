@@ -153,12 +153,35 @@ function desenharInicio() {
     $("#am-linhas").innerHTML = "";
     $("#am-ver").onclick = () => show("hoje", true);
   }
+  desenharDiscussoes(demo ? null : S.discussoes);
   const avisos = D.avisos.filter((a) => (a.data ? a.data >= HOJE && a.data <= mais(HOJE, 21) : !a.ate || a.ate >= HOJE))
     .sort((a, b) => (a.data || "0").localeCompare(b.data || "0"));
   $("#c-avisos").hidden = !avisos.length;
   items.clear();
   $("#avisos").innerHTML = avisos.map((a) => evBtn({ t: { teste: "teste", tpc: "tpc", feriado: "feriado" }[a.tipo] || "evento", titulo: a.titulo, ini: a.ini, fim: a.fim, det: a.det, fonte: a.fonte, d: a.data, semData: !a.data })).join("");
 }
+// «Discussões de pais»: Daniela's summary of the class WhatsApp group, refreshed every minute while the page is open
+const ESTADO_DISC = { "em aberto": "Em aberto", combinado: "Combinado", "informação": "Informação" };
+const haQuanto = (ms) => {
+  const m = Math.max(0, Math.round((Date.now() - ms) / 60000));
+  return m < 1 ? "agora mesmo" : m < 60 ? `há ${m} min` : m < 1440 ? `há ${Math.round(m / 60)} h` : `há ${Math.round(m / 1440)} dias`;
+};
+function desenharDiscussoes(X) {
+  const c = $("#c-discussoes");
+  if (!c) return;
+  c.hidden = !X;
+  if (!X) return;
+  $("#disc-atual").textContent = `Atualizado ${haQuanto(X.atualizado)}` + (X.desde ? ` · conversas desde ${X.desde}` : "");
+  $("#disc-lista").innerHTML = X.temas.length
+    ? X.temas.map((t) => `<li class="disc"><div class="disc-top"><b>${esc(t.titulo)}</b><span class="disc-estado" data-e="${esc(t.estado)}">${esc(ESTADO_DISC[t.estado] || t.estado)}</span></div>`
+      + `<p>${esc(t.resumo)}</p>${t.quando ? `<span class="disc-q">${esc(t.quando)}</span>` : ""}</li>`).join("")
+    : `<li class="disc vazio"><p>Sem discussões sobre a turma nos últimos dias.</p></li>`;
+}
+setInterval(async () => {
+  if (demo || !token || !S || document.visibilityState !== "visible" || $("#p-inicio").hidden) return;
+  try { const r = await api("GET", "/api/discussoes"); S.discussoes = r.discussoes; desenharDiscussoes(S.discussoes); } catch {}
+}, 60000);
+
 function irPara(iso) {
   semana = Math.round((dt(segunda(iso)) - dt(semana0)) / (7 * 864e5));
   diaSel = iso;

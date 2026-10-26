@@ -75,3 +75,18 @@
   font: 700 12px/1 var(--f-body); letter-spacing: .08em; cursor: pointer }
 .demo-cab svg { width: 15px; height: 15px }
 .demo-cab:hover { border-color: var(--blue) }
+
+/* «Discussões de pais» (2026-10-26): Daniela's summary of the class WhatsApp group, under the summary card */
+.discussoes .disc-atual { margin: -8px 0 0; font-size: 13px; color: var(--ink-soft) }
+.disc-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px }
+.disc { border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: grid; gap: 6px; background: var(--paper) }
+.disc p { margin: 0; line-height: 1.45 }
+.disc-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px }
+.disc-top b { font-size: 15px }
+.disc-estado { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px;
+  border-radius: 999px; background: var(--blue-soft); color: var(--blue) }
+.disc-estado[data-e="em aberto"] { background: var(--warn-soft); color: var(--warn) }
+.disc-estado[data-e="combinado"] { background: var(--ok-soft); color: var(--ok) }
+.disc-q { font-size: 12px; color: var(--ink-soft) }
+.disc.vazio p { color: var(--ink-soft) }
+@media (min-width: 900px) { .disc-lista { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
