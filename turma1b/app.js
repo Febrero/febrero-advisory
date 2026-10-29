@@ -1,6 +1,7 @@
 // Resumo da Turma 1.º B: sign in with the phone (SMS code), then the class agenda, notices and Daniela.
 // Works both on febreroai.com/turma1b (calls the API on Railway, set in <meta name="api">) and on the API's own host.
-import { DC, MES, destaque, diaSemana, dt, fmtH, itens, mais, minutos, nomeDia, segunda } from "./agenda.js?v=2";
+import { DC, MES, destaque, diaSemana, dt, fmtH, itens, mais, minutos, nomeDia, segunda } from "./agenda.js?v=3";
+import { primeiroNome, validarAniversario } from "./aniversarios.js?v=1";
 import { validarAtividades } from "./atividades.js?v=1";
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -295,7 +296,7 @@ function irPara(iso) {
 }
 
 // ---------- tabs ----------
-const tabs = ["inicio", "hoje", "daniela", "receber", "dados"];
+const tabs = ["inicio", "hoje", "aniv", "daniela", "receber", "dados"];
 function show(id, scroll) {
   if (!tabs.includes(id)) id = "inicio";
   tabs.forEach((t) => { $("#t-" + t).setAttribute("aria-selected", t === id); $("#p-" + t).hidden = t !== id; });
@@ -304,6 +305,7 @@ function show(id, scroll) {
   store.set("turma1b-tab", id);
   document.body.classList.toggle("largo", id === "hoje");
   if (id === "hoje") desenhar();
+  if (id === "aniv") { items.clear(); desenharAniversarios(); }
   if (scroll) scrollTo({ top: 0, behavior: calma() ? "auto" : "smooth" });
 }
 $$(".nav button").forEach((b) => b.addEventListener("click", () => show(b.id.slice(2), true)));
@@ -429,12 +431,89 @@ function formAtividade() {
   };
 })();
 
+// «Aniversários»: the class birthdays as a month calendar (Pedro, 2026-10-29, asked by the parents). Everyone signed
+// in sees them and can add one (first name and date; the party's place and time optional); each removes their own.
+let anMes = null;   // "2026-10": the month on screen
+const DC_SEG = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+const anivDoDia = (iso) => itens(D, iso).filter((e) => e.t === "aniversario");
+function desenharAniversarios() {
+  if (!D) return;
+  anMes ||= (HOJE || hojeLisboa()).slice(0, 7);
+  const [a, m] = anMes.split("-").map(Number);
+  const nome = MES[m - 1];
+  $("#an-titulo").textContent = `${nome.charAt(0).toUpperCase()}${nome.slice(1)} de ${a}`;
+  const primeiro = `${anMes}-01`, inicio = segunda(primeiro);
+  const fimMes = mais(`${m === 12 ? a + 1 : a}-${String(m === 12 ? 1 : m + 1).padStart(2, "0")}-01`, -1);
+  const semanas = Math.ceil((Math.round((dt(fimMes) - dt(inicio)) / 864e5) + 1) / 7);
+  let g = DC_SEG.map((d) => `<div class="an-cab">${d}</div>`).join("");
+  for (let i = 0; i < semanas * 7; i++) {
+    const iso = mais(inicio, i), fora = iso.slice(0, 7) !== anMes, lista = fora ? [] : anivDoDia(iso);
+    g += `<div class="an-dia${fora ? " fora" : ""}${iso === HOJE ? " hoje" : ""}${lista.length ? " tem" : ""}"><span class="an-n">${Number(iso.slice(8))}</span>`
+      + lista.slice(0, 2).map((e) => `<button class="an-pill tt-aniversario" type="button" data-it="${reg(e)}" title="${esc(e.titulo)}"><span class="an-e" aria-hidden="true">🎂 </span>${esc(e.titulo.replace(/^Aniversário: /, ""))}</button>`).join("")
+      + (lista.length > 2 ? `<span class="an-mais">+${lista.length - 2}</span>` : "") + "</div>";
+  }
+  $("#an-mes").innerHTML = g;
+  const doMes = (D.aniversarios || []).filter((x) => x.data.startsWith(anMes));
+  $("#an-lista").innerHTML = doMes.length ? doMes.map((x) => `<li class="an-item"><span class="an-bolo" aria-hidden="true">🎂</span><span><b>${esc(x.nome)}</b>`
+      + `<span class="soft">${esc(nomeDia(x.data))}${x.hora ? ` · festa às ${esc(fmtH(x.hora))}` : ""}${x.local ? ` · ${esc(x.local)}` : ""}</span></span>`
+      + (x.meu ? `<button class="ativ-x" type="button" data-tirar-aniv="${esc(x.id)}" aria-label="Tirar o aniversário de ${esc(x.nome)}">×</button>` : "") + "</li>").join("")
+    : `<li class="an-vazio">Ainda não há aniversários em ${esc(nome)}. Sabe de algum? Acrescente-o.</li>`;
+}
+async function guardarAniversario(rota, corpo) {
+  let lista;
+  if (demo) {                                   // the demonstration keeps them in the page
+    lista = [...(D.aniversarios || [])];
+    if (rota.endsWith("/tirar")) lista = lista.filter((x) => x.id !== corpo.id);
+    else {
+      const r = validarAniversario(corpo);
+      if (r.erro) throw new Error(r.erro);
+      lista.push({ id: "demo" + Date.now(), ...r.aniv, fonte: "acrescentado por uma família", meu: true });
+    }
+    lista.sort((p, q) => p.data.localeCompare(q.data));
+  } else lista = (await api("POST", rota, corpo)).aniversarios;
+  D.aniversarios = lista;
+  desenharAniversarios();
+  desenharInicio();
+}
+(function ligarAniversarios() {
+  if (!$("#p-aniv")) return;
+  const mudarMes = (n) => {
+    const [a, m] = anMes.split("-").map(Number), x = new Date(Date.UTC(a, m - 1 + n, 1));
+    anMes = x.toISOString().slice(0, 7);
+    desenharAniversarios();
+  };
+  $("#an-prev").onclick = () => mudarMes(-1);
+  $("#an-next").onclick = () => mudarMes(1);
+  const fecharForm = () => { $("#an-form").hidden = true; $("#an-mais").hidden = false; $("#an-erro").hidden = true; };
+  $("#an-mais").onclick = () => {
+    $("#an-form").reset();
+    $("#an-data").value = anMes === (HOJE || "").slice(0, 7) ? HOJE : `${anMes}-01`;
+    $("#an-form").hidden = false; $("#an-mais").hidden = true; $("#an-nome").focus();
+  };
+  $("#an-cancelar").onclick = fecharForm;
+  $("#an-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const novo = { nome: $("#an-nome").value, data: $("#an-data").value, local: $("#an-local").value, hora: $("#an-hora").value };
+    try {
+      await guardarAniversario("/api/aniversarios", novo);
+      anMes = novo.data.slice(0, 7); desenharAniversarios(); fecharForm();
+      toast(`🎂 ${primeiroNome(novo.nome)} está no calendário dos aniversários.${demo ? " (Na demonstração nada fica guardado.)" : ""}`);
+    } catch (err) { $("#an-erro").textContent = err.message || "Não consegui guardar. Tente outra vez."; $("#an-erro").hidden = false; }
+  };
+  $("#an-lista").onclick = async (e) => {
+    const b = e.target.closest("[data-tirar-aniv]");
+    if (!b) return;
+    try { await guardarAniversario("/api/aniversarios/tirar", { id: b.dataset.tirarAniv }); toast("Aniversário tirado do calendário."); }
+    catch (err) { toast(err.message || "Não consegui tirar. Tente outra vez."); }
+  };
+})();
+
 $("#cal-prev").addEventListener("click", () => { semana = Math.max(semanaMin(), semana - 1); diaSel = diasDa(semana)[0]; desenhar(); });
 $("#cal-next").addEventListener("click", () => { semana++; diaSel = diasDa(semana)[0]; desenhar(); });
 $("#cal-dias").addEventListener("click", (e) => { const b = e.target.closest("[data-dia]"); if (b) { diaSel = b.dataset.dia; desenhar(); } });
 
 // ---------- detail sheet ----------
-const TIPO = { teste: "Teste", aula: "Aula", almoco: "Almoço", evento: "Evento", feriado: "Feriado", atend: "Atendimento", tpc: "TPC", atividade: "Atividade · só a sua família vê" };
+const TIPO = { teste: "Teste", aula: "Aula", almoco: "Almoço", evento: "Evento", feriado: "Feriado", atend: "Atendimento", tpc: "TPC", atividade: "Atividade · só a sua família vê", aniversario: "Aniversário" };
 let ultimoFoco = null;
 function folha(html, classe = "") {
   ultimoFoco = document.activeElement;
@@ -446,9 +525,10 @@ function abrir(e) {
   const quando = e.semData ? "Aviso" : `${nomeDia(e.d)}${e.ini ? ` · ${e.ini}${e.fim && e.fim !== e.ini ? "–" + e.fim : ""}` : " · todo o dia"}`;
   const corpo = e.menu ? `<ul><li><b>Sopa:</b> ${esc(e.menu.sopa)}</li><li><b>Prato:</b> ${esc(e.menu.prato)}</li><li><b>Dieta:</b> ${esc(e.menu.dieta)}</li><li><b>Sobremesa:</b> ${esc(e.menu.sobremesa)}</li><li><b>Lanche:</b> ${esc(e.menu.lanche)}</li></ul>` : e.det ? `<p>${esc(e.det)}</p>` : "";
   folha(`<span class="tipo">${TIPO[e.t] || ""}</span><h3 id="sh-t">${esc(e.t === "almoco" ? "Almoço" : e.titulo)}</h3><p class="quando">${esc(quando)}</p>${e.nota ? `<span class="chip ${e.nota === "confirmado" ? "ok" : "warn"}" style="align-self:flex-start">${esc(e.nota === "confirmado" ? "confirmado por 2 famílias" : "por confirmar: só uma família o enviou")}</span>` : ""}${corpo}${e.fonte ? `<p class="fonte">fonte: ${esc(e.fonte)}</p>` : ""}
-    <div class="btns"><button class="btn" type="button" id="sh-ask">${e.t === "atividade" ? "Mudar as atividades" : "Perguntar à Daniela"}</button></div>`, `tt-${e.t}`);
+    <div class="btns"><button class="btn" type="button" id="sh-ask">${e.t === "atividade" ? "Mudar as atividades" : e.t === "aniversario" ? "Ver os aniversários" : "Perguntar à Daniela"}</button></div>`, `tt-${e.t}`);
   $("#sh-ask").addEventListener("click", () => {
     if (e.t === "atividade") { fechar(); show("hoje", true); $("#ativ").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    if (e.t === "aniversario") { fechar(); anMes = e.d.slice(0, 7); show("aniv", true); return; }
     fechar(); show("daniela", true);
     perguntar(e.t === "teste" ? "Quando é o próximo teste?" : e.t === "almoco" ? "O que há para o almoço esta semana?" : e.t === "atend" ? "Quando é o atendimento da professora?" : e.t === "aula" ? `Que aulas há na ${nomeDia(e.d).split(",")[0].toLowerCase()}?` : `Fala-me de: ${e.titulo}`);
   });
@@ -628,6 +708,7 @@ const ICONES = {
   tpc: '<path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5z"/><path d="M12 6v13.5"/>',
   atend: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5"/>',
   atividade: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+  aniversario: '<path d="M4 20h16M5 20v-7h14v7M5 16.5c2.3 1.2 4.7 1.2 7 0s4.7-1.2 7 0M12 13V9.5"/><path d="M12 7a1.3 1.3 0 0 0 1.3-1.3C13.3 4.8 12 3 12 3s-1.3 1.8-1.3 2.7A1.3 1.3 0 0 0 12 7z"/>',
   feriado: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
   evento: '<path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
 };
@@ -651,10 +732,10 @@ const hojeLisboa = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Li
 const visivel = (sel) => { const el = $(sel); return el && el.offsetParent !== null ? el : null; };
 const almocoVisivel = () => visivel("#cal-dia .aula.tt-almoco") || visivel("#cal-semana .blk.tt-almoco");
 async function entrarDemo() {
-  const m = await import("./demo.js?v=3");
+  const m = await import("./demo.js?v=4");
   respDemo = m.respostaDemo;
   demo = true;
-  limparDisc();
+  limparDisc(); anMes = null;
   S = m.sessaoDemo(hojeLisboa()); D = S.dados; D.minhasAtividades = S.atividades?.minhas || []; HOJE = S.hoje; PROXIMO = S.proximo;
   semana0 = segunda(PROXIMO); semana = 0; diaSel = PROXIMO;
   historico.length = 0; chat.innerHTML = "";
@@ -685,6 +766,7 @@ const PASSOS = [
   { tab: "hoje", antes: () => { const b = almocoVisivel(); if (b && items.has(b.dataset.it)) abrir(items.get(b.dataset.it)); }, alvo: () => $("#sheet"), texto: "…e aparece a ementa do dia. Os testes, o TPC e os avisos abrem da mesma maneira.", dur: 5000, depois: () => fechar() },
   { tab: "hoje", alvo: () => $("#ativ"), texto: "Acrescente as atividades do seu filho (judo, inglês, o Estudo…): entram na sua agenda e no calendário do telemóvel. Só a sua família as vê.", dur: 6500 },
   { tab: "daniela", antes: () => { if (!historico.length) perguntar("O que há para o almoço amanhã?"); }, alvo: () => $("#p-daniela"), texto: "Uma dúvida? Pergunte à Daniela: responde em segundos, sempre com a fonte.", dur: 6500 },
+  { tab: "aniv", alvo: () => $("#an-mes"), texto: "Os aniversários da turma num calendário do mês: qualquer pai acrescenta o primeiro nome e a data e, se quiser, o local e a hora da festa.", dur: 6500 },
   { tab: "inicio", alvo: () => $(".tpc-c"), texto: "Viu o TPC na mochila? Partilhe-o com uma foto e ajuda a turma inteira." },
 ];
 let tour = null;

@@ -1,7 +1,7 @@
 // Demonstration data: a made-up class built around today's date, so the tour always shows "tomorrow", a test this
 // week, a menu and a TPC. Nothing here is real and nothing is sent to the server: the real class data stays behind
 // the SMS sign-in.
-import { DN, fmtH, mais, nomeDia, proximoDiaDeAulas, resumoDe } from "./agenda.js?v=2";
+import { DN, fmtH, mais, nomeDia, proximoDiaDeAulas, resumoDe } from "./agenda.js?v=3";
 import { CATALOGO, FONTE_CATALOGO } from "./atividades.js?v=1";
 
 export function turmaDemo(hoje) {
@@ -37,6 +37,11 @@ export function turmaDemo(hoje) {
   D.avisos = [
     { id: "demo-tpc", tipo: "tpc", data: dias[0], ini: null, fim: null, titulo: "Português: ler a página 24 do livro", det: "", ate: null, fonte: "partilhado por uma família", nota: "por confirmar" },
     { id: "demo-visita", tipo: "visita", data: dias[2], ini: "09:30", fim: null, titulo: "Visita de estudo ao Oceanário", det: "Levar lanche e boné. Regresso às 13h00.", ate: null, fonte: "email do colégio" },
+  ];
+  // two made-up class birthdays: a party in two days (it shows on the next-day card) and one later in the month
+  D.aniversarios = [
+    { id: "demo-ines", nome: "Inês", data: mais(hoje, 2), hora: "15:00", local: "Parque dos Poetas", fonte: "grupo de WhatsApp da turma", meu: false },
+    { id: "demo-tomas", nome: "Tomás", data: mais(hoje, 17), hora: "", local: "", fonte: "acrescentado por uma família", meu: true },
   ];
   return { D, dias };
 }

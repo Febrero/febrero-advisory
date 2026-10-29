@@ -10,6 +10,7 @@ const MES3 = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "ou
 export const dt = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(Date.UTC(y, m - 1, d)); };
 export const mais = (iso, n) => { const x = dt(iso); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
 export const minutos = (h) => { const [a, b] = h.split(":").map(Number); return a * 60 + b; };
+const maisMinutos = (h, n) => { const m = Math.min(minutos(h) + n, 23 * 60 + 59); return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`; };
 export const fmtH = (h) => h.replace(/^0(\d)/, "$1").replace(":", "h"); // "09:00" → "9h00"
 export const diaSemana = (iso) => dt(iso).getUTCDay();
 export const nomeDia = (iso) => { const x = dt(iso); return `${DN[x.getUTCDay()]}, ${x.getUTCDate()} de ${MES[x.getUTCMonth()]}`; };
@@ -33,11 +34,18 @@ export function itens(D, iso) {
   const out = [], wd = diaSemana(iso);
   const add = (e) => out.push({ ...e, d: iso });
   const avisos = (D.avisos || []).filter((a) => a.data === iso);
+  const aniversarios = (D.aniversarios || []).filter((a) => a.data === iso);
   const comAvisos = () => {
     for (const a of avisos) {
       if (a.tipo === "teste" && (D.testes || []).some((x) => x.data === iso && a.titulo.toLowerCase().includes(x.disciplina.toLowerCase()))) continue;
       add({ t: TIPO_AVISO[a.tipo] || "evento", titulo: a.tipo === "tpc" ? `TPC · ${a.titulo}` : a.titulo, ini: a.ini || null, fim: a.fim || a.ini || null, allday: true, det: a.det || "",
         fonte: a.fonte || "email do colégio", nota: a.nota || null, aviso: a.id });
+    }
+    // the class birthdays (any day, weekends too); the time and place are the party's
+    for (const a of aniversarios) {
+      add({ t: "aniversario", titulo: `Aniversário: ${a.nome}`, ini: a.hora || null, fim: a.hora ? maisMinutos(a.hora, 120) : null, allday: true,
+        det: a.hora || a.local ? `Festa${a.hora ? ` às ${fmtH(a.hora)}` : ""}${a.local ? ` · ${a.local}` : ""}.` : `${a.nome} faz anos.`, local: a.local || "",
+        fonte: a.fonte || "acrescentado por uma família", aniv: a.id });
     }
     return out;
   };
@@ -76,7 +84,7 @@ export function itens(D, iso) {
   return comAvisos();
 }
 
-export const destaque = (e) => ["teste", "feriado", "evento", "atend", "tpc"].includes(e.t);
+export const destaque = (e) => ["teste", "feriado", "evento", "atend", "tpc", "aniversario"].includes(e.t);
 
 export function proximosTestes(D, desde) {
   const fixos = (D.testes || []).filter((x) => x.data >= desde).map((x) => ({ data: x.data, titulo: `Teste de ${x.disciplina}`, disciplina: x.disciplina, ini: x.ini }));
@@ -100,6 +108,11 @@ export function resumoDe(D, alvo, hoje, site = "febreroai.com/turma1b") {
   for (const r of lembretes(D, alvo)) L.push(["🎒", r]);
   const em = D.ementa[alvo];
   if (em) L.push(["🍽️", `Almoço: ${em.prato}`]);
+  // the class birthdays from tomorrow to the target day, at least three days ahead (a weekend party on Thursday's)
+  const ate = alvo > mais(hoje, 3) ? alvo : mais(hoje, 3);
+  for (const a of (D.aniversarios || []).filter((x) => x.data > hoje && x.data <= ate).sort((p, q) => p.data.localeCompare(q.data))) {
+    L.push(["🎂", `Aniversário: *${a.nome}*${a.data !== alvo ? ` (${DN[diaSemana(a.data)].toLowerCase()})` : ""}${a.hora ? `, festa às ${fmtH(a.hora)}` : ""}${a.local ? ` · ${a.local}` : ""}`]);
+  }
   const prox = proximosTestes(D, mais(alvo, 1)).filter((x) => x.data <= mais(alvo, 21)).slice(0, 2);
   if (prox.length) L.push(["📅", `Próximos testes: ${prox.map((x) => `${x.disciplina} (${curto(x.data)})`).join(" · ")}`]);
   const avisos = (D.avisos || []).filter((a) => !a.data && a.ate && a.ate >= alvo).slice(0, 2);

@@ -151,3 +151,37 @@
 .ativ-dias input { accent-color: var(--t-atividade); margin: 0 }
 .ativ-horas { display: flex; gap: 10px; flex-wrap: wrap }
 .ativ-horas label { flex: 1 1 120px }
+
+/* «Aniversários» (2026-10-29): the class birthdays as a month calendar, asked by the parents */
+:root { --t-aniversario: #d9601a }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --t-aniversario: #ffa36b } }
+:root[data-theme="dark"] { --t-aniversario: #ffa36b }
+.tt-aniversario { --t: var(--t-aniversario) }
+.an-mes { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 14px 0 6px }
+.an-cab { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); padding: 4px 0 }
+.an-dia { min-height: 64px; border: 1px solid var(--line); border-radius: 12px; padding: 5px; display: flex; flex-direction: column; gap: 3px; background: var(--card); min-width: 0 }
+.an-dia.fora { opacity: .35; background: transparent }
+.an-dia.hoje { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue) }
+.an-dia.tem { background: color-mix(in srgb, var(--t-aniversario) 10%, var(--card)); border-color: color-mix(in srgb, var(--t-aniversario) 40%, var(--line)) }
+.an-n { font-size: 12px; font-weight: 700; color: var(--ink-soft) }
+.an-dia.hoje .an-n { color: var(--blue) }
+.an-pill { border: 0; border-radius: 7px; padding: 2px 4px; background: color-mix(in srgb, var(--t-aniversario) 18%, var(--card)); color: var(--ink);
+  font: 600 11px/1.25 var(--f-body); text-align: left; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100% }
+.an-mais { font-size: 11px; color: var(--ink-soft); font-weight: 700 }
+.an-lista { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px }
+.an-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); background: var(--paper) }
+.an-item > span:nth-child(2) { display: grid; gap: 2px; flex: 1; min-width: 0 }
+.an-item .soft { font-size: 13px }
+.an-bolo { font-size: 20px; flex: none }
+.an-vazio { padding: 12px; border-radius: 14px; border: 1px dashed var(--line); color: var(--ink-soft); font-size: 14px }
+.an-form { display: grid; gap: 10px; padding: 12px; margin-top: 10px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line) }
+.an-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--ink-soft) }
+.an-form input { height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 15px var(--f-body); color-scheme: light dark }
+/* six tabs since «Aniversários» (the bottom bar was a 5-column grid; the desktop sidebar is a flex column) */
+.nav { grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)) }   /* «Aniversários» needs the room */
+@media (max-width: 520px) {
+  .an-dia { min-height: 52px; padding: 3px; border-radius: 9px }
+  .an-pill { font-size: 10px; padding: 1px 3px }
+  .an-e { display: none }   /* a narrow day: the colour says it, the name fits */
+  .nav button { font-size: 9.5px; padding-left: 0; padding-right: 0 }
+}
