@@ -57,3 +57,84 @@ section{padding:96px 0;border-bottom:1px solid var(--line)}.section-heading .eye
 .projects .proj img,.projects .proj video,.projects .proj .proc-visual{width:100%;height:auto;aspect-ratio:4/3;flex:none}
 .projects .proj img{object-fit:cover;object-position:top}
 .projects .proj video{object-fit:contain;background:#08070c}
+
+/* Readability (Pedro, 2026-10-30: «the font is too small, fonts larger, easier to read»): running text 15-17px, labels
+   and captions 11-13px, nothing under 10px. Same selectors as above, so this block wins by coming last; the cards'
+   .proc-visual sizes are written in the page itself, hence the longer selectors. */
+body{font-size:17px;line-height:1.65}
+p{text-wrap:pretty}
+.eyebrow{font-size:12px}
+.nav-links{font-size:14px}
+.pill,.pill button{font-size:12px}
+.nav-contact{font-size:14px}
+.hero-intro{font-size:22px}
+.hero-bio{font-size:18px;max-width:480px}
+.btn,.text-link{font-size:15px}
+.hero-location,.hero-bottom{font-size:13px}
+.art-caption{font-size:11px}
+.credential-label{font-size:12px;max-width:130px}
+.small-word{font-size:9px}
+.nova .small-word{font-size:8px}
+.lead{font-size:17px;line-height:1.75;max-width:540px}
+.tab{font-size:14px}
+.tab .tab-number{font-size:11px}
+.tabs-head{font-size:12px}
+.tabs .tab{font-size:15px}
+.tab-count{font-size:12px;min-width:23px;height:23px}
+.area{font-size:21px}
+.area-note{font-size:15px;line-height:1.75}
+.pb b{font-size:18px}
+.pb .url{font-size:12px}
+.pb p{font-size:15px;line-height:1.7}
+.more{font-size:14px}
+.perspective-section p{font-size:16px;line-height:1.8}
+.sectors-section h2,.research-section h2{font-size:12px}
+.card .sub{font-size:14px}
+.sector{font-size:15px;line-height:1.75}
+.sector b{font-size:16px}
+.item b{font-size:18px}
+.item .d{font-size:15px;line-height:1.75}
+.item:before{font-size:12px}
+.funding-note{font-size:13px}
+.role{font-size:16px}
+.role .sub{font-size:15px;line-height:1.75}
+.role .when{font-size:12px}
+.pub{font-size:15px}
+.pub .doi{font-size:11px}
+.cta .eyebrow{font-size:12px}
+.cta h3{font-size:17px}
+.cta p:not(.eyebrow){font-size:16px;line-height:1.8;max-width:580px}
+.footer-inner>span,.footer-inner>div{font-size:13px}
+.next-area{font-size:13px}
+.next-area b{font-size:20px}
+.projects .proj .proc-visual .cap{font-size:11.5px}
+.projects .proj .proc-visual .chips span{font-size:12px}
+@media(max-width:1100px){.nav-links{gap:22px}.tab{font-size:13px}.pb b{font-size:17px}}
+@media(max-width:760px){
+body{font-size:16px}
+.hero .eyebrow,.section-heading .eyebrow{font-size:11px}
+.nav-contact{font-size:13px}
+.pill button{font-size:12px}
+.hero-intro{font-size:19px}
+.hero-bio{font-size:17px}
+.hero-location,.hero-bottom{font-size:12px}
+.art-caption{font-size:10px}
+.credential-label{font-size:12px;max-width:none}
+.lead{font-size:16px}
+.tab,.tabs .tab{font-size:14px}
+.tabs-head{font-size:12px}
+.area{font-size:19px}
+.area-note,.pb p,.sector,.item .d,.role .sub{font-size:15px}
+.pb b{font-size:18px}
+.perspective-section p,.cta p:not(.eyebrow){font-size:16px}
+.sector b{font-size:16px}
+.item b{font-size:17px}
+.role{font-size:15px}
+.role .when{font-size:12px}
+.cta h3{font-size:16px}
+.cta .btn{font-size:14px}
+.footer-inner>span{font-size:12px}
+.next-area{font-size:12px}
+.next-area b{font-size:17px}
+}
+@media(max-width:380px){.text-link{font-size:13px}}

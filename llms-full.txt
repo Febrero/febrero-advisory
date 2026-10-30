@@ -1,6 +1,6 @@
 # Febrero AI: every case on febreroai.com
 
-Source: https://febreroai.com/ · updated 2026-10-29
+Source: https://febreroai.com/ · updated 2026-10-30
 
 ## Organisational processes
 https://febreroai.com/en/work/processes/
