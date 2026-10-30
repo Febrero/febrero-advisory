@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Febrero AI · AI layer for construction companies (demo)</title>
+<meta name="description" content="Febrero AI interactive demo: how artificial intelligence helps a construction company with estimates from floor plans, progress billing, invoices and site management. Fictional data.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Febrero AI">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="Febrero AI · AI layer for construction companies (demo)">
+<meta property="og:description" content="Febrero AI interactive demo: how artificial intelligence helps a construction company with estimates, progress billing, invoices and sites. Fictional data.">
+<link rel="alternate" hreflang="pt-PT" href="https://febreroai.com/demo/construcao/">
+<link rel="alternate" hreflang="en" href="https://febreroai.com/demo/construction/">
+<link rel="alternate" hreflang="es" href="https://febreroai.com/demo/construccion/">
+<link rel="alternate" hreflang="x-default" href="https://febreroai.com/demo/construcao/">
+<meta name="theme-color" content="#1d1511">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c47a3c'/%3E%3Cpath d='M6 23h20M8 23v-3a8 8 0 0 1 16 0v3M14 12V9h4v3' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- the stylesheet is shared by the PT, EN and ES versions -->
+<link rel="stylesheet" href="../construcao/estilo.css?v=3">
+</head>
+<body>
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ===== sidebar ===== -->
+  <aside class="lateral w-[252px] flex-none flex-col px-3 py-5 text-white hidden md:flex">
+    <div class="flex items-center gap-3 px-2">
+      <div class="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-[#e3a56b] to-[#b86d31] shadow-lg shadow-black/30">
+        <span data-icone="capacete" class="text-white"></span>
+      </div>
+      <div class="leading-tight">
+        <div class="serif text-[17px] font-semibold tracking-tight" id="marca-nome">Example Builders</div>
+        <div class="text-[11px] text-white/50">AI layer · demo</div>
+      </div>
+    </div>
+
+    <nav id="nav" class="mt-8 flex flex-col gap-1 pl-3">
+      <a class="nav-item" data-vista="painel"><span data-icone="painel"></span>Dashboard</a>
+      <a class="nav-item" data-vista="pedidos"><span data-icone="caixa"></span>Quote requests<span class="distintivo" id="n-pedidos">4</span></a>
+      <a class="nav-item" data-vista="planta"><span data-icone="planta"></span>Floor plan → Estimate</a>
+      <a class="nav-item" data-vista="obras"><span data-icone="grua"></span>Sites</a>
+      <a class="nav-item" data-vista="autos"><span data-icone="regua"></span>Progress billing<span class="distintivo" id="n-autos">3</span></a>
+      <a class="nav-item" data-vista="faturas"><span data-icone="fatura"></span>Invoices<span class="distintivo" id="n-faturas">4</span></a>
+      <a class="nav-item" data-vista="assistente"><span data-icone="brilho"></span>Assistant</a>
+      <a class="nav-item" data-vista="como"><span data-icone="camadas"></span>How it works</a>
+    </nav>
+
+    <div class="mt-auto px-2">
+      <div class="rounded-2xl bg-white/[.04] border border-white/10 p-4">
+        <div class="text-[11px] uppercase tracking-[.12em] text-white/40 font-semibold">Connected to your systems</div>
+        <ul class="mt-3 space-y-2 text-[13px] text-white/75">
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>ERP (Primavera, PHC or other)</li>
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>Site and sales email</li>
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>WhatsApp with crews and clients</li>
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>Floor plans, Excel and site reports</li>
+        </ul>
+      </div>
+      <div class="mt-4 text-[11px] text-white/35 leading-relaxed px-1"><span class="text-white/60 font-semibold">Febrero AI demo with fictional data.</span><br>Example Builders, its clients, sites, suppliers and figures are all fictional.</div>
+    </div>
+  </aside>
+
+  <!-- ===== main ===== -->
+  <main id="principal" class="flex-1 overflow-y-auto">
+    <header class="sticky top-0 z-30 backdrop-blur-md bg-[#f7f2eb]/80 border-b border-[#eadfd2]">
+      <div class="px-4 md:px-8 h-16 flex items-center gap-3">
+        <div class="min-w-0">
+          <div id="titulo" class="serif text-xl font-semibold truncate">Dashboard</div>
+          <div id="subtitulo" class="text-xs text-[#7b6a5d] truncate"></div>
+        </div>
+        <button id="btn-procurar" class="ml-auto hidden lg:flex items-center gap-2 w-80 text-sm text-[#7b6a5d] bg-white border border-[#eadfd2] rounded-xl px-3 py-2 hover:border-[#d6c1ab] transition">
+          <span data-icone="procurar"></span><span>Ask the AI…</span><kbd class="ml-auto text-[10px] border border-[#eadfd2] rounded px-1.5 py-0.5">Ctrl K</kbd>
+        </button>
+        <button id="btn-tour" class="btn btn-escuro !py-2 !px-3.5 ml-auto lg:ml-0"><span data-icone="play" class="text-[#e3a56b]"></span><span class="hidden sm:inline">Guided tour</span></button>
+        <span class="chip chip-novo hidden xl:inline-flex">DEMO · fictional data</span>
+        <!-- the same demo in other languages: the view (#hash) carries over -->
+        <nav class="idiomas" aria-label="Idioma · Language · Idioma">
+          <a href="../construcao/" hreflang="pt-PT" lang="pt-PT">PT</a>
+          <a href="../construction/" hreflang="en" lang="en" class="ativo" aria-current="page">EN</a>
+          <a href="../construccion/" hreflang="es" lang="es">ES</a>
+        </nav>
+        <button class="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-white transition" id="btn-sino" title="Site alerts" aria-label="Site alerts">
+          <span data-icone="sino"></span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#b4442a]"></span>
+        </button>
+        <div class="hidden sm:grid w-10 h-10 rounded-full place-items-center bg-[#2a1f19] text-white text-xs font-bold" title="Management">MD</div>
+      </div>
+      <!-- small screens: the sections as tabs -->
+      <div class="md:hidden flex gap-1 overflow-x-auto px-4 pb-3" id="nav-movel"></div>
+    </header>
+
+    <div class="px-4 md:px-8 py-7 max-w-[1500px]">
+
+      <!-- ===== DASHBOARD ===== -->
+      <section id="v-painel" class="vista">
+        <div class="heroi p-7 md:p-10">
+          <div class="flex items-center gap-2 text-white/70 text-sm"><span class="ponto-vivo"></span><span>The AI worked overnight · updated at 07:00</span></div>
+          <h1 id="saudacao" class="serif text-3xl md:text-[40px] leading-tight font-semibold mt-3 max-w-2xl">Good morning. Four things for today.</h1>
+          <ol id="briefing" class="mt-7 space-y-4 max-w-3xl"></ol>
+        </div>
+
+        <div id="kpis" class="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-6"></div>
+
+        <div class="mt-10">
+          <div class="rotulo">Your process, in 8 steps</div>
+          <h2 class="serif text-2xl font-semibold mt-1">Where AI helps, from the quote request to handover</h2>
+        </div>
+        <div id="passos" class="grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-8 gap-3 mt-4"></div>
+
+        <div class="grid lg:grid-cols-3 gap-4 mt-8">
+          <div class="cartao p-5 lg:col-span-2">
+            <div class="flex items-start justify-between gap-3">
+              <div><div class="rotulo">Sales</div><div class="serif text-lg font-semibold mt-0.5">Requests, proposals and contracts won</div></div>
+              <span class="chip chip-ok">AI on since September</span>
+            </div>
+            <div class="h-64 mt-3"><canvas id="g-funil" aria-label="Chart of quote requests, proposals and contracts won per month"></canvas></div>
+            <p class="text-xs text-[#7b6a5d] mt-2">With the AI, every request gets an estimate the same day and a proposal within hours: more proposals go out and more contracts are won (simulation).</p>
+          </div>
+          <div class="cartao p-5">
+            <div class="rotulo">Crews</div><div class="serif text-lg font-semibold mt-0.5">Utilisation over the next 6 weeks</div>
+            <div class="h-64 mt-3"><canvas id="g-equipas" aria-label="Chart of crew utilisation per week"></canvas></div>
+            <p class="text-xs text-[#7b6a5d] mt-2" id="nota-ocupacao"></p>
+          </div>
+        </div>
+
+        <div class="cartao p-5 mt-4">
+          <div class="flex flex-wrap items-center justify-between gap-2"><div><div class="rotulo">Log</div><div class="serif text-lg font-semibold mt-0.5">What the AI did today</div></div>
+            <span class="text-xs text-[#7b6a5d]">anything going out to clients, suppliers or the ERP waits for approval</span></div>
+          <ul id="atividade" class="mt-4 divide-y divide-[#f1e8de]"></ul>
+        </div>
+      </section>
+
+      <!-- ===== QUOTE REQUESTS ===== -->
+      <section id="v-pedidos" class="vista hidden">
+        <div class="grid xl:grid-cols-[370px_1fr] gap-5">
+          <div class="min-w-0">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="rotulo">Inbox · email and WhatsApp</div>
+              <div class="flex gap-1.5 text-[#7b6a5d]"><span data-icone="email"></span><span data-icone="chat"></span></div>
+            </div>
+            <div id="lista-pedidos" class="space-y-2.5"></div>
+          </div>
+          <div id="detalhe-pedido" class="cartao p-5 md:p-6 min-h-[620px] min-w-0"></div>
+        </div>
+      </section>
+
+      <!-- ===== FLOOR PLAN → ESTIMATE ===== -->
+      <section id="v-planta" class="vista hidden">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div class="rotulo">Step 3 · Estimating</div>
+            <h2 class="serif text-2xl md:text-3xl font-semibold mt-1">From floor plans to estimate, in hours</h2>
+            <p class="text-sm text-[#7b6a5d] mt-1 max-w-2xl">Pick one of the floor plans, or drop in a client's plans. The AI reads the rooms and dimensions, measures walls, concrete, steel, formwork and openings, and prices the estimate with your rates. Today this takes 30 to 60 days.</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-ler" class="btn btn-cobre"><span data-icone="brilho"></span>Read plan with AI</button>
+          </div>
+        </div>
+
+        <div id="miniaturas" class="flex gap-3 overflow-x-auto pb-2 mt-5"></div>
+
+        <div class="grid xl:grid-cols-[1.12fr_1fr] gap-5 mt-3">
+          <div class="cartao p-4 min-w-0">
+            <div class="flex items-center justify-between gap-3 px-1 pb-3">
+              <div class="min-w-0"><div id="planta-nome" class="serif text-lg font-semibold truncate"></div><div id="planta-sub" class="text-xs text-[#7b6a5d] truncate"></div></div>
+              <span id="planta-estado" class="chip chip-neutro">not read</span>
+            </div>
+            <div id="palco" class="planta-palco"><div id="planta-svg"></div><div class="grelha"></div><div class="laser"></div><div id="caixas" class="absolute inset-0"></div></div>
+            <div id="zona-largar" class="zona-largar mt-3 p-4 text-sm text-center text-[#7b6a5d] cursor-pointer" role="button" tabindex="0">
+              <span data-icone="enviar-ficheiro" class="align-middle mr-1"></span>
+              Drop a client's floor plans here <span class="text-[#a08b7a]">(PDF, DWG or image)</span>
+            </div>
+          </div>
+
+          <div class="space-y-4 min-w-0">
+            <div class="cartao p-5">
+              <div class="flex items-center justify-between gap-2"><div class="rotulo">Rooms read from the plan</div><span id="conf" class="text-xs text-[#7b6a5d] text-right"></span></div>
+              <div id="divisoes-scroll" class="max-h-[330px] overflow-y-auto mt-2"><table class="w-full text-sm"><tbody id="tab-divisoes"><tr><td class="py-8 text-center text-[#a08b7a]">Click “Read plan with AI”</td></tr></tbody></table></div>
+              <div id="tot-areas" class="grid grid-cols-3 gap-2 mt-3"></div>
+            </div>
+            <div class="cartao p-5">
+              <div class="rotulo">Measurements from the drawing</div>
+              <div id="medicoes" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-3"><div class="col-span-full py-6 text-center text-sm text-[#a08b7a]">Shown once the plan is read</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid xl:grid-cols-[1fr_1.25fr] gap-5 mt-5">
+          <div class="cartao p-5">
+            <div class="rotulo">Structure and finishes</div>
+            <div class="serif text-lg font-semibold mt-0.5">The estimate updates as you choose</div>
+            <div id="opcoes" class="mt-4 space-y-3.5"></div>
+            <div id="comparacao" class="mt-5 rounded-xl bg-[#fbf3ea] border border-[#f0dcc6] p-4 text-sm"></div>
+            <p class="text-[11.5px] text-[#a08b7a] mt-3">Demo unit rates, excl. VAT. In the real version, the AI uses your price list and the purchase history in your ERP.</p>
+          </div>
+          <div class="cartao p-5 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0"><div class="rotulo" id="orc-rotulo">Estimate</div><div id="orc-titulo" class="serif text-lg font-semibold mt-0.5">—</div></div>
+              <label class="flex items-center gap-2 text-xs text-[#7b6a5d] cursor-pointer select-none"><input type="checkbox" id="ver-margem" class="accent-[#c47a3c]"> show cost and margin (internal)</label>
+            </div>
+            <table class="w-full mt-3 text-sm"><tbody id="tab-orc"><tr><td class="py-10 text-center text-[#a08b7a]">The estimate appears once the plan is read</td></tr></tbody></table>
+            <div id="orc-total" class="mt-4"></div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <button id="btn-proposta" class="btn btn-cobre" disabled><span data-icone="ficheiro"></span>Generate client proposal</button>
+              <button id="btn-excel" class="btn btn-claro" disabled><span data-icone="descarregar"></span>Export bill of quantities</button>
+              <button id="btn-erp" class="btn btn-claro" disabled><span data-icone="enviar"></span>Create project in the ERP</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SITES ===== -->
+      <section id="v-obras" class="vista hidden">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div><div class="rotulo">Steps 5 and 6 · Permitting and construction</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">All your sites in one place</h2>
+            <p class="text-sm text-[#7b6a5d] mt-1 max-w-2xl">The AI brings together your ERP, the emails from the town council, site inspectors and suppliers, and the site reports, and warns you before a problem arrives.</p></div>
+          <div id="resumo-obras" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div class="cartao p-5 mt-5 overflow-x-auto">
+          <div class="flex items-center justify-between gap-3 mb-3 min-w-[860px]"><div class="serif text-lg font-semibold">Site schedules</div>
+            <div class="flex flex-wrap gap-3 text-[11px] text-[#7b6a5d]">
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-lic inline-block"></i>Permitting</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-est inline-block"></i>Structure</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-env inline-block"></i>Masonry and roof</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-inst inline-block"></i>Building services</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-acab inline-block"></i>Finishes</span></div></div>
+          <div id="gantt" class="min-w-[860px]"></div>
+        </div>
+        <div id="cartoes-obras" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5"></div>
+        <div class="grid xl:grid-cols-[1.1fr_1fr] gap-5 mt-5">
+          <div class="cartao p-5" id="fiscal"></div>
+          <div class="cartao p-5">
+            <div class="rotulo">Costs</div><div class="serif text-lg font-semibold mt-0.5">Planned vs actual, to date</div>
+            <div class="h-72 mt-3"><canvas id="g-custos" aria-label="Chart of planned and actual cost per site"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PROGRESS BILLING ===== -->
+      <section id="v-autos" class="vista hidden">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div><div class="rotulo">Step 7 · Progress billing and invoicing</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">Progress billing without hours in Excel</h2>
+            <p class="text-sm text-[#7b6a5d] mt-1 max-w-2xl">The AI reads the foreman's site reports and production spreadsheet, matches each line to the right contract item and prepares each client's progress bill: quantities, totals to date, percentages and amounts. It flags anything that goes over the contract quantity.</p></div>
+          <div id="resumo-autos" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div id="contratos" class="grid md:grid-cols-3 gap-3 mt-5"></div>
+        <div class="grid 2xl:grid-cols-[0.9fr_1.35fr] gap-5 mt-5">
+          <div class="cartao p-5 min-w-0">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div><div class="rotulo">October site reports</div><div class="serif text-lg font-semibold mt-0.5">What the foreman recorded</div></div>
+              <button id="btn-auto" class="btn btn-cobre"><span data-icone="brilho"></span>Generate progress bill with AI</button>
+            </div>
+            <div id="fontes-auto" class="flex flex-wrap gap-1.5 mt-3"></div>
+            <div id="excel" class="mt-4 max-h-[460px] overflow-auto rounded-xl border border-[#eadfd2]"></div>
+          </div>
+          <div class="cartao p-5 min-w-0">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0"><div class="rotulo">Progress bill for the client</div><div id="auto-titulo" class="serif text-lg font-semibold mt-0.5"></div><div id="auto-sub" class="text-xs text-[#7b6a5d]"></div></div>
+              <span id="auto-estado" class="chip chip-novo">to do</span>
+            </div>
+            <div class="overflow-x-auto mt-3"><table class="w-full text-sm min-w-[720px]"><thead><tr class="text-left text-[10.5px] uppercase tracking-wider text-[#a08b7a]">
+              <th class="py-2 font-semibold">Item</th><th class="font-semibold">Description</th><th class="font-semibold">Unit</th><th class="font-semibold text-right pr-2">Contract</th>
+              <th class="font-semibold text-right pr-2">Previous</th><th class="font-semibold text-right pr-2">This month</th><th class="font-semibold text-right pr-2">To date</th>
+              <th class="font-semibold">%</th><th class="font-semibold text-right">Value this month</th></tr></thead>
+              <tbody id="tab-auto"></tbody></table></div>
+            <div id="auto-total" class="mt-4"></div>
+          </div>
+        </div>
+        <div id="email-auto" class="cartao p-5 mt-5 hidden"></div>
+      </section>
+
+      <!-- ===== INVOICES ===== -->
+      <section id="v-faturas" class="vista hidden">
+        <div class="grid xl:grid-cols-[340px_1fr] gap-5">
+          <div>
+            <div class="rotulo mb-3">Invoices received by email</div>
+            <div id="lista-faturas" class="space-y-2.5"></div>
+            <div class="mt-4 text-xs text-[#7b6a5d] leading-relaxed">The AI reads each invoice, checks prices against the purchase order and quantities against the delivery notes signed on site, assigns it to the right site and budget section, and prepares the ERP entry. A person approves.</div>
+          </div>
+          <div class="cartao p-5 md:p-6 min-w-0"><div class="grid lg:grid-cols-[1.1fr_1fr] gap-7" id="fatura-detalhe"></div></div>
+        </div>
+        <div class="cartao p-5 mt-5 overflow-x-auto">
+          <div class="rotulo">Audit trail</div><div class="serif text-lg font-semibold mt-0.5">Every AI step is logged</div>
+          <table class="w-full mt-3 text-sm min-w-[560px]"><thead><tr class="text-left text-[11px] uppercase tracking-wider text-[#a08b7a]"><th class="py-2 font-semibold">Time</th><th class="font-semibold">What</th><th class="font-semibold">Who</th><th class="font-semibold text-right">Status</th></tr></thead>
+            <tbody id="auditoria"></tbody></table>
+        </div>
+      </section>
+
+      <!-- ===== ASSISTANT ===== -->
+      <section id="v-assistente" class="vista hidden">
+        <div class="grid xl:grid-cols-[1fr_340px] gap-5">
+          <div class="cartao overflow-hidden flex flex-col h-[calc(100vh-190px)] min-h-[560px]" id="caixa-chat">
+            <div class="px-5 py-3.5 border-b border-[#eadfd2] flex flex-wrap items-center gap-3">
+              <div class="seg" id="modo-chat"><button data-modo="equipa" class="on">Team (internal)</button><button data-modo="cliente">Client (WhatsApp)</button></div>
+              <div id="chat-legenda" class="text-xs text-[#7b6a5d]"></div>
+            </div>
+            <div id="conversa" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+            <div class="p-3 border-t border-[#eadfd2] bg-white">
+              <div id="sugestoes" class="flex flex-wrap gap-2 mb-2.5"></div>
+              <form id="form-chat" class="flex gap-2"><input id="entrada" autocomplete="off" aria-label="Question for the AI" class="flex-1 min-w-0 rounded-xl border border-[#eadfd2] px-4 py-2.5 text-sm outline-none focus:border-[#c47a3c]" placeholder="Type a question…">
+                <button class="btn btn-cobre !px-3.5" aria-label="Send"><span data-icone="enviar"></span></button></form>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="cartao p-5">
+              <div class="rotulo">What the AI looks at</div>
+              <ul class="mt-3 space-y-2.5 text-sm">
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>ERP</b>: sites, costs, invoicing, suppliers</span></li>
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>Email</b>: clients, town councils, site inspectors, suppliers</span></li>
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>Each site's folder</b>: plans, photos, site reports, progress bills</span></li>
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>Price list</b> and purchase history</span></li>
+              </ul>
+              <p class="text-xs text-[#7b6a5d] mt-3">Clients only see their own project. Each team member sees what their role allows.</p>
+            </div>
+            <div class="cartao p-5">
+              <div class="rotulo">Tasks created by the AI</div>
+              <ul id="tarefas" class="mt-3 space-y-2 text-sm"><li class="vazio text-[#a08b7a]">None yet in this conversation</li></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== HOW IT WORKS ===== -->
+      <section id="v-como" class="vista hidden">
+        <div class="max-w-3xl">
+          <div class="rotulo">How it works</div>
+          <h2 class="serif text-3xl md:text-4xl font-semibold mt-1 leading-tight">An AI layer on top of what you already use. No new software.</h2>
+          <p class="text-[#7b6a5d] mt-3">The AI connects to your ERP, email, WhatsApp and site folders. It reads, compares and proposes; it only writes once a person approves. No data migration and no new software to learn.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-[1fr_auto_1.1fr_auto_1fr] items-center gap-4 mt-8">
+          <div class="space-y-2.5">
+            <div class="rotulo mb-1">Your systems</div>
+            <div class="no">ERP (Primavera, PHC or other)</div><div class="no">Sales, site and purchasing email</div>
+            <div class="no">WhatsApp with crews and clients</div><div class="no">Floor plans, Excel and site reports</div>
+          </div>
+          <div class="hidden lg:block w-16 fluxo"></div>
+          <div class="nucleo p-7">
+            <div class="text-[11px] uppercase tracking-[.14em] text-white/50 font-semibold">AI layer</div>
+            <div class="serif text-2xl font-semibold mt-1">Read · Compare · Propose · Write</div>
+            <div class="grid grid-cols-2 gap-2 mt-5 text-[13px]">
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">1. Read</b><br><span class="text-white/70">requests, plans, site reports, invoices</span></div>
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">2. Compare</b><br><span class="text-white/70">against the contract, the order, the delivery notes, the deadline</span></div>
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">3. Propose</b><br><span class="text-white/70">estimates, progress bills, replies, ERP entries</span></div>
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">4. Write</b><br><span class="text-white/70">only after a person approves</span></div>
+            </div>
+          </div>
+          <div class="hidden lg:block w-16 fluxo"></div>
+          <div class="space-y-2.5">
+            <div class="rotulo mb-1">Who saves time</div>
+            <div class="no">Sales: same-day replies</div><div class="no">Estimating: hours instead of 30 to 60 days</div>
+            <div class="no">Site management: progress bills and reports ready</div><div class="no">Accounts: invoices checked against delivery notes</div>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4 mt-10">
+          <div class="cartao p-5"><span data-icone="escudo" class="text-[#c47a3c]"></span><div class="font-semibold mt-2">Nothing goes out without approval</div><p class="text-sm text-[#7b6a5d] mt-1">Client replies, progress bills, proposals and ERP entries wait for a person's click. Everything is logged.</p></div>
+          <div class="cartao p-5"><span data-icone="camadas" class="text-[#c47a3c]"></span><div class="font-semibold mt-2">Nothing to migrate</div><p class="text-sm text-[#7b6a5d] mt-1">You keep working in the same ERP, Excel and email. The AI works on top, with read-only access to begin with.</p></div>
+          <div class="cartao p-5"><span data-icone="ue" class="text-[#c47a3c]"></span><div class="font-semibold mt-2">Data in the European Union</div><p class="text-sm text-[#7b6a5d] mt-1">Processing in line with the GDPR and the EU AI Act; clients always know when they're talking to the AI.</p></div>
+        </div>
+
+        <div class="cartao p-6 mt-5">
+          <div class="rotulo">How we start</div><div class="serif text-xl font-semibold mt-0.5">A 30-day pilot, starting with estimates</div>
+          <div class="grid md:grid-cols-4 gap-4 mt-5">
+            <div><div class="text-[#c47a3c] font-bold text-sm">Week 1</div><div class="font-semibold mt-1">Discovery</div><p class="text-sm text-[#7b6a5d] mt-1">Your systems, your price list, and how you estimate and measure today.</p></div>
+            <div><div class="text-[#c47a3c] font-bold text-sm">Week 2</div><div class="font-semibold mt-1">Quote requests</div><p class="text-sm text-[#7b6a5d] mt-1">Email and WhatsApp read and answered, always with approval.</p></div>
+            <div><div class="text-[#c47a3c] font-bold text-sm">Weeks 3 and 4</div><div class="font-semibold mt-1">Floor plans → estimate</div><p class="text-sm text-[#7b6a5d] mt-1">Measurements and estimates from the floor plans, with your rates.</p></div>
+            <div><div class="text-[#c47a3c] font-bold text-sm">Then</div><div class="font-semibold mt-1">Progress billing, invoices and sites</div><p class="text-sm text-[#7b6a5d] mt-1">The remaining steps, one at a time, at your team's pace.</p></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="px-4 md:px-8 pb-8 max-w-[1500px]">
+      <div class="border-t border-[#eadfd2] pt-4 text-xs text-[#a08b7a] flex flex-wrap gap-x-3 gap-y-1">
+        <span class="font-semibold text-[#7b6a5d]">Febrero AI demo with fictional data</span>
+        <span>Example Builders, its clients, sites, suppliers and figures are fictional; the unit rates are for demonstration only.</span>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- the client proposal (also what gets printed) -->
+<div id="modal-proposta" class="modal-fundo"><div class="folha" id="folha" role="dialog" aria-label="Proposal for the client"></div></div>
+<!-- guided tour caption -->
+<div id="legenda-tour" class="fixed left-1/2 -translate-x-1/2 bottom-6 z-[75] hidden">
+  <div class="flex items-center gap-4 bg-[#1d1511]/95 text-white rounded-2xl pl-5 pr-2 py-2 shadow-2xl shadow-black/40 backdrop-blur max-w-[92vw]">
+    <span id="tour-n" class="text-[#e3a56b] text-xs font-bold whitespace-nowrap"></span>
+    <span id="tour-texto" class="text-sm"></span>
+    <button id="tour-parar" class="btn !py-1.5 !px-3 bg-white/10 hover:bg-white/20 text-white text-xs">Stop</button>
+  </div>
+</div>
+<div id="toasts"></div>
+
+<script src="dados.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

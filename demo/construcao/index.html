@@ -10,6 +10,10 @@
 <meta property="og:locale" content="pt_PT">
 <meta property="og:title" content="Febrero AI · Camada IA para construtoras (demonstração)">
 <meta property="og:description" content="Demonstração interativa da Febrero AI: como a inteligência artificial ajuda uma construtora com orçamentos, autos de medição, faturas e obras. Dados fictícios.">
+<link rel="alternate" hreflang="pt-PT" href="https://febreroai.com/demo/construcao/">
+<link rel="alternate" hreflang="en" href="https://febreroai.com/demo/construction/">
+<link rel="alternate" hreflang="es" href="https://febreroai.com/demo/construccion/">
+<link rel="alternate" hreflang="x-default" href="https://febreroai.com/demo/construcao/">
 <meta name="theme-color" content="#1d1511">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c47a3c'/%3E%3Cpath d='M6 23h20M8 23v-3a8 8 0 0 1 16 0v3M14 12V9h4v3' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +21,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="estilo.css?v=2">
+<link rel="stylesheet" href="estilo.css?v=3">
 </head>
 <body>
 <div class="flex h-screen overflow-hidden">
@@ -72,6 +76,12 @@
         </button>
         <button id="btn-tour" class="btn btn-escuro !py-2 !px-3.5 ml-auto lg:ml-0"><span data-icone="play" class="text-[#e3a56b]"></span><span class="hidden sm:inline">Demonstração guiada</span></button>
         <span class="chip chip-novo hidden xl:inline-flex">DEMO · dados fictícios</span>
+        <!-- the same demo in other languages: the view (#hash) carries over -->
+        <nav class="idiomas" aria-label="Idioma · Language · Idioma">
+          <a href="../construcao/" hreflang="pt-PT" lang="pt-PT" class="ativo" aria-current="page">PT</a>
+          <a href="../construction/" hreflang="en" lang="en">EN</a>
+          <a href="../construccion/" hreflang="es" lang="es">ES</a>
+        </nav>
         <button class="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-white transition" id="btn-sino" title="Alertas das obras" aria-label="Alertas das obras">
           <span data-icone="sino"></span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#b4442a]"></span>
         </button>
@@ -384,7 +394,7 @@
 </div>
 <div id="toasts"></div>
 
-<script src="dados.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="dados.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

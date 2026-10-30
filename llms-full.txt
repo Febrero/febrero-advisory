@@ -1,14 +1,14 @@
 # Febrero AI: every case on febreroai.com
 
-Source: https://febreroai.com/ · updated 2026-10-25
+Source: https://febreroai.com/ · updated 2026-10-29
 
 ## Organisational processes
 https://febreroai.com/en/work/processes/
 
 An AI layer on top of the systems the company already runs: ERP, CRM, email, spreadsheets. Nothing to migrate and nothing new for the team to learn, so adoption is easy — and processes that take days start taking hours.
 
-### Interactive demo for construction companies (febreroai.com/demo/construcao)
-A fictional construction company with the AI layer at work: it reads quote requests and floor plans, prepares cost estimates and progress-billing reports, checks supplier invoices against delivery notes and answers questions about the sites. In Portuguese, nothing to install.
+### Interactive demo for construction companies (febreroai.com/demo/construction)
+A fictional construction company with the AI layer at work: it reads quote requests and floor plans, prepares cost estimates and progress-billing reports, checks supplier invoices against delivery notes and answers questions about the sites. In English, Portuguese and Spanish, nothing to install.
 
 ### From drawings to the final model in hours (Construction company · Portugal)
 Going from the architect's drawings to the final model (quantities, cost estimate, materials list) took 30 to 60 days. With AI working on top of the ERP the company already used (Cegid Primavera), it now takes a few hours — and everything that starts from that model speeds up with it.

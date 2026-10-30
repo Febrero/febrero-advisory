@@ -177,6 +177,8 @@ body { background: var(--creme); color: var(--tinta); font-family: "Inter", syst
 .f-lic { background: #9b8a7c; } .f-est { background: var(--cobre); } .f-env { background: #e09a5a; } .f-inst { background: #7a4a2a; } .f-acab { background: var(--verde); }
 .hoje { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--vermelho); border-radius: 2px; }
 .hoje::before { content: "hoje"; position: absolute; top: -18px; left: -12px; font-size: .62rem; font-weight: 700; color: var(--vermelho); }
+html[lang|="en"] .hoje::before { content: "today"; }
+html[lang|="es"] .hoje::before { content: "hoy"; }
 
 /* chat */
 .bolha-ia { background: #fff; border: 1px solid var(--linha); border-radius: 1.1rem 1.1rem 1.1rem .3rem; }
@@ -207,6 +209,13 @@ body { background: var(--creme); color: var(--tinta); font-family: "Inter", syst
 .modal-fundo { position: fixed; inset: 0; background: rgba(20,14,11,.62); backdrop-filter: blur(4px); z-index: 70; display: none; overflow-y: auto; padding: 32px 16px; }
 .modal-fundo.aberto { display: block; animation: entrar .3s both; }
 .folha { width: min(860px, 100%); margin: 0 auto; background: #fff; border-radius: 1rem; overflow: hidden; box-shadow: 0 40px 90px -30px rgba(0,0,0,.7); }
+
+/* language switcher (PT · EN · ES), shared by the three versions of the demo */
+.idiomas { display: inline-flex; align-items: center; gap: 2px; padding: 3px; flex: none; background: #fff; border: 1px solid var(--linha); border-radius: 999px; }
+.idiomas a { font-size: .7rem; font-weight: 700; letter-spacing: .05em; line-height: 1; padding: .38rem .55rem; border-radius: 999px; color: var(--mudo);
+  text-decoration: none; transition: background .15s, color .15s; }
+.idiomas a:hover { color: var(--tinta); background: var(--creme); }
+.idiomas a.ativo { background: var(--carvao-800); color: #fff; }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #dccbb9; border-radius: 10px; border: 2px solid var(--creme); }

@@ -1525,6 +1525,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#btn-sino").onclick = () => mostrar("obras");
   $("#btn-tour").onclick = () => (tourAtivo ? pararTour() : tour());
   $("#tour-parar").onclick = pararTour;
+  // switching language keeps the section that is open
+  $$(".idiomas a").forEach((a) => (a.onclick = () => { a.href = a.getAttribute("href").split("#")[0] + location.hash; }));
   $("#modal-proposta").onclick = (e) => { if (e.target.id === "modal-proposta") fecharProposta(); };
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("#btn-procurar").click(); }

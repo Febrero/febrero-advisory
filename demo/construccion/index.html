@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="es-ES">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Febrero AI · Capa de IA para constructoras (demostración)</title>
+<meta name="description" content="Demostración interactiva de Febrero AI: cómo la inteligencia artificial ayuda a una constructora con presupuestos a partir de los planos, certificaciones de obra, facturas y obras. Datos ficticios.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Febrero AI">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Febrero AI · Capa de IA para constructoras (demostración)">
+<meta property="og:description" content="Demostración interactiva de Febrero AI: cómo la inteligencia artificial ayuda a una constructora con presupuestos, certificaciones de obra, facturas y obras. Datos ficticios.">
+<link rel="alternate" hreflang="pt-PT" href="https://febreroai.com/demo/construcao/">
+<link rel="alternate" hreflang="en" href="https://febreroai.com/demo/construction/">
+<link rel="alternate" hreflang="es" href="https://febreroai.com/demo/construccion/">
+<link rel="alternate" hreflang="x-default" href="https://febreroai.com/demo/construcao/">
+<meta name="theme-color" content="#1d1511">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c47a3c'/%3E%3Cpath d='M6 23h20M8 23v-3a8 8 0 0 1 16 0v3M14 12V9h4v3' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="../construcao/estilo.css?v=3">
+</head>
+<body>
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ===== barra lateral ===== -->
+  <aside class="lateral w-[252px] flex-none flex-col px-3 py-5 text-white hidden md:flex">
+    <div class="flex items-center gap-3 px-2">
+      <div class="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-[#e3a56b] to-[#b86d31] shadow-lg shadow-black/30">
+        <span data-icone="capacete" class="text-white"></span>
+      </div>
+      <div class="leading-tight">
+        <div class="serif text-[17px] font-semibold tracking-tight" id="marca-nome">Constructora Ejemplo</div>
+        <div class="text-[11px] text-white/50">Capa de IA · demostración</div>
+      </div>
+    </div>
+
+    <nav id="nav" class="mt-8 flex flex-col gap-1 pl-3">
+      <a class="nav-item" data-vista="painel"><span data-icone="painel"></span>Panel</a>
+      <a class="nav-item" data-vista="pedidos"><span data-icone="caixa"></span>Solicitudes de presupuesto<span class="distintivo" id="n-pedidos">4</span></a>
+      <a class="nav-item" data-vista="planta"><span data-icone="planta"></span>Plano → Presupuesto</a>
+      <a class="nav-item" data-vista="obras"><span data-icone="grua"></span>Obras</a>
+      <a class="nav-item" data-vista="autos"><span data-icone="regua"></span>Certificaciones<span class="distintivo" id="n-autos">3</span></a>
+      <a class="nav-item" data-vista="faturas"><span data-icone="fatura"></span>Facturas<span class="distintivo" id="n-faturas">4</span></a>
+      <a class="nav-item" data-vista="assistente"><span data-icone="brilho"></span>Asistente</a>
+      <a class="nav-item" data-vista="como"><span data-icone="camadas"></span>Cómo funciona</a>
+    </nav>
+
+    <div class="mt-auto px-2">
+      <div class="rounded-2xl bg-white/[.04] border border-white/10 p-4">
+        <div class="text-[11px] uppercase tracking-[.12em] text-white/40 font-semibold">Conectada a sus sistemas</div>
+        <ul class="mt-3 space-y-2 text-[13px] text-white/75">
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>ERP (Primavera, PHC u otro)</li>
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>Email de obra y comercial</li>
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>WhatsApp de equipos y clientes</li>
+          <li class="flex items-center gap-2"><span class="ponto-vivo"></span>Planos, Excel y partes de obra</li>
+        </ul>
+      </div>
+      <div class="mt-4 text-[11px] text-white/35 leading-relaxed px-1"><span class="text-white/60 font-semibold">Demostración de Febrero AI con datos ficticios.</span><br>Constructora Ejemplo, los clientes, las obras, los proveedores y los importes son ficticios.</div>
+    </div>
+  </aside>
+
+  <!-- ===== principal ===== -->
+  <main id="principal" class="flex-1 overflow-y-auto">
+    <header class="sticky top-0 z-30 backdrop-blur-md bg-[#f7f2eb]/80 border-b border-[#eadfd2]">
+      <div class="px-4 md:px-8 h-16 flex items-center gap-3">
+        <div class="min-w-0">
+          <div id="titulo" class="serif text-xl font-semibold truncate">Panel</div>
+          <div id="subtitulo" class="text-xs text-[#7b6a5d] truncate"></div>
+        </div>
+        <button id="btn-procurar" class="ml-auto hidden lg:flex items-center gap-2 w-80 text-sm text-[#7b6a5d] bg-white border border-[#eadfd2] rounded-xl px-3 py-2 hover:border-[#d6c1ab] transition">
+          <span data-icone="procurar"></span><span>Pregunte a la IA…</span><kbd class="ml-auto text-[10px] border border-[#eadfd2] rounded px-1.5 py-0.5">Ctrl K</kbd>
+        </button>
+        <button id="btn-tour" class="btn btn-escuro !py-2 !px-3.5 ml-auto lg:ml-0"><span data-icone="play" class="text-[#e3a56b]"></span><span class="hidden sm:inline">Demostración guiada</span></button>
+        <span class="chip chip-novo hidden xl:inline-flex">DEMO · datos ficticios</span>
+        <!-- the same demo in other languages: the view (#hash) carries over -->
+        <nav class="idiomas" aria-label="Idioma · Language · Idioma">
+          <a href="../construcao/" hreflang="pt-PT" lang="pt-PT">PT</a>
+          <a href="../construction/" hreflang="en" lang="en">EN</a>
+          <a href="../construccion/" hreflang="es" lang="es" class="ativo" aria-current="page">ES</a>
+        </nav>
+        <button class="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-white transition" id="btn-sino" title="Alertas de las obras" aria-label="Alertas de las obras">
+          <span data-icone="sino"></span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#b4442a]"></span>
+        </button>
+        <div class="hidden sm:grid w-10 h-10 rounded-full place-items-center bg-[#2a1f19] text-white text-xs font-bold" title="Dirección">DIR</div>
+      </div>
+      <!-- ecrãs pequenos: as secções em separadores -->
+      <div class="md:hidden flex gap-1 overflow-x-auto px-4 pb-3" id="nav-movel"></div>
+    </header>
+
+    <div class="px-4 md:px-8 py-7 max-w-[1500px]">
+
+      <!-- ===== PAINEL ===== -->
+      <section id="v-painel" class="vista">
+        <div class="heroi p-7 md:p-10">
+          <div class="flex items-center gap-2 text-white/70 text-sm"><span class="ponto-vivo"></span><span>La IA ha trabajado durante la noche · actualizado a las 07:00</span></div>
+          <h1 id="saudacao" class="serif text-3xl md:text-[40px] leading-tight font-semibold mt-3 max-w-2xl">Buenos días. Cuatro cosas para hoy.</h1>
+          <ol id="briefing" class="mt-7 space-y-4 max-w-3xl"></ol>
+        </div>
+
+        <div id="kpis" class="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-6"></div>
+
+        <div class="mt-10">
+          <div class="rotulo">Su proceso, en 8 pasos</div>
+          <h2 class="serif text-2xl font-semibold mt-1">Dónde ayuda la IA, de la solicitud de presupuesto a la entrega de la obra</h2>
+        </div>
+        <div id="passos" class="grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-8 gap-3 mt-4"></div>
+
+        <div class="grid lg:grid-cols-3 gap-4 mt-8">
+          <div class="cartao p-5 lg:col-span-2">
+            <div class="flex items-start justify-between gap-3">
+              <div><div class="rotulo">Comercial</div><div class="serif text-lg font-semibold mt-0.5">Solicitudes, propuestas y adjudicaciones</div></div>
+              <span class="chip chip-ok">IA activa desde septiembre</span>
+            </div>
+            <div class="h-64 mt-3"><canvas id="g-funil" aria-label="Gráfico de solicitudes, propuestas y adjudicaciones por mes"></canvas></div>
+            <p class="text-xs text-[#7b6a5d] mt-2">Con la IA, cada solicitud recibe una estimación el mismo día y una propuesta en horas: suben las propuestas y las adjudicaciones (simulación).</p>
+          </div>
+          <div class="cartao p-5">
+            <div class="rotulo">Equipos</div><div class="serif text-lg font-semibold mt-0.5">Ocupación de las próximas 6 semanas</div>
+            <div class="h-64 mt-3"><canvas id="g-equipas" aria-label="Gráfico de la ocupación de los equipos por semana"></canvas></div>
+            <p class="text-xs text-[#7b6a5d] mt-2" id="nota-ocupacao"></p>
+          </div>
+        </div>
+
+        <div class="cartao p-5 mt-4">
+          <div class="flex flex-wrap items-center justify-between gap-2"><div><div class="rotulo">Registro</div><div class="serif text-lg font-semibold mt-0.5">Lo que la IA ha hecho hoy</div></div>
+            <span class="text-xs text-[#7b6a5d]">todo lo que sale hacia clientes, proveedores o el ERP espera aprobación</span></div>
+          <ul id="atividade" class="mt-4 divide-y divide-[#f1e8de]"></ul>
+        </div>
+      </section>
+
+      <!-- ===== PEDIDOS ===== -->
+      <section id="v-pedidos" class="vista hidden">
+        <div class="grid xl:grid-cols-[370px_1fr] gap-5">
+          <div class="min-w-0">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="rotulo">Bandeja de entrada · email y WhatsApp</div>
+              <div class="flex gap-1.5 text-[#7b6a5d]"><span data-icone="email"></span><span data-icone="chat"></span></div>
+            </div>
+            <div id="lista-pedidos" class="space-y-2.5"></div>
+          </div>
+          <div id="detalhe-pedido" class="cartao p-5 md:p-6 min-h-[620px] min-w-0"></div>
+        </div>
+      </section>
+
+      <!-- ===== PLANTA → ORÇAMENTO ===== -->
+      <section id="v-planta" class="vista hidden">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div class="rotulo">Paso 3 · Presupuestos</div>
+            <h2 class="serif text-2xl md:text-3xl font-semibold mt-1">De los planos al presupuesto, en horas</h2>
+            <p class="text-sm text-[#7b6a5d] mt-1 max-w-2xl">Elija uno de los planos o arrastre aquí los planos de un cliente. La IA lee las estancias y las cotas, mide paredes, hormigón, acero, encofrado y huecos, y calcula el presupuesto con sus precios. Hoy, esto lleva de 30 a 60 días.</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-ler" class="btn btn-cobre"><span data-icone="brilho"></span>Leer plano con IA</button>
+          </div>
+        </div>
+
+        <div id="miniaturas" class="flex gap-3 overflow-x-auto pb-2 mt-5"></div>
+
+        <div class="grid xl:grid-cols-[1.12fr_1fr] gap-5 mt-3">
+          <div class="cartao p-4 min-w-0">
+            <div class="flex items-center justify-between gap-3 px-1 pb-3">
+              <div class="min-w-0"><div id="planta-nome" class="serif text-lg font-semibold truncate"></div><div id="planta-sub" class="text-xs text-[#7b6a5d] truncate"></div></div>
+              <span id="planta-estado" class="chip chip-neutro">sin leer</span>
+            </div>
+            <div id="palco" class="planta-palco"><div id="planta-svg"></div><div class="grelha"></div><div class="laser"></div><div id="caixas" class="absolute inset-0"></div></div>
+            <div id="zona-largar" class="zona-largar mt-3 p-4 text-sm text-center text-[#7b6a5d] cursor-pointer" role="button" tabindex="0">
+              <span data-icone="enviar-ficheiro" class="align-middle mr-1"></span>
+              Suelte aquí los planos de un cliente <span class="text-[#a08b7a]">(PDF, DWG o imagen)</span>
+            </div>
+          </div>
+
+          <div class="space-y-4 min-w-0">
+            <div class="cartao p-5">
+              <div class="flex items-center justify-between gap-2"><div class="rotulo">Estancias leídas en el plano</div><span id="conf" class="text-xs text-[#7b6a5d] text-right"></span></div>
+              <div id="divisoes-scroll" class="max-h-[330px] overflow-y-auto mt-2"><table class="w-full text-sm"><tbody id="tab-divisoes"><tr><td class="py-8 text-center text-[#a08b7a]">Pulse «Leer plano con IA»</td></tr></tbody></table></div>
+              <div id="tot-areas" class="grid grid-cols-3 gap-2 mt-3"></div>
+            </div>
+            <div class="cartao p-5">
+              <div class="rotulo">Mediciones a partir del plano</div>
+              <div id="medicoes" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-3"><div class="col-span-full py-6 text-center text-sm text-[#a08b7a]">Aparecen después de la lectura</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid xl:grid-cols-[1fr_1.25fr] gap-5 mt-5">
+          <div class="cartao p-5">
+            <div class="rotulo">Estructura y acabados</div>
+            <div class="serif text-lg font-semibold mt-0.5">El presupuesto cambia a medida que elige</div>
+            <div id="opcoes" class="mt-4 space-y-3.5"></div>
+            <div id="comparacao" class="mt-5 rounded-xl bg-[#fbf3ea] border border-[#f0dcc6] p-4 text-sm"></div>
+            <p class="text-[11.5px] text-[#a08b7a] mt-3">Precios unitarios de demostración, sin IVA. En la versión real, la IA usa su tabla de precios y el historial de compras del ERP.</p>
+          </div>
+          <div class="cartao p-5 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0"><div class="rotulo" id="orc-rotulo">Presupuesto</div><div id="orc-titulo" class="serif text-lg font-semibold mt-0.5">—</div></div>
+              <label class="flex items-center gap-2 text-xs text-[#7b6a5d] cursor-pointer select-none"><input type="checkbox" id="ver-margem" class="accent-[#c47a3c]"> ver coste y margen (interno)</label>
+            </div>
+            <table class="w-full mt-3 text-sm"><tbody id="tab-orc"><tr><td class="py-10 text-center text-[#a08b7a]">El presupuesto aparece después de leer el plano</td></tr></tbody></table>
+            <div id="orc-total" class="mt-4"></div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <button id="btn-proposta" class="btn btn-cobre" disabled><span data-icone="ficheiro"></span>Generar propuesta para el cliente</button>
+              <button id="btn-excel" class="btn btn-claro" disabled><span data-icone="descarregar"></span>Exportar mediciones</button>
+              <button id="btn-erp" class="btn btn-claro" disabled><span data-icone="enviar"></span>Crear obra en el ERP</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== OBRAS ===== -->
+      <section id="v-obras" class="vista hidden">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div><div class="rotulo">Pasos 5 y 6 · Licencias y obra</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">Todas las obras en un solo lugar</h2>
+            <p class="text-sm text-[#7b6a5d] mt-1 max-w-2xl">La IA reúne lo que hay en el ERP, en los correos del ayuntamiento, de la dirección facultativa y de los proveedores y en los partes de obra, y avisa antes de que llegue el problema.</p></div>
+          <div id="resumo-obras" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div class="cartao p-5 mt-5 overflow-x-auto">
+          <div class="flex items-center justify-between gap-3 mb-3 min-w-[860px]"><div class="serif text-lg font-semibold">Planificación de las obras</div>
+            <div class="flex flex-wrap gap-3 text-[11px] text-[#7b6a5d]">
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-lic inline-block"></i>Licencias</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-est inline-block"></i>Estructura</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-env inline-block"></i>Albañilería y cubierta</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-inst inline-block"></i>Instalaciones</span>
+              <span class="flex items-center gap-1.5"><i class="w-3 h-3 rounded f-acab inline-block"></i>Acabados</span></div></div>
+          <div id="gantt" class="min-w-[860px]"></div>
+        </div>
+        <div id="cartoes-obras" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5"></div>
+        <div class="grid xl:grid-cols-[1.1fr_1fr] gap-5 mt-5">
+          <div class="cartao p-5" id="fiscal"></div>
+          <div class="cartao p-5">
+            <div class="rotulo">Costes</div><div class="serif text-lg font-semibold mt-0.5">Previsto frente a real, hasta hoy</div>
+            <div class="h-72 mt-3"><canvas id="g-custos" aria-label="Gráfico del coste previsto y real por obra"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== AUTOS DE MEDIÇÃO ===== -->
+      <section id="v-autos" class="vista hidden">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div><div class="rotulo">Paso 7 · Certificaciones y facturación</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">Certificaciones de obra sin horas de Excel</h2>
+            <p class="text-sm text-[#7b6a5d] mt-1 max-w-2xl">La IA lee los partes de obra y el Excel de producción del encargado, asigna cada línea a la partida correcta del contrato y prepara la certificación de cada cliente: cantidades, origen, porcentajes e importes. Señala lo que supera la cantidad contratada.</p></div>
+          <div id="resumo-autos" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div id="contratos" class="grid md:grid-cols-3 gap-3 mt-5"></div>
+        <div class="grid 2xl:grid-cols-[0.9fr_1.35fr] gap-5 mt-5">
+          <div class="cartao p-5 min-w-0">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div><div class="rotulo">Partes de obra de octubre</div><div class="serif text-lg font-semibold mt-0.5">Lo que ha anotado el encargado</div></div>
+              <button id="btn-auto" class="btn btn-cobre"><span data-icone="brilho"></span>Generar certificación con IA</button>
+            </div>
+            <div id="fontes-auto" class="flex flex-wrap gap-1.5 mt-3"></div>
+            <div id="excel" class="mt-4 max-h-[460px] overflow-auto rounded-xl border border-[#eadfd2]"></div>
+          </div>
+          <div class="cartao p-5 min-w-0">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0"><div class="rotulo">Certificación para el cliente</div><div id="auto-titulo" class="serif text-lg font-semibold mt-0.5"></div><div id="auto-sub" class="text-xs text-[#7b6a5d]"></div></div>
+              <span id="auto-estado" class="chip chip-novo">pendiente</span>
+            </div>
+            <div class="overflow-x-auto mt-3"><table class="w-full text-sm min-w-[720px]"><thead><tr class="text-left text-[10.5px] uppercase tracking-wider text-[#a08b7a]">
+              <th class="py-2 font-semibold">Cód.</th><th class="font-semibold">Descripción</th><th class="font-semibold">Ud.</th><th class="font-semibold text-right pr-2">Contratado</th>
+              <th class="font-semibold text-right pr-2">Anterior</th><th class="font-semibold text-right pr-2">Este mes</th><th class="font-semibold text-right pr-2">A origen</th>
+              <th class="font-semibold">%</th><th class="font-semibold text-right">Importe del mes</th></tr></thead>
+              <tbody id="tab-auto"></tbody></table></div>
+            <div id="auto-total" class="mt-4"></div>
+          </div>
+        </div>
+        <div id="email-auto" class="cartao p-5 mt-5 hidden"></div>
+      </section>
+
+      <!-- ===== FATURAS ===== -->
+      <section id="v-faturas" class="vista hidden">
+        <div class="grid xl:grid-cols-[340px_1fr] gap-5">
+          <div>
+            <div class="rotulo mb-3">Facturas recibidas por email</div>
+            <div id="lista-faturas" class="space-y-2.5"></div>
+            <div class="mt-4 text-xs text-[#7b6a5d] leading-relaxed">La IA lee cada factura, comprueba los precios con el pedido y las cantidades con los albaranes firmados en obra, la asigna a la obra y al capítulo y prepara su contabilización en el ERP. Una persona la aprueba.</div>
+          </div>
+          <div class="cartao p-5 md:p-6 min-w-0"><div class="grid lg:grid-cols-[1.1fr_1fr] gap-7" id="fatura-detalhe"></div></div>
+        </div>
+        <div class="cartao p-5 mt-5 overflow-x-auto">
+          <div class="rotulo">Auditoría</div><div class="serif text-lg font-semibold mt-0.5">Cada paso de la IA queda registrado</div>
+          <table class="w-full mt-3 text-sm min-w-[560px]"><thead><tr class="text-left text-[11px] uppercase tracking-wider text-[#a08b7a]"><th class="py-2 font-semibold">Hora</th><th class="font-semibold">Qué</th><th class="font-semibold">Quién</th><th class="font-semibold text-right">Estado</th></tr></thead>
+            <tbody id="auditoria"></tbody></table>
+        </div>
+      </section>
+
+      <!-- ===== ASSISTENTE ===== -->
+      <section id="v-assistente" class="vista hidden">
+        <div class="grid xl:grid-cols-[1fr_340px] gap-5">
+          <div class="cartao overflow-hidden flex flex-col h-[calc(100vh-190px)] min-h-[560px]" id="caixa-chat">
+            <div class="px-5 py-3.5 border-b border-[#eadfd2] flex flex-wrap items-center gap-3">
+              <div class="seg" id="modo-chat"><button data-modo="equipa" class="on">Equipo (interno)</button><button data-modo="cliente">Cliente (WhatsApp)</button></div>
+              <div id="chat-legenda" class="text-xs text-[#7b6a5d]"></div>
+            </div>
+            <div id="conversa" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+            <div class="p-3 border-t border-[#eadfd2] bg-white">
+              <div id="sugestoes" class="flex flex-wrap gap-2 mb-2.5"></div>
+              <form id="form-chat" class="flex gap-2"><input id="entrada" autocomplete="off" aria-label="Pregunta para la IA" class="flex-1 min-w-0 rounded-xl border border-[#eadfd2] px-4 py-2.5 text-sm outline-none focus:border-[#c47a3c]" placeholder="Escriba una pregunta…">
+                <button class="btn btn-cobre !px-3.5" aria-label="Enviar"><span data-icone="enviar"></span></button></form>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="cartao p-5">
+              <div class="rotulo">Qué consulta la IA</div>
+              <ul class="mt-3 space-y-2.5 text-sm">
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>ERP</b>: obras, costes, facturación, proveedores</span></li>
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>Email</b>: clientes, ayuntamientos, dirección facultativa, proveedores</span></li>
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>Carpeta de cada obra</b>: planos, fotografías, partes de obra, certificaciones</span></li>
+                <li class="flex gap-2.5"><span class="ponto-vivo mt-1.5"></span><span><b>Tabla de precios</b> e historial de compras</span></li>
+              </ul>
+              <p class="text-xs text-[#7b6a5d] mt-3">El cliente solo ve su propia obra. El equipo ve lo que permite su cargo.</p>
+            </div>
+            <div class="cartao p-5">
+              <div class="rotulo">Tareas creadas por la IA</div>
+              <ul id="tarefas" class="mt-3 space-y-2 text-sm"><li class="vazio text-[#a08b7a]">Todavía ninguna en esta conversación</li></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== COMO FUNCIONA ===== -->
+      <section id="v-como" class="vista hidden">
+        <div class="max-w-3xl">
+          <div class="rotulo">Cómo funciona</div>
+          <h2 class="serif text-3xl md:text-4xl font-semibold mt-1 leading-tight">Una capa de IA sobre lo que ya usan. Sin cambiar de programa.</h2>
+          <p class="text-[#7b6a5d] mt-3">La IA se conecta al ERP, al email, a WhatsApp y a las carpetas de obra. Lee, compara y propone; solo escribe después de que una persona lo apruebe. No hay migración de datos ni programa nuevo que aprender.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-[1fr_auto_1.1fr_auto_1fr] items-center gap-4 mt-8">
+          <div class="space-y-2.5">
+            <div class="rotulo mb-1">Sus sistemas</div>
+            <div class="no">ERP (Primavera, PHC u otro)</div><div class="no">Email comercial, de obra y de compras</div>
+            <div class="no">WhatsApp de equipos y clientes</div><div class="no">Planos, Excel y partes de obra</div>
+          </div>
+          <div class="hidden lg:block w-16 fluxo"></div>
+          <div class="nucleo p-7">
+            <div class="text-[11px] uppercase tracking-[.14em] text-white/50 font-semibold">Capa de IA</div>
+            <div class="serif text-2xl font-semibold mt-1">Leer · Comparar · Proponer · Escribir</div>
+            <div class="grid grid-cols-2 gap-2 mt-5 text-[13px]">
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">1. Leer</b><br><span class="text-white/70">solicitudes, planos, partes de obra, facturas</span></div>
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">2. Comparar</b><br><span class="text-white/70">con el contrato, el pedido, los albaranes, el plazo</span></div>
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">3. Proponer</b><br><span class="text-white/70">presupuestos, certificaciones, respuestas, asientos</span></div>
+              <div class="rounded-xl bg-white/[.07] p-3"><b class="text-[#e3a56b]">4. Escribir</b><br><span class="text-white/70">solo después de que una persona apruebe</span></div>
+            </div>
+          </div>
+          <div class="hidden lg:block w-16 fluxo"></div>
+          <div class="space-y-2.5">
+            <div class="rotulo mb-1">Quién gana tiempo</div>
+            <div class="no">Comercial: respuesta el mismo día</div><div class="no">Presupuestos: horas en lugar de 30 a 60 días</div>
+            <div class="no">Jefes de obra: certificaciones e informes listos</div><div class="no">Administración: facturas comprobadas con los albaranes</div>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4 mt-10">
+          <div class="cartao p-5"><span data-icone="escudo" class="text-[#c47a3c]"></span><div class="font-semibold mt-2">Nada sale sin aprobación</div><p class="text-sm text-[#7b6a5d] mt-1">Las respuestas a clientes, las certificaciones, las propuestas y los asientos en el ERP esperan el clic de una persona. Todo queda registrado.</p></div>
+          <div class="cartao p-5"><span data-icone="camadas" class="text-[#c47a3c]"></span><div class="font-semibold mt-2">Sin migrar nada</div><p class="text-sm text-[#7b6a5d] mt-1">Siguen trabajando en el ERP, el Excel y el email de siempre. La IA trabaja por encima, con acceso de solo lectura al principio.</p></div>
+          <div class="cartao p-5"><span data-icone="ue" class="text-[#c47a3c]"></span><div class="font-semibold mt-2">Datos en la Unión Europea</div><p class="text-sm text-[#7b6a5d] mt-1">Tratamiento conforme al RGPD y al Reglamento Europeo de IA; el cliente siempre sabe cuándo habla con la IA.</p></div>
+        </div>
+
+        <div class="cartao p-6 mt-5">
+          <div class="rotulo">Cómo empezamos</div><div class="serif text-xl font-semibold mt-0.5">Un piloto de 30 días, empezando por los presupuestos</div>
+          <div class="grid md:grid-cols-4 gap-4 mt-5">
+            <div><div class="text-[#c47a3c] font-bold text-sm">Semana 1</div><div class="font-semibold mt-1">Análisis inicial</div><p class="text-sm text-[#7b6a5d] mt-1">Sus sistemas, la tabla de precios y cómo presupuestan y miden hoy.</p></div>
+            <div><div class="text-[#c47a3c] font-bold text-sm">Semana 2</div><div class="font-semibold mt-1">Solicitudes de presupuesto</div><p class="text-sm text-[#7b6a5d] mt-1">Email y WhatsApp leídos y respondidos, siempre con aprobación.</p></div>
+            <div><div class="text-[#c47a3c] font-bold text-sm">Semanas 3 y 4</div><div class="font-semibold mt-1">Planos → presupuesto</div><p class="text-sm text-[#7b6a5d] mt-1">Mediciones y presupuesto a partir de los planos, con sus precios.</p></div>
+            <div><div class="text-[#c47a3c] font-bold text-sm">Después</div><div class="font-semibold mt-1">Certificaciones, facturas y obra</div><p class="text-sm text-[#7b6a5d] mt-1">El resto de los pasos, uno a uno, al ritmo del equipo.</p></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="px-4 md:px-8 pb-8 max-w-[1500px]">
+      <div class="border-t border-[#eadfd2] pt-4 text-xs text-[#a08b7a] flex flex-wrap gap-x-3 gap-y-1">
+        <span class="font-semibold text-[#7b6a5d]">Demostración de Febrero AI con datos ficticios</span>
+        <span>Constructora Ejemplo, los clientes, las obras, los proveedores y los importes son ficticios; los precios unitarios son de demostración.</span>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- a proposta (também é o que se imprime) -->
+<div id="modal-proposta" class="modal-fundo"><div class="folha" id="folha" role="dialog" aria-label="Propuesta para el cliente"></div></div>
+<!-- legenda da demonstração guiada -->
+<div id="legenda-tour" class="fixed left-1/2 -translate-x-1/2 bottom-6 z-[75] hidden">
+  <div class="flex items-center gap-4 bg-[#1d1511]/95 text-white rounded-2xl pl-5 pr-2 py-2 shadow-2xl shadow-black/40 backdrop-blur max-w-[92vw]">
+    <span id="tour-n" class="text-[#e3a56b] text-xs font-bold whitespace-nowrap"></span>
+    <span id="tour-texto" class="text-sm"></span>
+    <button id="tour-parar" class="btn !py-1.5 !px-3 bg-white/10 hover:bg-white/20 text-white text-xs">Detener</button>
+  </div>
+</div>
+<div id="toasts"></div>
+
+<script src="dados.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
