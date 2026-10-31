@@ -99,8 +99,12 @@ td b{color:var(--ink);font-weight:500}
 .estado{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink)}
 .estado i{font-style:normal;font-weight:700;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#0b0a10}
 .e-paga i{background:var(--good)}.e-aberta i{background:var(--warning)}.e-vencida i{background:var(--critical);color:#fff}.e-outra i{background:#4a4556;color:var(--ink)}
-.pagar{display:flex;gap:6px;align-items:center}
-.pagar input{padding:4px 8px;border-radius:6px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);font-size:13px;color-scheme:dark}
+.pagar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin:0}
+.pagar input{padding:4px 8px;border-radius:6px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);font-size:16px;color-scheme:dark}
+.gravar{flex-basis:100%;text-align:right;font-size:12.5px;color:var(--muted)}.gravar:empty{display:none}.gravar.erro{color:#f0a0a0}
+#aviso{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);max-width:min(560px,calc(100% - 32px));padding:12px 16px;border-radius:10px;
+  background:#2a1f2e;border:1px solid #6b4a5a;color:var(--ink);font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:9}
+#aviso.on{opacity:1;transform:translate(-50%,0)}
 /* suppliers */
 .forn{display:grid;grid-template-columns:minmax(90px,140px) 1fr;gap:8px 12px;align-items:center;font-size:13px}
 .forn .nome{color:var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -185,6 +189,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       Pago / por receber: marcado aqui ou no Telegram. Números em euros; o resultado é o faturado sem IVA menos as despesas.</footer>
   </section>
 </main>
+<div id="aviso" role="alert"></div>
 
 <script>
 "use strict";
@@ -256,7 +261,7 @@ async function carregar() {
     $("#login").style.display = "none"; p.style.display = "block";
     for (const id of ["#sinc", "#atualizar", "#sair"]) $(id).classList.remove("oculto");
     desenhar();
-  } catch (e) { if (e.message !== "sessão") { if (dados) alert("Não consegui atualizar: " + e.message); else mostrarLogin(e.message); } }
+  } catch (e) { if (e.message !== "sessão") { if (dados) aviso("Não consegui atualizar: " + e.message); else mostrarLogin(e.message); } }
   finally { p.classList.remove("a-ler"); }
 }
 function desenhar() {
@@ -359,9 +364,15 @@ function estadoDe(f) {
   if (f.atraso > 0) return el("span", { class: "estado e-vencida" }, el("i", { "aria-hidden": "true", text: "!" }), `Vencida há ${f.atraso} ${f.atraso === 1 ? "dia" : "dias"}`);
   return el("span", { class: "estado e-aberta" }, el("i", { "aria-hidden": "true", text: "…" }), f.vencimento === dados.hoje ? "Vence hoje" : `Vence ${dm(f.vencimento)}`);
 }
+// errors show in the page (a toast and the row itself): Telegram's in-app browser may not show alert()
+function aviso(texto) {
+  const t = $("#aviso");
+  t.textContent = texto; t.classList.add("on");
+  clearTimeout(aviso.t); aviso.t = setTimeout(() => t.classList.remove("on"), 7000);
+}
 async function mudar(numero, estado, data) {
-  try { await api("/estado", { method: "POST", body: { numero, estado, data } }); await carregar(); }
-  catch (e) { if (e.message !== "sessão") alert(e.message); }
+  try { await api("/estado", { method: "POST", body: { numero, estado, data } }); await carregar(); return ""; }
+  catch (e) { console.error("estado", numero, e); return e.message === "sessão" ? "" : `Não gravou: ${e.message}`; }
 }
 async function abrirPdf(numero, botao) {
   botao.disabled = true;
@@ -370,7 +381,7 @@ async function abrirPdf(numero, botao) {
     const a = el("a", { href: url, download: numero.replace(/[^\w.-]+/g, "_") + ".pdf", target: "_blank", rel: "noopener" });
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
-  } catch (e) { if (e.message !== "sessão") alert(e.message); }
+  } catch (e) { if (e.message !== "sessão") aviso(`PDF: ${e.message}`); }
   finally { botao.disabled = false; }
 }
 function acoesDe(f) {
@@ -378,16 +389,31 @@ function acoesDe(f) {
   if (f.estado === "por_receber") {
     const abrir = el("button", { class: "btn peq", type: "button", text: "Marcar paga" });
     abrir.addEventListener("click", () => {
-      const data = el("input", { type: "date", value: dados.hoje, max: dados.hoje, "aria-label": `Dia em que a ${f.numero} foi paga` });
-      const ok = el("button", { class: "btn peq cheio", type: "button", text: "Confirmar", onclick: () => mudar(f.numero, "paga", data.value) });
+      // a real form (Confirmar is its submit button), no auto-focus and a 16px date field: iPhones zoom into smaller ones
+      const data = el("input", { type: "date", value: dados.hoje, "aria-label": `Dia em que a ${f.numero} foi paga` });
+      const ok = el("button", { class: "btn peq cheio", type: "submit", text: "Confirmar" });
       const nao = el("button", { class: "ligar", type: "button", text: "cancelar", onclick: () => caixa.replaceWith(acoesDe(f)) });
-      caixa.replaceChildren(el("span", { class: "pagar" }, data, ok, nao));
-      data.focus();
+      const est = el("span", { class: "gravar", role: "status" });
+      const form = el("form", { class: "pagar", novalidate: true }, data, ok, nao, est);
+      form.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        ok.disabled = true; est.className = "gravar"; est.textContent = "A gravar…";
+        const erro = await mudar(f.numero, "paga", data.value || dados.hoje);
+        if (erro) { ok.disabled = false; est.className = "gravar erro"; est.textContent = erro; aviso(`${f.numero}: ${erro}`); }
+      });
+      caixa.replaceChildren(form);
     });
     caixa.append(abrir);
   } else if (f.estado === "paga") {
     const voltar = el("button", { class: "ligar", type: "button", text: "voltar a por receber" });
-    voltar.addEventListener("click", () => { if (voltar.dataset.certo) return mudar(f.numero, "por_receber"); voltar.dataset.certo = "1"; voltar.textContent = "confirmar?"; setTimeout(() => { delete voltar.dataset.certo; voltar.textContent = "voltar a por receber"; }, 4000); });
+    voltar.addEventListener("click", async () => {
+      if (!voltar.dataset.certo) {
+        voltar.dataset.certo = "1"; voltar.textContent = "confirmar?";
+        return setTimeout(() => { delete voltar.dataset.certo; voltar.textContent = "voltar a por receber"; }, 4000);
+      }
+      const erro = await mudar(f.numero, "por_receber");
+      if (erro) aviso(`${f.numero}: ${erro}`);
+    });
     caixa.append(voltar);
   }
   if (f.pdf) { const b = el("button", { class: "btn peq", type: "button", text: "PDF" }); b.addEventListener("click", () => abrirPdf(f.numero, b)); caixa.append(b); }
