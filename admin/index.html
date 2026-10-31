@@ -64,13 +64,13 @@ h2{margin:0;color:var(--ink);font-size:17px;letter-spacing:-.01em;font-weight:60
 .legenda{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--body)}
 .legenda span{display:inline-flex;align-items:center;gap:7px}
 .legenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
-#graf-meses{position:relative}
+#graf-meses,#graf-prev{position:relative}
 svg text{font-family:var(--sans)}
 .tick{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
 .rot-valor{fill:var(--ink);font-size:12px;font-weight:600}
 .grid{stroke:var(--grid);stroke-width:1}.base{stroke:var(--axis);stroke-width:1}
 .s1{fill:var(--s1)}.s2{fill:var(--s2)}.s3{fill:var(--s3)}
-.ref{stroke:var(--s2);stroke-width:2}.rot-ref{fill:var(--body);font-size:11.5px}
+.ref{stroke:var(--s2);stroke-width:2}.rot-ref{fill:var(--body);font-size:11.5px;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 .legenda i.chave-linha{width:14px;height:2px;border-radius:1px}
 .separadores{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 2px}
 .separadores button{padding:8px 16px;border-radius:999px;border:1px solid #3f3449;background:rgba(210,190,244,.045);color:#ddd2ea;cursor:pointer;font-size:14px}
