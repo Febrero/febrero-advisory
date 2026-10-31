@@ -86,6 +86,7 @@ svg text{font-family:var(--sans)}
 .prop .mais{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
 .prop .acoes{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
 .prop.fechada{opacity:.6}
+.etiqueta{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;border:1px solid #4a3d57;background:rgba(210,190,244,.06);font-size:11px;font-weight:500;color:var(--accent);vertical-align:1px;white-space:nowrap}
 .prob{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
 .prob .trilho{width:56px;height:6px;border-radius:3px;background:#1d2a3d;overflow:hidden}
 .prob .trilho span{display:block;height:100%;background:var(--s1);border-radius:0 3px 3px 0}
@@ -236,7 +237,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
         <div id="tabela-prev" class="oculto"></div>
       </div>
       <div class="cartao" style="margin-top:12px">
-        <div class="cab"><div><h2>Contratos</h2><div class="sub">O que já está acordado (os que estão à experiência ou por confirmar contam metade no provável)</div></div></div>
+        <div class="cab"><div><h2>Contratos</h2><div class="sub">O que já está acordado. Os que estão à experiência ou por confirmar entram no provável com o peso indicado.</div></div></div>
         <div id="contratos"></div>
       </div>
     </div>
@@ -548,9 +549,10 @@ function desenharPrevisao(p) {
     el("tbody", {}, p.meses.map((m) => el("tr", {}, el("td", { text: nomeMes(m.mes) }), el("td", { class: "n", text: eur(m.contratado) }), el("td", { class: "n", text: eur(m.provavel) }), el("td", { class: "n", text: eur(p.custoMes) }))))));
   const periodo = (c) => !c.inicio ? "início por definir" : c.ate ? `${curto(c.inicio)} → ${curto(c.ate)}` : `desde ${curto(c.inicio)}, sem fim definido`;
   const chip = (c) => (c.certo ? el("span", { class: "chip bom" }, el("i", { "aria-hidden": "true", text: "✓" }), c.estado)
-    : el("span", { class: "chip meio" }, el("i", { "aria-hidden": "true", text: "…" }), c.estado === "teste" ? "à experiência" : "por confirmar"));
+    : el("span", { class: "chip meio" }, el("i", { "aria-hidden": "true", text: "…" }), `${c.estado === "teste" ? "à experiência" : "por confirmar"} · conta ${Math.round(c.peso * 100)}%`));
   $("#contratos").replaceChildren(...(p.contratos.length ? [el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Cliente" }), el("th", { text: "O quê" }), el("th", { class: "n", text: "Por mês" }), el("th", { text: "Período" }), el("th", { class: "n", text: "Próx. 12 meses" }), el("th", { text: "Estado" }))),
-    el("tbody", {}, p.contratos.map((c) => el("tr", {}, el("td", {}, el("b", { text: c.cliente }), c.faturas.length ? el("div", { class: "sub", text: c.faturas.join(", ") }) : null),
+    el("tbody", {}, p.contratos.map((c) => el("tr", {}, el("td", {}, el("b", { text: c.cliente }), c.canal ? el("span", { class: "etiqueta", text: c.canal }) : null,
+      c.faturas.length ? el("div", { class: "sub", text: c.faturas.join(", ") }) : null),
       el("td", {}, c.o_que, c.notas ? el("div", { class: "sub", text: c.notas }) : null),
       el("td", { class: "n", text: c.mensal ? eur(c.mensal) : "—" }), el("td", { text: periodo(c) }), el("td", { class: "n", text: eur(c.valor12) }), el("td", {}, chip(c))))))]
     : [el("p", { class: "sub", text: "Ainda não há contratos registados (Finance\\_scripts\\previsao.json no PC)." })]));
@@ -625,9 +627,10 @@ function desenharPropostas(p) {
       onclick: async (ev) => { const b = ev.currentTarget; b.disabled = true; const erro = await mudarProposta(x.id, estado); if (erro) { aviso(`${x.cliente}: ${erro}`); b.disabled = false; } } });
     if (fechada) acoes.append(botao("Reabrir", "reabrir")); else acoes.append(botao("Ganha", "ganha", true), botao("Perdida", "perdida"));
     return el("div", { class: "prop" + (fechada ? " fechada" : "") },
-      el("span", { class: "c-cli" }, el("b", { text: x.cliente }), el("small", { text: [x.contacto, x.ultima_acao ? `última ação ${dm(x.ultima_acao)}` : ""].filter(Boolean).join(" · ") })),
+      el("span", { class: "c-cli" }, el("b", { text: x.cliente }), x.canal ? el("span", { class: "etiqueta", text: x.canal }) : null,
+        el("small", { text: [x.contacto, x.ultima_acao ? `última ação ${dm(x.ultima_acao)}` : ""].filter(Boolean).join(" · ") })),
       el("span", { class: "oque" }, x.o_que, x.opcoes ? el("small", { text: x.opcoes }) : null),
-      el("span", { class: "n c-val" }, el("b", { text: x.valor ? eur(x.valor) : "—" }), el("small", { text: valor(x) })),
+      el("span", { class: "n c-val" }, el("b", { text: x.valor ? eur(x.valor) : "—" }), el("small", { text: x.moeda !== "EUR" && x.original ? `${valor(x)} ≈ ${x.original}` : valor(x) })),
       el("span", { class: "c-est" }, el("span", { class: "chip " + cls }, el("i", { "aria-hidden": "true", text: ico }), x.estado),
         fechada ? null : el("span", { class: "prob" }, el("span", { class: "trilho", "aria-hidden": "true" }, el("span", { style: `width:${Math.round(x.probabilidade * 100)}%` })), `${Math.round(x.probabilidade * 100)}%`)),
       el("span", { class: "n c-pond" }, el("b", { text: eur(x.ponderado) }), el("small", { text: "ponderado" })),
