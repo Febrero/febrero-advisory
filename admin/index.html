@@ -361,7 +361,7 @@ function desenhar() {
     tile("Recebido", eur(k.recebido.total), k.recebido.n ? `${k.recebido.n} ${k.recebido.n === 1 ? "fatura paga" : "faturas pagas"}` : "nenhuma marcada paga"),
     tile("Por receber", eur(k.porReceber.total), k.vencido.n ? `${eur(k.vencido.total)} já vencido · ${k.porReceber.n} faturas` : `${k.porReceber.n} faturas, nenhuma vencida`, true),
     tile(`Despesas ${d.ano}`, eur(k.despesas.ano), k.despesas.ate ? `contadas até ${dm(k.despesas.ate)}` : "ainda sem dados do PC"),
-    tile("Resultado", (k.resultado > 0 ? "+" : "") + eur(k.resultado), "faturado sem IVA − despesas"),
+    tile(`Saldo de ${d.ano}`, (k.resultado > 0 ? "+" : "") + eur(k.resultado), `${eur(k.faturado.base)} faturados (sem IVA) − ${eur(k.despesas.ano)} de despesas`),
     tile("IVA liquidado", eur(k.faturado.iva), ivaT));
   tabelaMeses(d.meses);
   listaFaturas(d.faturas);
@@ -544,7 +544,8 @@ function desenharPrevisao(p) {
     tile("Contratado", eur(t.contratado), `próximo mês: ${eur(t.proximoMes)}`, true),
     tile("Provável", eur(t.provavel), "propostas × probabilidade"),
     tile("Despesas previstas", eur(t.despesas), p.custoMes ? `~${eur(p.custoMes)}/mês, média de ${p.custoMeses.map((m) => MESES[Number(m.slice(5)) - 1]).join(", ")}` : "sem despesas do PC"),
-    tile("Resultado previsto", (t.resultado > 0 ? "+" : "") + eur(t.resultado), `só o contratado · com o provável ${(t.resultado + t.provavel > 0 ? "+" : "") + eur(t.resultado + t.provavel)}`));
+    tile("Saldo previsto", (t.resultado > 0 ? "+" : "") + eur(t.resultado),
+      `${eur(t.contratado)} contratados − ${eur(t.despesas)} de despesas. Se as propostas correrem como previsto: ${(t.resultado + t.provavel > 0 ? "+" : "") + eur(t.resultado + t.provavel)}`));
   $("#tabela-prev").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mês" }), el("th", { class: "n", text: "Contratado" }), el("th", { class: "n", text: "Provável" }), el("th", { class: "n", text: "Despesas médias" }))),
     el("tbody", {}, p.meses.map((m) => el("tr", {}, el("td", { text: nomeMes(m.mes) }), el("td", { class: "n", text: eur(m.contratado) }), el("td", { class: "n", text: eur(m.provavel) }), el("td", { class: "n", text: eur(p.custoMes) }))))));
   const periodo = (c) => !c.inicio ? "início por definir" : c.ate ? `${curto(c.inicio)} → ${curto(c.ate)}` : `desde ${curto(c.inicio)}, sem fim definido`;
