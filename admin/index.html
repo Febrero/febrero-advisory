@@ -15,7 +15,7 @@
 @font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:swap;src:url('../assets/fonts/instrument-serif-italic-latin.woff2') format('woff2')}
 :root{color-scheme:dark;--bg:#0b0a10;--surface:#111017;--surface-2:#16141e;--ink:#f4f0f7;--body:#b5b0bd;--muted:#8e879c;
   --line:rgba(221,210,241,.14);--grid:#24212c;--axis:#3a3644;--accent:#d2bef4;
-  --s1:#3987e5;--s2:#d95926;                                  /* faturado · despesas (validated on #111017) */
+  --s1:#3987e5;--s2:#d95926;--s3:#199e70;                     /* faturado/contratado · despesas · provável (validated on #111017) */
   --good:#0ca30c;--warning:#fab219;--serious:#ec835a;--critical:#d03b3b;
   --sans:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Serif',Georgia,serif}
 *{box-sizing:border-box}
@@ -69,7 +69,29 @@ svg text{font-family:var(--sans)}
 .tick{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
 .rot-valor{fill:var(--ink);font-size:12px;font-weight:600}
 .grid{stroke:var(--grid);stroke-width:1}.base{stroke:var(--axis);stroke-width:1}
-.s1{fill:var(--s1)}.s2{fill:var(--s2)}
+.s1{fill:var(--s1)}.s2{fill:var(--s2)}.s3{fill:var(--s3)}
+.ref{stroke:var(--s2);stroke-width:2}.rot-ref{fill:var(--body);font-size:11.5px}
+.legenda i.chave-linha{width:14px;height:2px;border-radius:1px}
+.separadores{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 2px}
+.separadores button{padding:8px 16px;border-radius:999px;border:1px solid #3f3449;background:rgba(210,190,244,.045);color:#ddd2ea;cursor:pointer;font-size:14px}
+.separadores button:hover{border-color:#8e76a8;color:#fff}
+.separadores button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.separadores button[aria-selected=true]{background:linear-gradient(120deg,#f1eaf9,#c6b7db 49%,#e6e1ef);color:#251f30;border-color:#e3d9ef}
+/* contracts and proposals */
+.prop{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.5fr) 150px 150px 110px minmax(150px,auto);gap:4px 14px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(221,210,241,.07)}
+.prop.cab-f{color:var(--muted);font-size:12px;border-bottom:1px solid var(--line);padding-block:6px}
+.prop b{color:var(--ink);font-weight:500}
+.prop small{display:block;color:var(--muted);font-size:12px}
+.prop .n{text-align:right;font-variant-numeric:tabular-nums}
+.prop .mais{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.prop .acoes{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.prop.fechada{opacity:.6}
+.prob{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
+.prob .trilho{width:56px;height:6px;border-radius:3px;background:#1d2a3d;overflow:hidden}
+.prob .trilho span{display:block;height:100%;background:var(--s1);border-radius:0 3px 3px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink);white-space:nowrap}
+.chip i{font-style:normal;font-weight:700;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#0b0a10}
+.chip.bom i{background:var(--good)}.chip.meio i{background:var(--warning)}.chip.mau i{background:var(--critical);color:#fff}.chip.neutro i{background:#4a4556;color:var(--ink)}
 .banda{fill:rgba(210,190,244,.07);opacity:0}.banda.on{opacity:1}
 .hit{fill:transparent;cursor:default}
 .tip{position:absolute;pointer-events:none;z-index:3;min-width:170px;padding:10px 12px;border-radius:8px;background:#1d1a26;border:1px solid #3f3449;box-shadow:0 8px 24px rgba(0,0,0,.4);font-size:13px;display:none}
@@ -125,6 +147,13 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
   .fat .cli{grid-column:1}.fat .tot{grid-column:2}
   .fat .est{grid-column:1}.fat .acoes{grid-column:2}
   .fat .nota{grid-column:1/-1}
+  .prop{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:14px 2px}
+  .prop.cab-f{display:none}
+  .prop .c-cli{grid-column:1;grid-row:1}.prop .c-val{grid-column:2;grid-row:1}
+  .prop .oque{grid-column:1/-1;grid-row:2}
+  .prop .c-est{grid-column:1;grid-row:3}.prop .c-pond{grid-column:2;grid-row:3}
+  .prop .acoes{grid-column:1/-1;grid-row:4;justify-content:flex-start}
+  .prop .mais{grid-row:5}
 }
 @media(max-width:520px){
   .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -158,6 +187,13 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
   <section id="painel" class="carregar" aria-live="polite">
     <h1 id="titulo">Contas</h1>
     <div class="sub" id="subtitulo"></div>
+    <div class="separadores" role="tablist" aria-label="Secções">
+      <button type="button" role="tab" id="s-contas" aria-controls="tab-contas" aria-selected="true">Contas</button>
+      <button type="button" role="tab" id="s-previsao" aria-controls="tab-previsao" aria-selected="false">Previsão</button>
+      <button type="button" role="tab" id="s-propostas" aria-controls="tab-propostas" aria-selected="false">Potenciais clientes</button>
+    </div>
+
+    <div id="tab-contas" role="tabpanel" aria-labelledby="s-contas">
     <ul class="avisos" id="avisos"></ul>
     <div class="tiles" id="tiles"></div>
 
@@ -185,8 +221,36 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       <div class="cab"><h2>Últimas alterações</h2></div>
       <ul class="registo" id="registo"></ul>
     </div>
+    </div>
+
+    <div id="tab-previsao" role="tabpanel" aria-labelledby="s-previsao" hidden>
+      <div class="tiles" id="prev-tiles"></div>
+      <div class="cartao">
+        <div class="cab">
+          <div><h2 id="t-prev">Próximos 12 meses</h2><div class="sub">O que vamos faturar por mês, sem IVA: contratos em curso e o provável das propostas</div></div>
+          <div class="legenda"><span><i style="background:var(--s1)"></i>Contratado</span><span><i style="background:var(--s3)"></i>Provável</span>
+            <span><i class="chave-linha" style="background:var(--s2)"></i>Despesas médias</span>
+            <button class="ligar" id="ver-tabela-prev" type="button" aria-expanded="false">Ver tabela</button></div>
+        </div>
+        <div id="graf-prev"><div class="tip" id="tip-prev"></div></div>
+        <div id="tabela-prev" class="oculto"></div>
+      </div>
+      <div class="cartao" style="margin-top:12px">
+        <div class="cab"><div><h2>Contratos</h2><div class="sub">O que já está acordado (os que estão à experiência ou por confirmar contam metade no provável)</div></div></div>
+        <div id="contratos"></div>
+      </div>
+    </div>
+
+    <div id="tab-propostas" role="tabpanel" aria-labelledby="s-propostas" hidden>
+      <div class="tiles" id="prop-tiles"></div>
+      <div class="cartao">
+        <div class="cab"><div><h2>Propostas</h2><div class="sub">Ordenadas pelo valor ponderado (valor × probabilidade). Marca aqui as que ganhas ou perdes.</div></div></div>
+        <div id="propostas"></div>
+      </div>
+    </div>
+
     <footer>Faturas: os PDF da Bityond (Primavera) lidos no PC em Finance\Issued invoices, ou enviados ao bot. Despesas: Finance\Expenses.xlsx.
-      Pago / por receber: marcado aqui ou no Telegram. Números em euros; o resultado é o faturado sem IVA menos as despesas.</footer>
+      Contratos e propostas: Finance\_scripts\previsao.json. Pago / por receber: marcado aqui ou no Telegram. Números em euros, sem IVA salvo indicação.</footer>
   </section>
 </main>
 <div id="aviso" role="alert"></div>
@@ -264,6 +328,26 @@ async function carregar() {
   } catch (e) { if (e.message !== "sessão") { if (dados) aviso("Não consegui atualizar: " + e.message); else mostrarLogin(e.message); } }
   finally { p.classList.remove("a-ler"); }
 }
+// ------------------------------------------------------------ tabs (the last one opened is remembered on this device)
+const SEPARADORES = ["contas", "previsao", "propostas"];
+let separador = "contas";
+try { separador = SEPARADORES.includes(localStorage.getItem("fin_tab")) ? localStorage.getItem("fin_tab") : "contas"; } catch (e) {}
+function abrirSeparador(nome) {
+  separador = nome;
+  try { localStorage.setItem("fin_tab", nome); } catch (e) {}
+  for (const s of SEPARADORES) {
+    $("#s-" + s).setAttribute("aria-selected", String(s === nome));
+    $("#tab-" + s).hidden = s !== nome;
+  }
+  if (dados) desenharGraficos();         // a chart drawn while hidden has no width
+}
+for (const s of SEPARADORES) $("#s-" + s).addEventListener("click", () => abrirSeparador(s));
+function desenharGraficos() {
+  if (separador === "contas" && !$("#graf-meses").classList.contains("oculto")) grafMeses(dados.meses);
+  if (separador === "previsao" && !$("#graf-prev").classList.contains("oculto")) grafPrevisao(dados.previsao);
+}
+const tile = (rot, val, det, destaque) => el("div", { class: "tile" + (destaque ? " destaque" : "") }, el("div", { class: "rot", text: rot }), el("div", { class: "val", text: val }), el("div", { class: "det", text: det }));
+
 function desenhar() {
   const d = dados, k = d.kpis;
   $("#titulo").textContent = `Contas de ${d.ano}`;
@@ -271,7 +355,6 @@ function desenhar() {
   $("#sinc").textContent = d.sincronizado ? `PC sincronizado ${new Date(d.sincronizado).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : "PC ainda não sincronizou";
   $("#avisos").replaceChildren(...d.avisos.map((a) => el("li", { text: a })));
   const ivaT = k.trimestres.filter((t) => t.iva).map((t) => `${t.t} ${eur(t.iva)}`).join(" · ") || "sem IVA ainda";
-  const tile = (rot, val, det, destaque) => el("div", { class: "tile" + (destaque ? " destaque" : "") }, el("div", { class: "rot", text: rot }), el("div", { class: "val", text: val }), el("div", { class: "det", text: det }));
   $("#tiles").replaceChildren(
     tile(`Faturado em ${d.ano}`, eur(k.faturado.base), `sem IVA · ${eur(k.faturado.total)} com IVA · ${k.faturado.n} faturas`),
     tile("Recebido", eur(k.recebido.total), k.recebido.n ? `${k.recebido.n} ${k.recebido.n === 1 ? "fatura paga" : "faturas pagas"}` : "nenhuma marcada paga"),
@@ -279,7 +362,6 @@ function desenhar() {
     tile(`Despesas ${d.ano}`, eur(k.despesas.ano), k.despesas.ate ? `contadas até ${dm(k.despesas.ate)}` : "ainda sem dados do PC"),
     tile("Resultado", (k.resultado > 0 ? "+" : "") + eur(k.resultado), "faturado sem IVA − despesas"),
     tile("IVA liquidado", eur(k.faturado.iva), ivaT));
-  grafMeses(d.meses);
   tabelaMeses(d.meses);
   listaFaturas(d.faturas);
   tabelaClientes(d.clientes);
@@ -291,21 +373,23 @@ function desenhar() {
   $("#registo").replaceChildren(...(d.registo.length ? d.registo.map((r) => el("li", {},
     el("time", { text: new Date(r.ts).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) }),
     `${r.numero}: ${ROT[r.de] || r.de || "—"} → ${ROT[r.para] || r.para} (${r.por})`)) : [el("li", { class: "sub", text: "Ainda nada mudou." })]));
+  desenharPrevisao(d.previsao);
+  desenharPropostas(d.previsao);
+  abrirSeparador(separador);
 }
 const ROT = { paga: "paga", por_receber: "por receber", anulada: "anulada", substituida: "substituída" };
 
-// one tooltip for the month chart: the values lead, the labels follow, line keys
-function mostrarTip(m, x) {
-  const t = $("#tip"), box = $("#graf-meses");
-  const linha = (cor, v, rot) => el("div", {}, el("i", { style: `background:${cor}` }), el("strong", { text: eur(v) }), el("span", { text: rot }));
-  t.replaceChildren(el("b", { text: `${MESES_L[Number(m.mes.slice(5)) - 1]} ${m.mes.slice(0, 4)}` }),
-    linha("var(--s1)", m.faturado, "faturado"), linha("var(--s2)", m.despesas, "despesas"), linha("var(--muted)", m.recebido, "recebido"));
-  t.style.display = "block";
-  const w = t.offsetWidth;
-  t.style.left = `${Math.min(Math.max(0, x - w / 2), box.clientWidth - w)}px`;
-  t.style.top = "0px";
+// one tooltip per chart: the values lead, the labels follow, line keys
+function mostrarTip(tip, box, titulo, linhas, x) {
+  const linha = ([cor, v, rot]) => el("div", {}, el("i", { style: `background:${cor}` }), el("strong", { text: eur(v) }), el("span", { text: rot }));
+  tip.replaceChildren(el("b", { text: titulo }), ...linhas.map(linha));
+  tip.style.display = "block";
+  const w = tip.offsetWidth;
+  tip.style.left = `${Math.min(Math.max(0, x - w / 2), box.clientWidth - w)}px`;
+  tip.style.top = "0px";
 }
-function esconderTip() { $("#tip").style.display = "none"; for (const b of document.querySelectorAll(".banda.on")) b.classList.remove("on"); }
+function esconderTip() { for (const t of document.querySelectorAll(".tip")) t.style.display = "none"; for (const b of document.querySelectorAll(".banda.on")) b.classList.remove("on"); }
+const nomeMes = (m) => `${MESES_L[Number(m.slice(5)) - 1]} ${m.slice(0, 4)}`;
 
 function grafMeses(meses) {
   const box = $("#graf-meses");
@@ -337,7 +421,8 @@ function grafMeses(meses) {
     const lb = sv("text", { x: cx, y: H - 9, class: "tick", "text-anchor": "middle" }); lb.textContent = MESES[Number(m.mes.slice(5)) - 1]; svg.append(lb);
     const hit = sv("rect", { x: x0, y: M.t - 8, width: banda, height: ph + 8, class: "hit", tabindex: "0",
       "aria-label": `${MESES_L[Number(m.mes.slice(5)) - 1]}: faturado ${eur(m.faturado)}, despesas ${eur(m.despesas)}, recebido ${eur(m.recebido)}` });
-    const ver = () => { esconderTip(); fundo.classList.add("on"); mostrarTip(m, cx); };
+    const ver = () => { esconderTip(); fundo.classList.add("on");
+      mostrarTip($("#tip"), box, nomeMes(m.mes), [["var(--s1)", m.faturado, "faturado"], ["var(--s2)", m.despesas, "despesas"], ["var(--muted)", m.recebido, "recebido"]], cx); };
     hit.addEventListener("pointerenter", ver); hit.addEventListener("focus", ver);
     hit.addEventListener("pointerleave", esconderTip); hit.addEventListener("blur", esconderTip);
     svg.append(hit);
@@ -450,8 +535,114 @@ function grafFornecedores(lista) {
       el("span", { class: "valor", text: eur(x.total) }))])));
 }
 
+// ------------------------------------------------------------ Previsão: the next 12 months
+function desenharPrevisao(p) {
+  const t = p.totais, curto = (m) => `${MESES[Number(m.slice(5)) - 1]} ${m.slice(0, 4)}`;
+  $("#t-prev").textContent = `Próximos 12 meses (${curto(p.de)} – ${curto(p.ate)})`;
+  $("#prev-tiles").replaceChildren(
+    tile("Contratado", eur(t.contratado), `próximo mês: ${eur(t.proximoMes)}`, true),
+    tile("Provável", eur(t.provavel), "propostas × probabilidade"),
+    tile("Despesas previstas", eur(t.despesas), p.custoMes ? `~${eur(p.custoMes)}/mês, média de ${p.custoMeses.map((m) => MESES[Number(m.slice(5)) - 1]).join(", ")}` : "sem despesas do PC"),
+    tile("Resultado previsto", (t.resultado > 0 ? "+" : "") + eur(t.resultado), `só o contratado · com o provável ${(t.resultado + t.provavel > 0 ? "+" : "") + eur(t.resultado + t.provavel)}`));
+  $("#tabela-prev").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mês" }), el("th", { class: "n", text: "Contratado" }), el("th", { class: "n", text: "Provável" }), el("th", { class: "n", text: "Despesas médias" }))),
+    el("tbody", {}, p.meses.map((m) => el("tr", {}, el("td", { text: nomeMes(m.mes) }), el("td", { class: "n", text: eur(m.contratado) }), el("td", { class: "n", text: eur(m.provavel) }), el("td", { class: "n", text: eur(p.custoMes) }))))));
+  const periodo = (c) => !c.inicio ? "início por definir" : c.ate ? `${curto(c.inicio)} → ${curto(c.ate)}` : `desde ${curto(c.inicio)}, sem fim definido`;
+  const chip = (c) => (c.certo ? el("span", { class: "chip bom" }, el("i", { "aria-hidden": "true", text: "✓" }), c.estado)
+    : el("span", { class: "chip meio" }, el("i", { "aria-hidden": "true", text: "…" }), c.estado === "teste" ? "à experiência" : "por confirmar"));
+  $("#contratos").replaceChildren(...(p.contratos.length ? [el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Cliente" }), el("th", { text: "O quê" }), el("th", { class: "n", text: "Por mês" }), el("th", { text: "Período" }), el("th", { class: "n", text: "Próx. 12 meses" }), el("th", { text: "Estado" }))),
+    el("tbody", {}, p.contratos.map((c) => el("tr", {}, el("td", {}, el("b", { text: c.cliente }), c.faturas.length ? el("div", { class: "sub", text: c.faturas.join(", ") }) : null),
+      el("td", {}, c.o_que, c.notas ? el("div", { class: "sub", text: c.notas }) : null),
+      el("td", { class: "n", text: c.mensal ? eur(c.mensal) : "—" }), el("td", { text: periodo(c) }), el("td", { class: "n", text: eur(c.valor12) }), el("td", {}, chip(c))))))]
+    : [el("p", { class: "sub", text: "Ainda não há contratos registados (Finance\\_scripts\\previsao.json no PC)." })]));
+}
+function grafPrevisao(p) {
+  const box = $("#graf-prev");
+  for (const s of box.querySelectorAll("svg")) s.remove();
+  const W = Math.max(300, box.clientWidth), H = 250, M = { t: 64, r: 6, b: 28, l: 44 };
+  const pw = W - M.l - M.r, ph = H - M.t - M.b;
+  const max = Math.max(1, p.custoMes, ...p.meses.map((m) => m.contratado + m.provavel));
+  const passo = passoBonito(max / 4), topo = Math.ceil(max / passo) * passo;
+  const y = (v) => M.t + ph - (v / topo) * ph;
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Faturação prevista por mês: contratado e provável (os valores estão na tabela)" });
+  for (let v = 0; v <= topo + 1e-6; v += passo) {
+    svg.append(sv("line", { x1: M.l, x2: W - M.r, y1: y(v), y2: y(v), class: v === 0 ? "base" : "grid" }));
+    const t = sv("text", { x: M.l - 8, y: y(v) + 4, class: "tick", "text-anchor": "end" }); t.textContent = compacto(v); svg.append(t);
+  }
+  const banda = pw / p.meses.length, bw = Math.max(4, Math.min(24, banda - 12));
+  const reto = (x, a, b) => `M${x},${b}V${a}H${x + bw}V${b}Z`;                 // square ends (the lower segment)
+  const redondo = (x, a, b) => { const r = Math.min(4, b - a, bw / 2);          // the top segment: 4px rounded data-end
+    return `M${x},${b}V${a + r}Q${x},${a} ${x + r},${a}H${x + bw - r}Q${x + bw},${a} ${x + bw},${a + r}V${b}Z`; };
+  p.meses.forEach((m, i) => {
+    const x0 = M.l + banda * i, cx = x0 + banda / 2, x = cx - bw / 2;
+    const fundo = sv("rect", { x: x0 + 1, y: M.t - 8, width: banda - 2, height: ph + 8, rx: 4, class: "banda" });
+    svg.append(fundo);
+    const yc = y(m.contratado), yp = y(m.contratado + m.provavel);
+    if (m.contratado > 0) svg.append(sv("path", { d: m.provavel > 0 ? reto(x, yc, y(0)) : redondo(x, yc, y(0)), class: "s1" }));
+    if (m.provavel > 0 && yc - 2 - yp > 0.5) svg.append(sv("path", { d: redondo(x, yp, m.contratado > 0 ? yc - 2 : y(0)), class: "s3" }));   // 2px surface gap
+    if (i === 0 && m.contratado + m.provavel > 0) {                      // one direct label: next month
+      const t = sv("text", { x: cx, y: yp - 7, class: "rot-valor", "text-anchor": "middle" }); t.textContent = eur(m.contratado + m.provavel).replace(",00 €", " €"); svg.append(t);
+    }
+    const lb = sv("text", { x: cx, y: H - 9, class: "tick", "text-anchor": "middle" }); lb.textContent = MESES[Number(m.mes.slice(5)) - 1]; svg.append(lb);
+    const hit = sv("rect", { x: x0, y: M.t - 8, width: banda, height: ph + 8, class: "hit", tabindex: "0",
+      "aria-label": `${nomeMes(m.mes)}: contratado ${eur(m.contratado)}, provável ${eur(m.provavel)}` });
+    const ver = () => { esconderTip(); fundo.classList.add("on");
+      mostrarTip($("#tip-prev"), box, nomeMes(m.mes), [["var(--s1)", m.contratado, "contratado"], ["var(--s3)", m.provavel, "provável"], ["var(--s2)", p.custoMes, "despesas médias"]], cx); };
+    hit.addEventListener("pointerenter", ver); hit.addEventListener("focus", ver);
+    hit.addEventListener("pointerleave", esconderTip); hit.addEventListener("blur", esconderTip);
+    svg.append(hit);
+  });
+  if (p.custoMes > 0) {                                                  // the average monthly spend, as a reference line
+    svg.insertBefore(sv("line", { x1: M.l, x2: W - M.r, y1: y(p.custoMes), y2: y(p.custoMes), class: "ref" }), svg.querySelector(".hit"));
+    const t = sv("text", { x: W - M.r, y: y(p.custoMes) - 6, class: "rot-ref", "text-anchor": "end" }); t.textContent = `despesas ~${eur(p.custoMes).replace(/,\d\d €/, " €")}/mês`;
+    svg.insertBefore(t, svg.querySelector(".hit"));
+  }
+  box.append(svg);
+}
+$("#ver-tabela-prev").addEventListener("click", () => {
+  const tab = $("#tabela-prev"), aberto = tab.classList.toggle("oculto") === false;
+  $("#graf-prev").classList.toggle("oculto", aberto);
+  $("#ver-tabela-prev").textContent = aberto ? "Ver gráfico" : "Ver tabela";
+  $("#ver-tabela-prev").setAttribute("aria-expanded", String(aberto));
+  if (!aberto && dados) grafPrevisao(dados.previsao);
+});
+
+// ------------------------------------------------------------ Potenciais clientes: the proposals
+const ESTADO_PROP = { "ganha": ["bom", "✓"], "perdida": ["mau", "×"], "em pausa": ["neutro", "‖"], "a preparar": ["neutro", "…"] };
+function desenharPropostas(p) {
+  const t = p.totais;
+  $("#prop-tiles").replaceChildren(
+    tile("Em aberto", String(t.abertas), t.abertas === 1 ? "proposta" : "propostas"),
+    tile("Valor em aberto", eur(t.valorAberto), "arranque + mensalidades, sem IVA"),
+    tile("Ponderado", eur(t.ponderadoAberto), "valor × probabilidade, próximos 12 meses", true));
+  if (!p.propostas.length) return $("#propostas").replaceChildren(el("p", { class: "sub", text: "Ainda não há propostas registadas (Finance\\_scripts\\previsao.json no PC)." }));
+  const valor = (x) => [x.setup ? `${eur(x.setup)} arranque` : "", x.mensal ? `${eur(x.mensal)}/mês${x.meses ? ` × ${x.meses}` : ""}` : ""].filter(Boolean).join(" + ") || "por definir";
+  const cab = el("div", { class: "prop cab-f" }, el("span", { text: "Cliente" }), el("span", { text: "Proposta" }), el("span", { class: "n", text: "Valor" }), el("span", { text: "Estado" }), el("span", { class: "n", text: "Ponderado" }), el("span", {}));
+  const linhas = p.propostas.map((x) => {
+    const fechada = x.estado === "ganha" || x.estado === "perdida";
+    const [cls, ico] = ESTADO_PROP[x.estado] || ["meio", "…"];
+    const acoes = el("div", { class: "acoes" });
+    const botao = (texto, estado, cheio) => el("button", { class: "btn peq" + (cheio ? " cheio" : ""), type: "button", text: texto,
+      onclick: async (ev) => { const b = ev.currentTarget; b.disabled = true; const erro = await mudarProposta(x.id, estado); if (erro) { aviso(`${x.cliente}: ${erro}`); b.disabled = false; } } });
+    if (fechada) acoes.append(botao("Reabrir", "reabrir")); else acoes.append(botao("Ganha", "ganha", true), botao("Perdida", "perdida"));
+    return el("div", { class: "prop" + (fechada ? " fechada" : "") },
+      el("span", { class: "c-cli" }, el("b", { text: x.cliente }), el("small", { text: [x.contacto, x.ultima_acao ? `última ação ${dm(x.ultima_acao)}` : ""].filter(Boolean).join(" · ") })),
+      el("span", { class: "oque" }, x.o_que, x.opcoes ? el("small", { text: x.opcoes }) : null),
+      el("span", { class: "n c-val" }, el("b", { text: x.valor ? eur(x.valor) : "—" }), el("small", { text: valor(x) })),
+      el("span", { class: "c-est" }, el("span", { class: "chip " + cls }, el("i", { "aria-hidden": "true", text: ico }), x.estado),
+        fechada ? null : el("span", { class: "prob" }, el("span", { class: "trilho", "aria-hidden": "true" }, el("span", { style: `width:${Math.round(x.probabilidade * 100)}%` })), `${Math.round(x.probabilidade * 100)}%`)),
+      el("span", { class: "n c-pond" }, el("b", { text: eur(x.ponderado) }), el("small", { text: "ponderado" })),
+      acoes,
+      (x.proximo_passo || x.porque || x.notas) ? el("span", { class: "mais", text: [x.proximo_passo ? `➜ ${x.proximo_passo}` : "", x.porque ? `(${x.porque})` : "", x.notas].filter(Boolean).join("  ") }) : null);
+  });
+  $("#propostas").replaceChildren(cab, ...linhas);
+}
+async function mudarProposta(id, estado) {
+  try { await api("/proposta", { method: "POST", body: { id, estado } }); await carregar(); return ""; }
+  catch (e) { console.error("proposta", id, e); return e.message === "sessão" ? "" : `Não gravou: ${e.message}`; }
+}
+
 let redim = null;
-window.addEventListener("resize", () => { clearTimeout(redim); redim = setTimeout(() => { if (dados && !$("#graf-meses").classList.contains("oculto")) grafMeses(dados.meses); }, 150); });
+window.addEventListener("resize", () => { clearTimeout(redim); redim = setTimeout(() => { if (dados) desenharGraficos(); }, 150); });
 if (token) carregar(); else mostrarLogin();
 </script>
 </body>
