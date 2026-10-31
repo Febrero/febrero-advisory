@@ -2,53 +2,66 @@
 User-agent: *
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: ClaudeBot
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: Claude-SearchBot
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: Claude-User
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: GPTBot
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: OAI-SearchBot
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: ChatGPT-User
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: PerplexityBot
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: Perplexity-User
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: Google-Extended
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: Applebot-Extended
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: Bingbot
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 User-agent: Googlebot
 Allow: /
 Disallow: /turma1b/
+Disallow: /admin/
 
 Sitemap: https://febreroai.com/sitemap.xml

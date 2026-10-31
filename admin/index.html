@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b0a10">
+<title>Finanças · Febrero AI</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32">
+<!-- Pedro's finance panel (2026-10-30). This page holds no data: it logs in with a code the Telegram bot sends to
+     Pedro's chat and reads everything from the bot's server (manage-leads tools/financas.mjs). -->
+<style>
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:400 700;font-display:swap;src:url('../assets/fonts/dm-sans-latin.woff2') format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:swap;src:url('../assets/fonts/instrument-serif-italic-latin.woff2') format('woff2')}
+:root{color-scheme:dark;--bg:#0b0a10;--surface:#111017;--surface-2:#16141e;--ink:#f4f0f7;--body:#b5b0bd;--muted:#8e879c;
+  --line:rgba(221,210,241,.14);--grid:#24212c;--axis:#3a3644;--accent:#d2bef4;
+  --s1:#3987e5;--s2:#d95926;                                  /* faturado · despesas (validated on #111017) */
+  --good:#0ca30c;--warning:#fab219;--serious:#ec835a;--critical:#d03b3b;
+  --sans:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Serif',Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--body);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+button,input{font:inherit}
+.wrap{width:min(1180px,calc(100% - 32px));margin:0 auto}
+header{border-bottom:1px solid var(--line);background:rgba(11,10,16,.9);position:sticky;top:0;z-index:5;backdrop-filter:blur(16px)}
+.top{display:flex;align-items:center;gap:14px;min-height:64px;flex-wrap:wrap;padding-block:8px}
+.marca{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;margin-right:auto}
+.marca img{width:28px;height:28px}
+.marca b{font:italic 400 26px/1 var(--serif);letter-spacing:-.01em}
+.marca span{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.sinc{font-size:12px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid #3f3449;background:rgba(210,190,244,.05);color:#e7def2;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:#8e76a8;color:#fff}
+.btn:focus-visible,.hit:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.cheio{background:linear-gradient(120deg,#f1eaf9,#c6b7db 49%,#e6e1ef);color:#251f30;border-color:#e3d9ef}
+.btn.peq{padding:5px 11px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:default}
+main{padding:28px 0 64px}
+h1{margin:0 0 4px;color:var(--ink);font-size:28px;letter-spacing:-.03em;font-weight:600}
+h2{margin:0;color:var(--ink);font-size:17px;letter-spacing:-.01em;font-weight:600}
+.sub{color:var(--muted);font-size:13px}
+.cartao{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+.cab{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+/* login */
+#login{max-width:430px;margin:48px auto}
+#login p{margin:8px 0 18px}
+.linha-cod{display:flex;gap:10px;margin-top:14px}
+.linha-cod input{flex:1;min-width:0;padding:10px 14px;border-radius:8px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);font-size:20px;letter-spacing:.3em;text-align:center}
+.msg{min-height:22px;margin-top:12px;font-size:14px}
+.msg.erro{color:#f0a0a0}
+/* panel */
+#painel{display:none}
+.carregar{transition:opacity .2s}.carregar.a-ler{opacity:.55}
+.avisos{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:8px}
+.avisos li{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border:1px solid rgba(250,178,25,.28);border-radius:8px;background:rgba(250,178,25,.05);color:var(--ink);font-size:14px}
+.avisos li::before{content:"⚠";color:var(--warning);font-size:15px;line-height:1.5}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.tile .rot{font-size:13px;color:var(--muted)}
+.tile .val{color:var(--ink);font-size:26px;font-weight:600;letter-spacing:-.02em;margin:4px 0 2px;white-space:nowrap}
+.tile .det{font-size:12.5px;color:var(--body)}
+.tile.destaque{border-color:rgba(210,190,244,.42);background:linear-gradient(160deg,rgba(210,190,244,.08),var(--surface) 60%)}
+.grelha{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.legenda{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--body)}
+.legenda span{display:inline-flex;align-items:center;gap:7px}
+.legenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
+#graf-meses{position:relative}
+svg text{font-family:var(--sans)}
+.tick{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.rot-valor{fill:var(--ink);font-size:12px;font-weight:600}
+.grid{stroke:var(--grid);stroke-width:1}.base{stroke:var(--axis);stroke-width:1}
+.s1{fill:var(--s1)}.s2{fill:var(--s2)}
+.banda{fill:rgba(210,190,244,.07);opacity:0}.banda.on{opacity:1}
+.hit{fill:transparent;cursor:default}
+.tip{position:absolute;pointer-events:none;z-index:3;min-width:170px;padding:10px 12px;border-radius:8px;background:#1d1a26;border:1px solid #3f3449;box-shadow:0 8px 24px rgba(0,0,0,.4);font-size:13px;display:none}
+.tip b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
+.tip div{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tip div i{width:12px;height:2px;border-radius:1px;display:inline-block}
+.tip div strong{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.tip div span{color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid rgba(221,210,241,.07);color:var(--body)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td b{color:var(--ink);font-weight:500}
+.ligar{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+/* invoices */
+.fat{display:grid;grid-template-columns:92px 84px minmax(0,1fr) 112px minmax(150px,190px) minmax(170px,auto);gap:4px 12px;align-items:center;padding:11px 4px;border-bottom:1px solid rgba(221,210,241,.07)}
+.fat.cab-f{color:var(--muted);font-size:12px;border-bottom:1px solid var(--line);padding-block:6px}
+.fat .num{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.fat .cli b{color:var(--ink);font-weight:500;display:block}
+.fat .cli small{color:var(--muted);font-size:12px;display:block}
+.fat .tot{text-align:right;font-variant-numeric:tabular-nums}
+.fat .tot b{color:var(--ink);font-weight:500;display:block}
+.fat .tot small{color:var(--muted);font-size:12px}
+.fat .acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.fat.apagada{opacity:.62}
+.fat .nota{grid-column:3/-1;font-size:12.5px;color:var(--muted)}
+.estado{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink)}
+.estado i{font-style:normal;font-weight:700;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#0b0a10}
+.e-paga i{background:var(--good)}.e-aberta i{background:var(--warning)}.e-vencida i{background:var(--critical);color:#fff}.e-outra i{background:#4a4556;color:var(--ink)}
+.pagar{display:flex;gap:6px;align-items:center}
+.pagar input{padding:4px 8px;border-radius:6px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);font-size:13px;color-scheme:dark}
+/* suppliers */
+.forn{display:grid;grid-template-columns:minmax(90px,140px) 1fr;gap:8px 12px;align-items:center;font-size:13px}
+.forn .nome{color:var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.forn .trilho{display:flex;align-items:center;gap:8px;position:relative}
+.forn .barra{height:14px;border-radius:0 4px 4px 0;background:var(--s2);min-width:2px}
+.forn .barra:hover,.forn .barra:focus-visible{filter:brightness(1.18)}
+.forn .valor{color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.registo{list-style:none;margin:0;padding:0;font-size:13px}
+.registo li{padding:6px 0;border-bottom:1px solid rgba(221,210,241,.07)}
+.registo time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
+footer{color:var(--muted);font-size:12.5px;margin-top:22px}
+.oculto{display:none!important}
+@media(max-width:900px){.grelha{grid-template-columns:1fr}}
+@media(max-width:1040px){
+  .fat{grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 2px}
+  .fat.cab-f{display:none}
+  .fat .num{grid-column:1}.fat .data{grid-column:2;text-align:right;color:var(--muted);font-size:13px}
+  .fat .cli{grid-column:1}.fat .tot{grid-column:2}
+  .fat .est{grid-column:1}.fat .acoes{grid-column:2}
+  .fat .nota{grid-column:1/-1}
+}
+@media(max-width:520px){
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tile{padding:14px}
+  .tile .val{font-size:21px}
+  .cartao{padding:16px 14px}
+  .fat .est,.fat .acoes{grid-column:1/-1;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap top">
+  <a class="marca" href="/"><img src="../assets/logo-mark.svg" alt=""><b>Finanças</b><span>Bityond, Lda</span></a>
+  <span class="sinc oculto" id="sinc"></span>
+  <button class="btn peq oculto" id="atualizar" type="button">Atualizar</button>
+  <button class="btn peq oculto" id="sair" type="button">Sair</button>
+</div></header>
+
+<main class="wrap">
+  <section id="login" class="cartao">
+    <h1>Painel financeiro</h1>
+    <p class="sub">Para entrar, o bot do Telegram envia-te um código de 6 dígitos. Só o chat do Pedro o recebe.</p>
+    <button class="btn cheio" id="pedir" type="button">Enviar código para o Telegram</button>
+    <form id="form-cod" class="linha-cod oculto" autocomplete="off">
+      <input id="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000" aria-label="Código de 6 dígitos">
+      <button class="btn cheio" type="submit">Entrar</button>
+    </form>
+    <div class="msg" id="msg" role="status"></div>
+  </section>
+
+  <section id="painel" class="carregar" aria-live="polite">
+    <h1 id="titulo">Contas</h1>
+    <div class="sub" id="subtitulo"></div>
+    <ul class="avisos" id="avisos"></ul>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="cartao">
+      <div class="cab">
+        <div><h2 id="t-meses">Faturado e despesas por mês</h2><div class="sub">Faturado sem IVA (faturas válidas) · despesas pagas, em euros</div></div>
+        <div class="legenda"><span><i style="background:var(--s1)"></i>Faturado</span><span><i style="background:var(--s2)"></i>Despesas</span>
+          <button class="ligar" id="ver-tabela" type="button" aria-expanded="false">Ver tabela</button></div>
+      </div>
+      <div id="graf-meses"><div class="tip" id="tip"></div></div>
+      <div id="tabela-meses" class="oculto"></div>
+    </div>
+
+    <div class="cartao" style="margin-top:12px">
+      <div class="cab"><div><h2>Faturas</h2><div class="sub">Marca aqui (ou no Telegram, /financas) quando uma é paga</div></div></div>
+      <div id="faturas"></div>
+    </div>
+
+    <div class="grelha">
+      <div class="cartao"><div class="cab"><h2 id="t-clientes">Clientes</h2></div><div id="clientes"></div></div>
+      <div class="cartao"><div class="cab"><div><h2 id="t-forn">Despesas por fornecedor</h2><div class="sub" id="forn-sub"></div></div></div><div id="fornecedores"></div></div>
+    </div>
+
+    <div class="cartao" style="margin-top:12px">
+      <div class="cab"><h2>Últimas alterações</h2></div>
+      <ul class="registo" id="registo"></ul>
+    </div>
+    <footer>Faturas: os PDF da Bityond (Primavera) lidos no PC em Finance\Issued invoices, ou enviados ao bot. Despesas: Finance\Expenses.xlsx.
+      Pago / por receber: marcado aqui ou no Telegram. Números em euros; o resultado é o faturado sem IVA menos as despesas.</footer>
+  </section>
+</main>
+
+<script>
+"use strict";
+// the local preview can point at a test server (?api=…); the published page always talks to the bot's server
+const LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
+const API = (LOCAL && new URLSearchParams(location.search).get("api")) || "https://lisboa-concierge-production.up.railway.app/api/financas";
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const MESES_L = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const $ = (s) => document.querySelector(s);
+function el(tag, attrs = {}, ...filhos) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const f of filhos.flat()) if (f != null && f !== false) e.append(f.nodeType ? f : document.createTextNode(String(f)));
+  return e;
+}
+function sv(tag, attrs = {}) { const e = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; }
+function eur(n) { const v = Math.round((Number(n) || 0) * 100) / 100, [i, c] = Math.abs(v).toFixed(2).split("."); return `${v < 0 ? "−" : ""}${i.replace(/\B(?=(\d{3})+$)/g, ".")},${c} €`; }
+const dm = (s) => (s ? `${s.slice(8, 10)}/${s.slice(5, 7)}` : "");
+const dma = (s) => (s ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : "");
+function compacto(v) { return v >= 1000 ? `${(v / 1000).toLocaleString("pt-PT", { maximumFractionDigits: 1 })}K` : String(Math.round(v)); }
+function passoBonito(x) { const p = Math.pow(10, Math.floor(Math.log10(x || 1))), f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+
+let token = null, dados = null;
+try { token = localStorage.getItem("fin_token"); } catch (e) {}
+function guardarToken(t) { token = t; try { t ? localStorage.setItem("fin_token", t) : localStorage.removeItem("fin_token"); } catch (e) {} }
+async function api(caminho, { method = "GET", body, blob = false } = {}) {
+  const r = await fetch(API + caminho, { method, headers: { ...(token ? { authorization: "Bearer " + token } : {}), ...(body ? { "content-type": "application/json" } : {}) },
+    body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 401 && token && !["/codigo", "/entrar"].includes(caminho)) { guardarToken(null); mostrarLogin("A sessão terminou: pede um código novo."); throw new Error("sessão"); }
+  if (blob && r.ok) return r.blob();
+  const j = await r.json().catch(() => null);
+  if (!r.ok) throw new Error((j && j.error) || `Erro ${r.status}`);
+  return j;
+}
+
+// ------------------------------------------------------------ login
+function msg(t, erro = false) { const m = $("#msg"); m.textContent = t; m.className = "msg" + (erro ? " erro" : ""); }
+function mostrarLogin(texto = "") {
+  $("#painel").style.display = "none"; $("#login").style.display = "";
+  for (const id of ["#sinc", "#atualizar", "#sair"]) $(id).classList.add("oculto");
+  msg(texto, !!texto);
+}
+$("#pedir").addEventListener("click", async () => {
+  const b = $("#pedir"); b.disabled = true; msg("A enviar…");
+  try { await api("/codigo", { method: "POST" }); $("#form-cod").classList.remove("oculto"); $("#codigo").focus(); msg("Enviei o código para o Telegram: vale 10 minutos."); b.textContent = "Enviar outro código"; }
+  catch (e) { msg(e.message, true); }
+  finally { setTimeout(() => { b.disabled = false; }, 60000); }
+});
+$("#form-cod").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const c = $("#codigo").value.replace(/\D/g, "");
+  if (c.length !== 6) return msg("São 6 dígitos.", true);
+  try { const j = await api("/entrar", { method: "POST", body: { codigo: c } }); guardarToken(j.token); $("#codigo").value = ""; await carregar(); }
+  catch (e) { msg(e.message, true); }
+});
+$("#sair").addEventListener("click", () => { guardarToken(null); dados = null; mostrarLogin(); });
+$("#atualizar").addEventListener("click", () => carregar());
+
+// ------------------------------------------------------------ the panel
+async function carregar() {
+  const p = $("#painel");
+  p.classList.add("a-ler");
+  try {
+    dados = await api("");
+    $("#login").style.display = "none"; p.style.display = "block";
+    for (const id of ["#sinc", "#atualizar", "#sair"]) $(id).classList.remove("oculto");
+    desenhar();
+  } catch (e) { if (e.message !== "sessão") { if (dados) alert("Não consegui atualizar: " + e.message); else mostrarLogin(e.message); } }
+  finally { p.classList.remove("a-ler"); }
+}
+function desenhar() {
+  const d = dados, k = d.kpis;
+  $("#titulo").textContent = `Contas de ${d.ano}`;
+  $("#subtitulo").textContent = `Hoje, ${dma(d.hoje)}`;
+  $("#sinc").textContent = d.sincronizado ? `PC sincronizado ${new Date(d.sincronizado).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : "PC ainda não sincronizou";
+  $("#avisos").replaceChildren(...d.avisos.map((a) => el("li", { text: a })));
+  const ivaT = k.trimestres.filter((t) => t.iva).map((t) => `${t.t} ${eur(t.iva)}`).join(" · ") || "sem IVA ainda";
+  const tile = (rot, val, det, destaque) => el("div", { class: "tile" + (destaque ? " destaque" : "") }, el("div", { class: "rot", text: rot }), el("div", { class: "val", text: val }), el("div", { class: "det", text: det }));
+  $("#tiles").replaceChildren(
+    tile(`Faturado em ${d.ano}`, eur(k.faturado.base), `sem IVA · ${eur(k.faturado.total)} com IVA · ${k.faturado.n} faturas`),
+    tile("Recebido", eur(k.recebido.total), k.recebido.n ? `${k.recebido.n} ${k.recebido.n === 1 ? "fatura paga" : "faturas pagas"}` : "nenhuma marcada paga"),
+    tile("Por receber", eur(k.porReceber.total), k.vencido.n ? `${eur(k.vencido.total)} já vencido · ${k.porReceber.n} faturas` : `${k.porReceber.n} faturas, nenhuma vencida`, true),
+    tile(`Despesas ${d.ano}`, eur(k.despesas.ano), k.despesas.ate ? `contadas até ${dm(k.despesas.ate)}` : "ainda sem dados do PC"),
+    tile("Resultado", (k.resultado > 0 ? "+" : "") + eur(k.resultado), "faturado sem IVA − despesas"),
+    tile("IVA liquidado", eur(k.faturado.iva), ivaT));
+  grafMeses(d.meses);
+  tabelaMeses(d.meses);
+  listaFaturas(d.faturas);
+  tabelaClientes(d.clientes);
+  grafFornecedores(d.despesas.porEmpresa);
+  $("#t-meses").textContent = `Faturado e despesas por mês, ${d.ano}`;
+  $("#t-clientes").textContent = `Clientes em ${d.ano}`;
+  $("#t-forn").textContent = `Despesas por fornecedor, ${d.ano}`;
+  $("#forn-sub").textContent = d.despesas.ate ? `Pagamentos até ${dma(d.despesas.ate)}` : "";
+  $("#registo").replaceChildren(...(d.registo.length ? d.registo.map((r) => el("li", {},
+    el("time", { text: new Date(r.ts).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) }),
+    `${r.numero}: ${ROT[r.de] || r.de || "—"} → ${ROT[r.para] || r.para} (${r.por})`)) : [el("li", { class: "sub", text: "Ainda nada mudou." })]));
+}
+const ROT = { paga: "paga", por_receber: "por receber", anulada: "anulada", substituida: "substituída" };
+
+// one tooltip for the month chart: the values lead, the labels follow, line keys
+function mostrarTip(m, x) {
+  const t = $("#tip"), box = $("#graf-meses");
+  const linha = (cor, v, rot) => el("div", {}, el("i", { style: `background:${cor}` }), el("strong", { text: eur(v) }), el("span", { text: rot }));
+  t.replaceChildren(el("b", { text: `${MESES_L[Number(m.mes.slice(5)) - 1]} ${m.mes.slice(0, 4)}` }),
+    linha("var(--s1)", m.faturado, "faturado"), linha("var(--s2)", m.despesas, "despesas"), linha("var(--muted)", m.recebido, "recebido"));
+  t.style.display = "block";
+  const w = t.offsetWidth;
+  t.style.left = `${Math.min(Math.max(0, x - w / 2), box.clientWidth - w)}px`;
+  t.style.top = "0px";
+}
+function esconderTip() { $("#tip").style.display = "none"; for (const b of document.querySelectorAll(".banda.on")) b.classList.remove("on"); }
+
+function grafMeses(meses) {
+  const box = $("#graf-meses");
+  for (const s of box.querySelectorAll("svg")) s.remove();
+  const W = Math.max(300, box.clientWidth), H = 250, M = { t: 64, r: 6, b: 28, l: 40 };
+  const pw = W - M.l - M.r, ph = H - M.t - M.b;
+  const max = Math.max(1, ...meses.flatMap((m) => [m.faturado, m.despesas]));
+  const passo = passoBonito(max / 4), topo = Math.ceil(max / passo) * passo;
+  const y = (v) => M.t + ph - (v / topo) * ph;
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Faturado sem IVA e despesas por mês (os valores estão na tabela)" });
+  for (let v = 0; v <= topo + 1e-6; v += passo) {
+    svg.append(sv("line", { x1: M.l, x2: W - M.r, y1: y(v), y2: y(v), class: v === 0 ? "base" : "grid" }));
+    const t = sv("text", { x: M.l - 8, y: y(v) + 4, class: "tick", "text-anchor": "end" }); t.textContent = compacto(v); svg.append(t);
+  }
+  const banda = pw / Math.max(1, meses.length), bw = Math.max(3, Math.min(24, (banda - 10) / 2));
+  const barra = (x, topoY, w) => { const h = y(0) - topoY; if (h <= 0) return ""; const r = Math.min(4, h, w / 2);
+    return `M${x},${y(0)}V${topoY + r}Q${x},${topoY} ${x + r},${topoY}H${x + w - r}Q${x + w},${topoY} ${x + w},${topoY + r}V${y(0)}Z`; };
+  const iMax = meses.reduce((b, m, i) => (m.faturado > (meses[b]?.faturado || 0) ? i : b), 0);
+  meses.forEach((m, i) => {
+    const x0 = M.l + banda * i, cx = x0 + banda / 2;
+    const fundo = sv("rect", { x: x0 + 1, y: M.t - 8, width: banda - 2, height: ph + 8, rx: 4, class: "banda" });
+    svg.append(fundo);
+    const d1 = barra(cx - bw - 1, y(m.faturado), bw), d2 = barra(cx + 1, y(m.despesas), bw);   // 2px surface gap between the pair
+    if (d1) svg.append(sv("path", { d: d1, class: "s1" }));
+    if (d2) svg.append(sv("path", { d: d2, class: "s2" }));
+    if (i === iMax && m.faturado > 0) {                                  // one direct label: the best month
+      const t = sv("text", { x: cx - bw / 2 - 1, y: y(m.faturado) - 7, class: "rot-valor", "text-anchor": "middle" }); t.textContent = eur(m.faturado).replace(",00 €", " €"); svg.append(t);
+    }
+    const lb = sv("text", { x: cx, y: H - 9, class: "tick", "text-anchor": "middle" }); lb.textContent = MESES[Number(m.mes.slice(5)) - 1]; svg.append(lb);
+    const hit = sv("rect", { x: x0, y: M.t - 8, width: banda, height: ph + 8, class: "hit", tabindex: "0",
+      "aria-label": `${MESES_L[Number(m.mes.slice(5)) - 1]}: faturado ${eur(m.faturado)}, despesas ${eur(m.despesas)}, recebido ${eur(m.recebido)}` });
+    const ver = () => { esconderTip(); fundo.classList.add("on"); mostrarTip(m, cx); };
+    hit.addEventListener("pointerenter", ver); hit.addEventListener("focus", ver);
+    hit.addEventListener("pointerleave", esconderTip); hit.addEventListener("blur", esconderTip);
+    svg.append(hit);
+  });
+  box.append(svg);
+}
+function tabelaMeses(meses) {
+  const t = el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mês" }), el("th", { class: "n", text: "Faturado (sem IVA)" }), el("th", { class: "n", text: "Recebido" }), el("th", { class: "n", text: "Despesas" }))),
+    el("tbody", {}, meses.map((m) => el("tr", {}, el("td", { text: MESES_L[Number(m.mes.slice(5)) - 1] }), el("td", { class: "n", text: eur(m.faturado) }), el("td", { class: "n", text: eur(m.recebido) }), el("td", { class: "n", text: eur(m.despesas) })))));
+  $("#tabela-meses").replaceChildren(t);
+}
+$("#ver-tabela").addEventListener("click", () => {
+  const tab = $("#tabela-meses"), aberto = tab.classList.toggle("oculto") === false;
+  $("#graf-meses").classList.toggle("oculto", aberto);
+  $("#ver-tabela").textContent = aberto ? "Ver gráfico" : "Ver tabela";
+  $("#ver-tabela").setAttribute("aria-expanded", String(aberto));
+  if (!aberto && dados) grafMeses(dados.meses);
+});
+
+function estadoDe(f) {
+  if (f.estado === "paga") return el("span", { class: "estado e-paga" }, el("i", { "aria-hidden": "true", text: "✓" }), `Paga${f.pagaEm ? " " + dm(f.pagaEm) : ""}`);
+  if (f.estado === "substituida") return el("span", { class: "estado e-outra" }, el("i", { "aria-hidden": "true", text: "↻" }), `Substituída${f.substituidaPor ? " → " + f.substituidaPor.split(".").pop() : ""}`);
+  if (f.estado === "anulada") return el("span", { class: "estado e-outra" }, el("i", { "aria-hidden": "true", text: "×" }), "Anulada");
+  if (f.atraso > 0) return el("span", { class: "estado e-vencida" }, el("i", { "aria-hidden": "true", text: "!" }), `Vencida há ${f.atraso} ${f.atraso === 1 ? "dia" : "dias"}`);
+  return el("span", { class: "estado e-aberta" }, el("i", { "aria-hidden": "true", text: "…" }), f.vencimento === dados.hoje ? "Vence hoje" : `Vence ${dm(f.vencimento)}`);
+}
+async function mudar(numero, estado, data) {
+  try { await api("/estado", { method: "POST", body: { numero, estado, data } }); await carregar(); }
+  catch (e) { if (e.message !== "sessão") alert(e.message); }
+}
+async function abrirPdf(numero, botao) {
+  botao.disabled = true;
+  try {
+    const url = URL.createObjectURL(await api("/pdf?n=" + encodeURIComponent(numero), { blob: true }));
+    const a = el("a", { href: url, download: numero.replace(/[^\w.-]+/g, "_") + ".pdf", target: "_blank", rel: "noopener" });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) { if (e.message !== "sessão") alert(e.message); }
+  finally { botao.disabled = false; }
+}
+function acoesDe(f) {
+  const caixa = el("div", { class: "acoes" });
+  if (f.estado === "por_receber") {
+    const abrir = el("button", { class: "btn peq", type: "button", text: "Marcar paga" });
+    abrir.addEventListener("click", () => {
+      const data = el("input", { type: "date", value: dados.hoje, max: dados.hoje, "aria-label": `Dia em que a ${f.numero} foi paga` });
+      const ok = el("button", { class: "btn peq cheio", type: "button", text: "Confirmar", onclick: () => mudar(f.numero, "paga", data.value) });
+      const nao = el("button", { class: "ligar", type: "button", text: "cancelar", onclick: () => caixa.replaceWith(acoesDe(f)) });
+      caixa.replaceChildren(el("span", { class: "pagar" }, data, ok, nao));
+      data.focus();
+    });
+    caixa.append(abrir);
+  } else if (f.estado === "paga") {
+    const voltar = el("button", { class: "ligar", type: "button", text: "voltar a por receber" });
+    voltar.addEventListener("click", () => { if (voltar.dataset.certo) return mudar(f.numero, "por_receber"); voltar.dataset.certo = "1"; voltar.textContent = "confirmar?"; setTimeout(() => { delete voltar.dataset.certo; voltar.textContent = "voltar a por receber"; }, 4000); });
+    caixa.append(voltar);
+  }
+  if (f.pdf) { const b = el("button", { class: "btn peq", type: "button", text: "PDF" }); b.addEventListener("click", () => abrirPdf(f.numero, b)); caixa.append(b); }
+  return caixa;
+}
+function listaFaturas(faturas) {
+  const cab = el("div", { class: "fat cab-f" }, el("span", { text: "N.º" }), el("span", { text: "Data" }), el("span", { text: "Cliente" }), el("span", { class: "tot", text: "Total" }), el("span", { text: "Estado" }), el("span", {}));
+  const linhas = faturas.map((f) => el("div", { class: "fat" + (f.estado === "substituida" || f.estado === "anulada" ? " apagada" : "") },
+    el("span", { class: "num", text: f.numero }), el("span", { class: "data", text: dma(f.data) }),
+    el("span", { class: "cli" }, el("b", { text: f.nome }), el("small", { text: f.descricao || f.cliente })),
+    el("span", { class: "tot" }, el("b", { text: eur(f.total) }), el("small", { text: `${eur(f.base)} + IVA` })),
+    el("span", { class: "est" }, estadoDe(f)), acoesDe(f),
+    f.nota ? el("span", { class: "nota", text: f.nota }) : null));
+  $("#faturas").replaceChildren(...(faturas.length ? [cab, ...linhas] : [el("p", { class: "sub", text: "Ainda não há faturas: no PC, corre o Finance\\_scripts\\Atualizar faturas.bat (ou envia o PDF ao bot)." })]));
+}
+function tabelaClientes(clientes) {
+  if (!clientes.length) return $("#clientes").replaceChildren(el("p", { class: "sub", text: "Sem faturas este ano." }));
+  $("#clientes").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Cliente" }), el("th", { class: "n", text: "Faturado (sem IVA)" }), el("th", { class: "n", text: "Por receber" }))),
+    el("tbody", {}, clientes.map((c) => el("tr", {}, el("td", {}, el("b", { text: c.nome }), el("span", { class: "sub", text: ` · ${c.n} ${c.n === 1 ? "fatura" : "faturas"}` })),
+      el("td", { class: "n", text: eur(c.base) }), el("td", { class: "n", text: c.porReceber ? eur(c.porReceber) : "—" }))))));
+}
+function grafFornecedores(lista) {
+  const box = $("#fornecedores");
+  if (!lista.length) return box.replaceChildren(el("p", { class: "sub", text: "Sem despesas registadas." }));
+  const total = lista.reduce((s, x) => s + x.total, 0);
+  const top = lista.slice(0, 9), resto = lista.slice(9);
+  if (resto.length) top.push({ empresa: `Outros (${resto.length})`, total: resto.reduce((s, x) => s + x.total, 0) });
+  const max = Math.max(...top.map((x) => x.total));
+  box.replaceChildren(el("div", { class: "forn" }, top.flatMap((x) => [
+    el("span", { class: "nome", text: x.empresa, title: x.empresa }),
+    el("span", { class: "trilho" },
+      el("span", { class: "barra", tabindex: "0", style: `width:${Math.max(0.5, (x.total / max) * 78)}%`,
+        title: `${x.empresa}: ${eur(x.total)} · ${Math.round((x.total / total) * 100)}% das despesas`, "aria-label": `${x.empresa}: ${eur(x.total)}` }),
+      el("span", { class: "valor", text: eur(x.total) }))])));
+}
+
+let redim = null;
+window.addEventListener("resize", () => { clearTimeout(redim); redim = setTimeout(() => { if (dados && !$("#graf-meses").classList.contains("oculto")) grafMeses(dados.meses); }, 150); });
+if (token) carregar(); else mostrarLogin();
+</script>
+</body>
+</html>
