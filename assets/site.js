@@ -50,7 +50,7 @@
     tabs.className = 'tabs';
     tabs.setAttribute('role', 'tablist');
     tabs.setAttribute('aria-label', en ? 'Project categories' : 'Categorias de projetos');
-    const names = en ? ['Organisational processes', 'Content & advertising', 'Stays & real estate', 'Clients & sales', 'Commerce & retail', 'Markets & Web3', 'Web experiences'] : ['Processos da organização', 'Conteúdo e publicidade', 'Alojamento e imobiliário', 'Clientes e vendas', 'Comércio e retalho', 'Mercados e Web3', 'Experiências web'];
+    const names = en ? ['Organisational processes', 'Content & advertising', 'FLIK videos', 'Stays & real estate', 'Clients & sales', 'Commerce & retail', 'Markets & Web3', 'Web experiences'] : ['Processos da organização', 'Conteúdo e publicidade', 'Vídeos FLIK', 'Alojamento e imobiliário', 'Clientes e vendas', 'Comércio e retalho', 'Mercados e Web3', 'Experiências web'];
     const panels = [];
     heads.forEach((heading, index) => {
       const panel = document.createElement('div');
@@ -72,8 +72,9 @@
       tab.setAttribute('role', 'tab');
       tab.setAttribute('aria-controls', panel.id);
       // 2026-10-14, Pedro: the areas "go through without notice" — each tab is now a pill with its project count
-      const count = panel.querySelectorAll('.proj').length;
-      tab.innerHTML = `${names[index]}${count ? `<span class="tab-count" aria-label="${count} ${en ? 'projects' : 'projetos'}">${count}</span>` : ''}`;
+      const word = panel.querySelector('.projects')?.dataset.word || (en ? 'projects' : 'projetos');
+      const count = panel.querySelectorAll('[data-exemplo]').length || panel.querySelectorAll('.proj').length;
+      tab.innerHTML = `${names[index]}${count ? `<span class="tab-count" aria-label="${count} ${word}">${count}</span>` : ''}`;
       panel.setAttribute('aria-labelledby', tab.id);
       tab.addEventListener('click', () => { select(index); if (panels[index].panel.getBoundingClientRect().top < tabs.getBoundingClientRect().bottom) jump(); });
       tabs.appendChild(tab);
@@ -92,7 +93,7 @@
         more.setAttribute('aria-controls', grid.id);
         let expanded = false;
         const update = () => {
-          more.textContent = expanded ? (en ? 'Show fewer −' : 'Mostrar menos −') : (en ? `Explore ${extras.length} more projects +` : `Explorar mais ${extras.length} projetos +`);
+          more.textContent = expanded ? (en ? 'Show fewer −' : 'Mostrar menos −') : (en ? `Explore ${extras.length} more ${word} +` : `Explorar mais ${extras.length} ${word} +`);
           more.setAttribute('aria-expanded', String(expanded));
         };
         more.addEventListener('click', () => {
@@ -109,7 +110,7 @@
     });
     wrap.insertBefore(tabs, panels[0].panel);
     // a label above the (sticky) tab bar says there is a choice to make, and how much is behind it
-    const total = panels.reduce((sum, entry) => sum + entry.panel.querySelectorAll('.proj').length, 0);
+    const total = panels.reduce((sum, entry) => sum + entry.panel.querySelectorAll('.proj:not([data-exemplo])').length, 0);
     const head = document.createElement('div');
     head.className = 'tabs-head';
     head.innerHTML = `<span class="tabs-hint">${en ? 'Choose an area' : 'Escolha uma área'}<span aria-hidden="true">↓</span></span><span class="tabs-total">${panels.length} ${en ? 'areas' : 'áreas'} · ${total} ${en ? 'projects' : 'projetos'}</span>`;

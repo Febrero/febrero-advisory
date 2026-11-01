@@ -1,6 +1,6 @@
 # Febrero AI: every case on febreroai.com
 
-Source: https://febreroai.com/ · updated 2026-10-30
+Source: https://febreroai.com/ · updated 2026-11-01
 
 ## Organisational processes
 https://febreroai.com/en/work/processes/
@@ -86,6 +86,59 @@ An exercise explained over real footage of the studio — the format that feeds 
 
 ### Animated meme (Viral format)
 Cartoon-style AI animation, the kind that travels on social and buys reach without a media budget.
+
+## FLIK: short AI videos
+https://febreroai.com/en/work/flik/
+
+FLIK (flik.social) is the AI video studio I built: from a business's photos or links, it makes short vertical videos (15 to 25 seconds) for TikTok, Reels and Shorts, in 15 styles — from a virtual presenter to a movie trailer, a viral dance or a soap opera. Below, one example of each, made with a real business's photos.
+
+### The FLIK video studio (flik.social)
+Send the business's photos or links, pick a style and get a vertical video ready to post, in English, Portuguese or Spanish. The presenter styles are open now; the others open in phases, partners first.
+
+### AI soap opera (flik.social · TikTok · Reels)
+The products become characters in a soap-opera episode that ends on «to be continued…», each talking with its own face. Example: Santini, in Portuguese.
+
+### Viral dance (flik.social · TikTok · Reels)
+A mascot made from the product does this week's viral dance in front of the shop, on the beat. Example: Manteigaria, in Portuguese.
+
+### Mixed (flik.social · Reels · Facebook)
+Starts with the presenter full screen and fast transitions, and ends with her in a bubble over the photos. Example: Alimor Café, in English.
+
+### Movie trailer (flik.social · Shorts · Reels)
+Black title cards, slow motion, a deep narrator and a playful rating card. Example: Action Black, in Spanish.
+
+### 90s anime (flik.social · TikTok · Shorts)
+The business as an anime opening: an episode title, speed lines and one photo turning into its anime version. Example: Manga Ramen, in Portuguese.
+
+### Top 5 (flik.social · TikTok · Reels)
+The presenter opens, then the place's best five are counted down from #5 to #1, with a drumroll before the winner. Example: Dino Parque Lourinhã, in Portuguese.
+
+### Before & after (flik.social · Reels · Facebook)
+Each before photo wipes into its after on the beat; with archive photos, it tells the place's story. Example: Lisbon Zoo, in Portuguese.
+
+### Photo dump (flik.social · Reels · TikTok)
+The photos drop as 3D Polaroids, with a camera click on every beat. Example: Portugal dos Pequenitos, in Portuguese.
+
+### Memes (flik.social · TikTok · Reels)
+Meme formats everyone knows («Nobody:», expectation vs reality, POV) with the business's own photos. Example: O Rei das Bifanas, in Portuguese.
+
+### What does $X get you? (flik.social · TikTok · Reels)
+A budget, real prices and a running total: what fits in it. Example: Animal Cocina, in Spanish.
+
+### Beat (flik.social · Reels · TikTok)
+The photos cut to the beat of a track, the presenter's opening line and words that hit with the drop. Example: Dugo Motos, in Spanish.
+
+### Vaporwave (flik.social · Reels · TikTok)
+An 80s–90s look: a neon grid, a striped sun and the photos opening as retro computer windows, with no voice. Example: RetroCity Lisboa.
+
+### 3:33 liminal (flik.social · TikTok)
+Meme-style late-night weirdness: a VHS look, a mascot and one word per beat. Example: Bolera Mayorca, in Spanish.
+
+### Bubble (flik.social · Reels · Facebook)
+The photos full screen, with the presenter in a small round bubble. Example: Casa do Serra, in English.
+
+### Full-screen presenter (flik.social · TikTok · Shorts)
+The presenter full screen, with fast cuts to the photos while she talks. Example: Dugo Motos, in Spanish.
 
 ## Stays and real estate
 https://febreroai.com/en/work/stays-real-estate/
