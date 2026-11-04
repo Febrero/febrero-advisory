@@ -90,7 +90,7 @@ Cartoon-style AI animation, the kind that travels on social and buys reach witho
 ## FLIK: short AI videos
 https://febreroai.com/en/work/flik/
 
-FLIK (flik.social) is the AI video studio I built: from a business's photos or links, it makes short vertical videos (15 to 25 seconds) for TikTok, Reels and Shorts, in 15 styles — from a virtual presenter to a movie trailer, a viral dance or a soap opera. Below, one example of each, made with a real business's photos.
+FLIK (flik.social) is the AI video studio I built: from a business's photos or links, it makes short vertical videos (15 to 25 seconds) for TikTok, Reels and Shorts, in 17 styles — from a virtual presenter to a movie trailer, a viral dance or a soap opera. Below, one example of each, made with a real business's photos.
 
 ### The FLIK video studio (flik.social)
 Send the business's photos or links, pick a style and get a vertical video ready to post, in English, Portuguese or Spanish. The presenter styles are open now; the others open in phases, partners first.
@@ -100,6 +100,12 @@ The products become characters in a soap-opera episode that ends on «to be cont
 
 ### Viral dance (flik.social · TikTok · Reels)
 A mascot made from the product does this week's viral dance in front of the shop, on the beat. Example: Manteigaria, in Portuguese.
+
+### Liminal Dream (flik.social · Reels · TikTok)
+The place's empty rooms reimagined as a dream: still water, fog, endless corridors, a sky underfoot. No voice. Example: DEZ Studio, in Portuguese.
+
+### Retro 1950s (flik.social · Reels · TikTok)
+«The place of tomorrow»: a 1950s poster of the city, the rooms as 1957 Kodachrome and a real photo as the postcard. No voice. Example: DEZ Studio, in Portuguese.
 
 ### Mixed (flik.social · Reels · Facebook)
 Starts with the presenter full screen and fast transitions, and ends with her in a bubble over the photos. Example: Alimor Café, in English.
