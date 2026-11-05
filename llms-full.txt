@@ -1,6 +1,6 @@
 # Febrero AI: every case on febreroai.com
 
-Source: https://febreroai.com/ · updated 2026-11-04
+Source: https://febreroai.com/ · updated 2026-11-05
 
 ## Organisational processes
 https://febreroai.com/en/work/processes/
@@ -9,6 +9,9 @@ An AI layer on top of the systems the company already runs: ERP, CRM, email, spr
 
 ### Interactive demo for construction companies (febreroai.com/demo/construction)
 A fictional construction company with the AI layer at work: it reads quote requests and floor plans, prepares cost estimates and progress-billing reports, checks supplier invoices against delivery notes and answers questions about the sites. In English, Portuguese and Spanish, nothing to install.
+
+### A tower crane in 3D, piece by piece (febreroai.com/demo/grua)
+A 3D tower-crane simulator that runs in the browser, built in code from the datasheet: load curve, load-moment limiter, lifting cycle and mast climbing. Change the load and the wind and watch the limiter decide. The console is in Portuguese.
 
 ### From drawings to the final model in hours (Construction company · Portugal)
 Going from the architect's drawings to the final model (quantities, cost estimate, materials list) took 30 to 60 days. With AI working on top of the ERP the company already used (Cegid Primavera), it now takes a few hours — and everything that starts from that model speeds up with it.
