@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grua-torre em 3D · simulador interativo · Febrero AI</title>
+<meta name="description" content="Simulador 3D de uma grua-torre Potain MDT 219 J10 que corre no navegador, construído a partir da ficha técnica: curva de carga, limitador de momento, ciclo de carga e telescopagem do mastro.">
+<meta property="og:title" content="Grua-torre em 3D · simulador interativo · Febrero AI">
+<meta property="og:description" content="Uma grua-torre Potain MDT 219 J10 construída em código a partir da ficha técnica. Mude a carga e o vento e veja o limitador decidir.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Febrero AI">
+<meta property="og:locale" content="pt_PT">
+<meta property="og:url" content="https://febreroai.com/demo/grua/">
+<meta property="og:image" content="https://febreroai.com/demo/grua/capa.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://febreroai.com/demo/grua/">
+<link rel="icon" href="/favicon.ico?v=2" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0b0a10">
+<link rel="stylesheet" href="/assets/site.css?v=20261030">
+<style>
+  /* the page around the simulator: the site's header, type and footer; the stage is wider than the usual column */
+  .grua-topo{padding:64px 0 34px;border-bottom:0;background:radial-gradient(ellipse at 82% 40%,rgba(75,36,102,.16),transparent 55%)}
+  .grua-topo h1{font-size:clamp(40px,5.2vw,74px);line-height:1.04;letter-spacing:-.055em;max-width:900px}
+  .grua-topo .eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+  .grua-intro{margin-top:22px;max-width:680px;font-size:16px;line-height:1.75;color:#c9c1d2}
+  .grua-sec{padding:0 0 56px;border-bottom:1px solid var(--line)}
+  .grua-larga{width:min(1560px,calc(100% - 48px))}
+  .grua-palco{position:relative;aspect-ratio:16/9;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#0b0a10 url(capa.jpg) center/cover no-repeat;box-shadow:0 30px 90px rgba(0,0,0,.45),0 0 0 1px rgba(210,190,244,.04)}
+  .grua-palco iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:transparent}
+  .grua-acoes{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px 24px;margin-top:18px}
+  .grua-dica{font-size:12px;letter-spacing:.02em;color:var(--muted)}
+  .grua-botoes{display:flex;gap:10px;flex-wrap:wrap}
+  .grua-acoes .btn{margin:0;min-height:42px;padding:10px 18px;gap:14px;cursor:pointer}
+  .grua-notas{padding:64px 0}
+  .grua-notas h2{font-size:clamp(28px,3vw,40px);max-width:760px;margin-bottom:34px}
+  .g-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+  .g-card{border:1px solid var(--line);border-radius:5px;padding:26px;background:linear-gradient(135deg,rgba(29,25,35,.42),#100e16)}
+  .g-card .n{font-size:10px;font-weight:600;letter-spacing:.17em;color:var(--accent)}
+  .g-card b{display:block;margin:12px 0 10px;font-weight:500;font-size:18px;letter-spacing:-.03em;color:var(--ink)}
+  .g-card p{font-size:13.5px;line-height:1.75}
+  .grua-porque{margin-top:40px;display:grid;grid-template-columns:1fr auto;gap:26px;align-items:center;padding:26px 28px;border:1px solid #4a3d57;border-radius:5px;background:linear-gradient(120deg,rgba(210,190,244,.07),rgba(210,190,244,.01))}
+  .grua-porque p{font-size:14px;line-height:1.75;max-width:760px;color:#c9c1d2}
+  .grua-porque .btn{margin:0;white-space:nowrap}
+  .grua-rodape-nota{margin-top:26px;font-size:11px;line-height:1.7;color:var(--muted);max-width:820px}
+  @media(max-width:900px){.g-cards{grid-template-columns:1fr}.grua-porque{grid-template-columns:1fr}}
+  @media(max-width:760px){.grua-topo{padding:44px 0 26px}.grua-larga{width:calc(100% - 24px)}.grua-intro{font-size:15px}.grua-acoes{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<nav class="langbar" aria-label="Main navigation"><div class="wrap nav-inner">
+  <a class="wordmark" href="/" aria-label="Febrero AI home"><img class="brand-mark" src="/assets/logo-mark.svg" alt="" width="30" height="30" style="width:1.05em;height:1.05em;margin-right:.3em;align-self:center">febrero<span class="brand-ai" style="margin-left:.12em">ai</span></a>
+  <div class="nav-links"><a href="/#work-pt">Todo o trabalho</a><a href="/demo/construcao/">Demonstração para construtoras</a></div>
+</div></nav>
+<main>
+<section class="grua-topo">
+  <div class="wrap">
+    <p class="eyebrow"><span class="status-dot"></span>DEMONSTRAÇÃO · CONSTRUÇÃO</p>
+    <h1>Uma grua-torre, <em>peça a peça.</em></h1>
+    <p class="grua-intro">Um simulador 3D de uma Potain MDT 219 J10 que corre no navegador, sem instalar nada. Foi construído em código a partir da ficha técnica: a curva de carga, o limitador de momento, o ciclo de carga e a telescopagem do mastro seguem os números da ficha.</p>
+  </div>
+</section>
+<section class="grua-sec">
+  <div class="grua-larga" style="margin-inline:auto">
+    <div class="grua-palco"><iframe id="simulador" src="simulador.html" title="Simulador 3D da grua-torre Potain MDT 219 J10" allow="fullscreen" allowfullscreen></iframe></div>
+    <div class="grua-acoes">
+      <span class="grua-dica">Clique para assumir o comando, arraste para rodar e use a roda do rato para aproximar. No telemóvel, abra em ecrã inteiro e rode o ecrã. Sem tocar, faz a visita sozinho.</span>
+      <span class="grua-botoes"><button class="btn ghost" id="ecra-inteiro" type="button">Ecrã inteiro<span aria-hidden="true">⤢</span></button><a class="btn ghost" href="simulador.html" target="_blank" rel="noopener">Abrir sozinho<span aria-hidden="true">↗</span></a></span>
+    </div>
+  </div>
+</section>
+<section class="grua-notas">
+  <div class="wrap">
+    <h2>O que está <em>a ver</em></h2>
+    <div class="g-cards">
+      <div class="g-card"><span class="n">01</span><b>Os números da ficha técnica</b><p>Lança de 65 m, 10 t de carga máxima e 1,85 t na ponta. A curva de carga, as velocidades do guincho e do carro e as massas das secções vêm da ficha da grua.</p></div>
+      <div class="g-card"><span class="n">02</span><b>O limitador decide</b><p>Mude a carga no gancho e o vento. O limitador de momento compara a carga e o raio com a curva e pára o carro antes do excesso. Acima de 72 km/h de vento, a grua fica fora de serviço.</p></div>
+      <div class="g-card"><span class="n">03</span><b>Duas sequências, oito vistas</b><p>O ciclo de carga e a telescopagem do mastro, com vistas do carro, do anel de rotação, do guincho e da gaiola, mais raio-X e vista explodida.</p></div>
+    </div>
+    <div class="grua-porque">
+      <p><b style="color:var(--ink);font-weight:500">Porque é que uma consultora de IA constrói uma grua?</b><br>Porque é assim que trabalhamos os processos de uma construtora: partimos dos documentos e dos números reais e pomo-los a funcionar. A mesma abordagem está na demonstração da camada de IA para construtoras, com orçamentos, autos de medição, faturas e obras.</p>
+      <a class="btn" href="/demo/construcao/">Ver a demonstração<span aria-hidden="true">↗</span></a>
+    </div>
+    <p class="grua-rodape-nota">Modelo procedimental feito para demonstração: alguns pormenores são estimados e não substitui a documentação do fabricante. Potain é uma marca do respetivo titular; esta página não é material do fabricante.</p>
+  </div>
+</section>
+<section class="contact-section" id="contact-pt">
+  <div class="wrap">
+    <div class="cta"><p class="eyebrow">VAMOS CONVERSAR</p><h2>O próximo passo<br>começa com <em>uma conversa.</em></h2><h3>Vinte minutos. Uma oportunidade real.</h3>
+      <p>Diga-me o que a sua equipa faz mais vezes por semana. Digo-lhe se há aí um caso de IA que se pague — e se não houver, também lho digo.</p>
+      <a class="btn" href="mailto:pedro@gigacorp.pt?subject=Conversa%20de%2020%20minutos%20sobre%20IA">Escrever um email</a>
+      <a class="btn ghost" href="https://wa.me/351936882364">WhatsApp 936 882 364</a>
+    </div>
+  </div>
+</section>
+</main>
+<footer><div class="wrap footer-inner"><a class="wordmark" href="/"><img class="brand-mark" src="/assets/logo-mark.svg" alt="" width="30" height="30" style="width:1.05em;height:1.05em;margin-right:.3em;align-self:center">febrero<span class="brand-ai" style="margin-left:.12em">ai</span></a><span>Pedro Febrero · Lisboa, Portugal</span><div><a href="https://www.linkedin.com/in/pedro-febrero-8485093a6/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="/privacy.html">Privacidade</a><a href="#" aria-label="Voltar ao início">↑</a></div></div></footer>
+<script>
+  // full screen for the simulator's frame; the button hides where the browser has no such thing (iPhone)
+  (function () {
+    var b = document.getElementById('ecra-inteiro'), f = document.getElementById('simulador');
+    var pedir = f.requestFullscreen || f.webkitRequestFullscreen;
+    if (!pedir) { b.hidden = true; return; }
+    b.addEventListener('click', function () { pedir.call(f); });
+  })();
+</script>
+</body>
+</html>
