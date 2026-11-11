@@ -139,6 +139,44 @@ td b{color:var(--ink);font-weight:500}
 .registo li{padding:6px 0;border-bottom:1px solid rgba(221,210,241,.07)}
 .registo time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
 footer{color:var(--muted);font-size:12.5px;margin-top:22px}
+/* leads */
+.filtros{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px}
+.filtros button{padding:5px 12px;border-radius:999px;border:1px solid #3f3449;background:none;color:#ddd2ea;cursor:pointer;font-size:13px}
+.filtros button[aria-pressed=true]{background:rgba(210,190,244,.16);border-color:#8e76a8;color:#fff}
+.filtros button .c{color:var(--muted);margin-left:5px;font-variant-numeric:tabular-nums}
+.procura input{width:100%;padding:9px 14px;border-radius:8px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);margin-bottom:6px}
+.lead{display:grid;grid-template-columns:42px minmax(0,1.6fr) 150px 130px 110px 60px minmax(0,1.3fr) 150px;gap:4px 12px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(221,210,241,.07)}
+.lead.cab-f{color:var(--muted);font-size:12px;border-bottom:1px solid var(--line);padding-block:6px}
+.lead b{color:var(--ink);font-weight:500}
+.lead small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lead .n{text-align:right;font-variant-numeric:tabular-nums}
+.lead .pos{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+.lead .pos.fixo{color:var(--accent)}
+.lead .nome{cursor:pointer;min-width:0}
+.lead .passo{font-size:13px;color:var(--body);min-width:0}
+.lead .acoes{display:flex;gap:4px;justify-content:flex-end}
+.lead .acoes button{width:30px;height:30px;border-radius:8px;border:1px solid #3f3449;background:rgba(210,190,244,.04);color:#ddd2ea;cursor:pointer;font-size:14px;line-height:1}
+.lead .acoes button:hover{border-color:#8e76a8;color:#fff}
+.lead .acoes button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lead.adiado{opacity:.55}
+.lead .devemos{display:block;color:var(--warning);font-size:12px;font-weight:600}
+.lead .c-et .chip{white-space:normal;align-items:flex-start}
+.lead .passo .txt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lead .det{grid-column:1/-1;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:4px 0 6px;font-size:13.5px;display:grid;gap:6px}
+.lead .det b{font-weight:600}
+.lead .det textarea{width:100%;min-height:56px;padding:8px 10px;border-radius:6px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);font:inherit;font-size:13.5px}
+.lead .det .linha{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lead .det a{color:var(--accent)}
+.mais-leads{display:flex;justify-content:center;margin-top:12px}
+@media(max-width:1040px){
+  .lead{grid-template-columns:34px minmax(0,1fr) auto;gap:4px 10px}
+  .lead.cab-f{display:none}
+  .lead .c-nome{grid-column:2;grid-row:1}.lead .pos{grid-column:1;grid-row:1}.lead .c-ev{grid-column:3;grid-row:1}
+  .lead .c-et{grid-column:2;grid-row:2}.lead .c-prob{grid-column:3;grid-row:2}
+  .lead .c-fit,.lead .c-ult{display:none}
+  .lead .passo{grid-column:2/-1;grid-row:3}
+  .lead .acoes{grid-column:2/-1;grid-row:4;justify-content:flex-start}
+}
 .oculto{display:none!important}
 @media(max-width:900px){.grelha{grid-template-columns:1fr}}
 @media(max-width:1040px){
@@ -192,6 +230,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       <button type="button" role="tab" id="s-contas" aria-controls="tab-contas" aria-selected="true">Contas</button>
       <button type="button" role="tab" id="s-previsao" aria-controls="tab-previsao" aria-selected="false">Previsão</button>
       <button type="button" role="tab" id="s-propostas" aria-controls="tab-propostas" aria-selected="false">Potenciais clientes</button>
+      <button type="button" role="tab" id="s-leads" aria-controls="tab-leads" aria-selected="false">Leads</button>
     </div>
 
     <div id="tab-contas" role="tabpanel" aria-labelledby="s-contas">
@@ -247,6 +286,21 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       <div class="cartao">
         <div class="cab"><div><h2>Propostas</h2><div class="sub">Ordenadas pelo valor ponderado (valor × probabilidade). Marca aqui as que ganhas ou perdes.</div></div></div>
         <div id="propostas"></div>
+      </div>
+    </div>
+
+    <div id="tab-leads" role="tabpanel" aria-labelledby="s-leads" hidden>
+      <div class="tiles" id="leads-tiles"></div>
+      <div class="cartao">
+        <div class="cab"><div><h2>Leads qualificados</h2><div class="sub" id="leads-sub">Pela ordem de trabalho: primeiro a quem devemos resposta, depois o valor esperado (probabilidade × valor). Muda a ordem com as setas; a Daniela liga por esta ordem.</div></div></div>
+        <div class="filtros" id="leads-filtros" role="group" aria-label="Filtrar leads"></div>
+        <div class="procura"><input id="leads-q" type="search" placeholder="Procurar empresa, setor, local, email…" aria-label="Procurar leads"></div>
+        <div id="leads"></div>
+        <div class="mais-leads"><button class="btn peq oculto" id="leads-mais" type="button">Mostrar mais</button></div>
+      </div>
+      <div class="cartao" style="margin-top:12px">
+        <div class="cab"><div><h2>Como se calcula</h2></div></div>
+        <div class="sub" id="leads-como"></div>
       </div>
     </div>
 
@@ -330,7 +384,7 @@ async function carregar() {
   finally { p.classList.remove("a-ler"); }
 }
 // ------------------------------------------------------------ tabs (the last one opened is remembered on this device)
-const SEPARADORES = ["contas", "previsao", "propostas"];
+const SEPARADORES = ["contas", "previsao", "propostas", "leads"];
 let separador = "contas";
 try { separador = SEPARADORES.includes(localStorage.getItem("fin_tab")) ? localStorage.getItem("fin_tab") : "contas"; } catch (e) {}
 function abrirSeparador(nome) {
@@ -341,6 +395,7 @@ function abrirSeparador(nome) {
     $("#tab-" + s).hidden = s !== nome;
   }
   if (dados) desenharGraficos();         // a chart drawn while hidden has no width
+  if (nome === "leads" && token && !leadsDados) carregarLeads();     // a few MB: only read when the tab is opened
 }
 for (const s of SEPARADORES) $("#s-" + s).addEventListener("click", () => abrirSeparador(s));
 function desenharGraficos() {
@@ -644,6 +699,108 @@ async function mudarProposta(id, estado) {
   try { await api("/proposta", { method: "POST", body: { id, estado } }); await carregar(); return ""; }
   catch (e) { console.error("proposta", id, e); return e.message === "sessão" ? "" : `Não gravou: ${e.message}`; }
 }
+
+// ------------------------------------------------------------ Leads (2026-11-11): every company we touched, qualified on
+// Pedro's PC (Leads/manage-leads/qualificacao), in the order the team works them; Pedro moves, pins and puts off
+// leads here and Daniela calls in this order (tools/leads-painel.mjs)
+let leadsDados = null, leadsFiltro = "ativos", leadsQ = "", leadsN = 60, leadsAberto = null;
+const ATIVAS = new Set(["negociacao", "proposta", "reuniao_feita", "reuniao_marcada", "interessado", "conversa", "mais_tarde", "recado", "contactado", "por_contactar"]);
+const QUENTES = new Set(["negociacao", "proposta", "reuniao_feita", "reuniao_marcada", "interessado"]);
+const FILTROS = [
+  ["ativos", "Ativos", (l) => ATIVAS.has(l.etapa)],
+  ["devemos", "Devemos resposta", (l) => l.devemos],
+  ["quentes", "Quentes", (l) => QUENTES.has(l.etapa)],
+  ["conversa", "Em conversa", (l) => ["conversa", "mais_tarde"].includes(l.etapa)],
+  ["contactados", "Contactados", (l) => ["recado", "contactado"].includes(l.etapa)],
+  ["fila", "Por contactar", (l) => l.etapa === "por_contactar"],
+  ["ia", "IA", (l) => ATIVAS.has(l.etapa) && l.oferta === "IA"],
+  ["video", "Vídeos", (l) => ATIVAS.has(l.etapa) && l.oferta === "vídeo"],
+  ["fechados", "Clientes / sem interesse", (l) => ["cliente", "sem_interesse", "remover"].includes(l.etapa)],
+];
+const COR_ETAPA = { cliente: "bom", negociacao: "bom", proposta: "bom", reuniao_feita: "bom", reuniao_marcada: "bom", interessado: "meio",
+  conversa: "meio", mais_tarde: "neutro", recado: "neutro", contactado: "neutro", por_contactar: "neutro", sem_interesse: "mau", remover: "mau" };
+async function carregarLeads() {
+  const caixa = $("#leads");
+  if (!leadsDados) caixa.replaceChildren(el("p", { class: "sub", text: "A carregar…" }));
+  try { leadsDados = await api("/leads"); desenharLeads(); }
+  catch (e) { if (e.message !== "sessão") caixa.replaceChildren(el("p", { class: "sub", text: "Não consegui ler os leads: " + e.message })); }
+}
+const pct = (p) => p >= 0.1 ? `${Math.round(p * 100)}%` : `${(p * 100).toFixed(1).replace(".", ",")}%`;
+function desenharLeads() {
+  const d = leadsDados, todos = d.leads || [];
+  if (!todos.length) return $("#leads").replaceChildren(el("p", { class: "sub", text: "Ainda não há leads: corre a qualificação no PC (Leads/manage-leads/qualificacao)." }));
+  const ativos = todos.filter((l) => ATIVAS.has(l.etapa));
+  const soma = (arr, f) => arr.reduce((s, l) => s + (f(l) || 0), 0);
+  $("#leads-tiles").replaceChildren(
+    tile("Valor esperado", eur(soma(ativos, (l) => l.ev)), `probabilidade × valor · ${ativos.length} leads ativos`, true),
+    tile("Devemos resposta", String(todos.filter((l) => l.devemos).length), "a última mensagem foi deles"),
+    tile("Quentes", String(todos.filter((l) => QUENTES.has(l.etapa)).length), "interessados, reuniões e propostas"),
+    tile("Clientes", String(todos.filter((l) => l.etapa === "cliente").length), d.totais ? `${d.totais.contactadas} empresas contactadas, ${d.totais.responderam} responderam` : ""));
+  $("#leads-filtros").replaceChildren(...FILTROS.map(([k, rot, f]) => el("button", { type: "button", "aria-pressed": String(leadsFiltro === k),
+    onclick: () => { leadsFiltro = k; leadsN = 60; desenharLeads(); } }, rot, el("span", { class: "c", text: String(todos.filter(f).length) }))));
+  const filtro = FILTROS.find(([k]) => k === leadsFiltro)[2];
+  const q = leadsQ.trim().toLowerCase();
+  const lista = todos.filter(filtro).filter((l) => !q || [l.nome, l.legal, l.setor, l.local, l.email, l.pessoa, l.resumo].join(" ").toLowerCase().includes(q))
+    .sort((a, b) => (a.pos ?? 1e9) - (b.pos ?? 1e9) || b.ev - a.ev);
+  const cab = el("div", { class: "lead cab-f" }, el("span", { text: "#" }), el("span", { text: "Empresa" }), el("span", { text: "Etapa" }),
+    el("span", { text: "Probabilidade" }), el("span", { class: "n", text: "Valor esperado" }), el("span", { class: "n", text: "Fit" }), el("span", { text: "Próximo passo" }), el("span", {}));
+  const agora = Date.now();
+  const linhas = lista.slice(0, leadsN).map((l) => {
+    const m = l.manual || {}, adiado = (m.adiar_ate || 0) > agora;
+    const botao = (ico, rot, acao, valor) => el("button", { type: "button", title: rot, "aria-label": `${rot}: ${l.nome}`, text: ico,
+      onclick: async (ev) => { ev.stopPropagation(); await mudarLead(l, acao, valor); } });
+    const linha = el("div", { class: "lead" + (adiado ? " adiado" : "") },
+      el("span", { class: "pos" + (m.pin ? " fixo" : ""), text: l.pos ? (m.pin ? "📌" : String(l.pos)) : "—" }),
+      el("span", { class: "c-nome nome", role: "button", tabindex: "0", "aria-expanded": String(leadsAberto === l.id),
+        onclick: () => { leadsAberto = leadsAberto === l.id ? null : l.id; desenharLeads(); },
+        onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); leadsAberto = leadsAberto === l.id ? null : l.id; desenharLeads(); } } },
+        el("b", { text: l.nome }), el("small", { text: [l.setor, l.local, l.oferta].filter(Boolean).join(" · ") })),
+      el("span", { class: "c-et" }, el("span", { class: "chip " + (COR_ETAPA[l.etapa] || "neutro") }, el("i", { "aria-hidden": "true", text: "•" }), l.rotulo),
+        l.devemos ? el("span", { class: "devemos", text: "devemos resposta" }) : adiado ? el("small", { text: `adiado até ${dm(new Date(m.adiar_ate).toISOString().slice(0, 10))}` }) : null),
+      el("span", { class: "c-prob prob" }, el("span", { class: "trilho", "aria-hidden": "true" }, el("span", { style: `width:${Math.max(2, Math.min(100, l.prob * 100))}%` })), pct(l.prob)),
+      el("span", { class: "n c-ev" }, el("b", { text: eur(l.ev) }), el("small", { text: `de ${eur(l.valor)}` })),
+      el("span", { class: "n c-fit", text: String(l.fit) }),
+      el("span", { class: "passo", title: l.proximo_passo }, el("span", { class: "txt", text: l.proximo_passo }), el("small", { text: l.ultimo_toque ? `último contacto ${dm(String(l.ultimo_toque).slice(0, 10))}` : "nunca contactado" })),
+      el("span", { class: "acoes" }, botao("↑", "Subir", "subir"), botao("↓", "Descer", "descer"),
+        m.pin ? botao("✕", "Soltar do topo", "soltar") : botao("📌", "Pôr no topo", "topo"), botao("💤", "Adiar 7 dias", "adiar", 7)));
+    if (leadsAberto === l.id) linha.append(detalheLead(l));
+    return linha;
+  });
+  $("#leads").replaceChildren(cab, ...(linhas.length ? linhas : [el("p", { class: "sub", text: "Nenhum lead com este filtro." })]));
+  $("#leads-mais").classList.toggle("oculto", lista.length <= leadsN);
+  $("#leads-mais").textContent = `Mostrar mais (${lista.length - leadsN})`;
+  $("#leads-como").replaceChildren(
+    el("p", { text: "Etapa: o ponto mais avançado da relação (clientes, propostas e reuniões do previsao.json e do Cal.com; respostas lidas no email; chamadas da Daniela). Cada etapa tem uma probabilidade base de fecho em ~3 meses, ajustada pelo interesse e se falámos com quem decide (lidos nas conversas pelo Claude), pelo fit e pelo tempo de silêncio." }),
+    el("p", { text: "Fit (0–100): dimensão e sinais — PME Líder, a contratar, contratos públicos, PRR, quartos, avaliações, empresa média/grande — e se temos o decisor, telemóvel ou email direto. Valor: a proposta, se houver; senão 10.000 € num projeto de IA, 600 € num ano de vídeos." }),
+    el("p", { text: `Atualizado no PC ${d.gerado ? new Date(d.gerado).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—"}.` }));
+}
+function detalheLead(l) {
+  const m = l.manual || {};
+  const nota = el("textarea", { "aria-label": "Nota sobre " + l.nome }, m.nota || "");
+  const linha = (rot, txt) => txt ? el("div", {}, el("b", { text: rot + ": " }), txt) : null;
+  return el("div", { class: "det" },
+    linha("Resumo", l.resumo), linha("Próximo passo", l.proximo_passo), linha("Pessoa", l.pessoa),
+    l.pedidos?.length ? linha("Pediram", l.pedidos.join("; ")) : null, l.objecoes?.length ? linha("Objeções", l.objecoes.join("; ")) : null,
+    linha("Histórico", `${l.emails} emails · ${l.respostas} respostas · ${l.chamadas} chamadas${l.voz ? ` (${l.voz})` : ""} · ${l.reunioes} reuniões · ${l.propostas} propostas${l.amostra ? " · recebeu amostra" : ""}`),
+    linha("Fit", l.fit_razoes?.length ? `${l.fit} — ${l.fit_razoes.join(", ")}` : String(l.fit)),
+    linha("Valor", `${eur(l.valor)} (${l.valor_fonte}) × ${pct(l.prob)} = ${eur(l.ev)}`),
+    el("div", { class: "linha" }, l.email ? el("a", { href: "mailto:" + l.email, text: l.email }) : null,
+      l.telefone ? el("a", { href: "tel:+351" + l.telefone.replace(/\D/g, "").slice(-9), text: l.telefone }) : null,
+      l.site ? el("a", { href: /^http/.test(l.site) ? l.site : "https://" + l.site, target: "_blank", rel: "noopener noreferrer", text: "site" }) : null),
+    nota,
+    el("div", { class: "linha" },
+      el("button", { class: "btn peq", type: "button", text: "Guardar nota", onclick: () => mudarLead(l, "nota", nota.value) }),
+      el("button", { class: "btn peq", type: "button", text: "Pôr na posição…", onclick: () => { const n = prompt(`Posição para ${l.nome}:`, String(l.pos || 1)); if (n) mudarLead(l, "posicao", Number(n)); } }),
+      el("button", { class: "btn peq", type: "button", text: "Adiar 30 dias", onclick: () => mudarLead(l, "adiar", 30) }),
+      (m.pin || m.rank !== undefined || m.adiar_ate) ? el("button", { class: "btn peq", type: "button", text: "Repor ordem automática", onclick: () => mudarLead(l, "repor") }) : null));
+}
+async function mudarLead(l, acao, valor) {
+  try { await api("/leads/ordem", { method: "POST", body: { id: l.id, acao, valor } }); await carregarLeads(); }
+  catch (e) { if (e.message !== "sessão") aviso(`${l.nome}: não gravou (${e.message})`); }
+}
+$("#leads-mais").addEventListener("click", () => { leadsN += 100; desenharLeads(); });
+let leadsT = null;
+$("#leads-q").addEventListener("input", (e) => { clearTimeout(leadsT); leadsT = setTimeout(() => { leadsQ = e.target.value; leadsN = 60; if (leadsDados) desenharLeads(); }, 200); });
 
 let redim = null;
 window.addEventListener("resize", () => { clearTimeout(redim); redim = setTimeout(() => { if (dados) desenharGraficos(); }, 150); });
