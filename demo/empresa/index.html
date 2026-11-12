@@ -21,7 +21,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="estilo.css?v=3">
+<link rel="stylesheet" href="estilo.css?v=5">
 </head>
 <body>
 <div class="flex h-screen overflow-hidden">
@@ -48,6 +48,7 @@
       <a class="nav-item" data-vista="faturas"><span data-icone="fatura"></span>Faturas<span class="distintivo" id="n-faturas">4</span></a>
       <a class="nav-item" data-vista="clientes"><span data-icone="pessoas"></span>Clientes</a>
       <a class="nav-item" data-vista="financas"><span data-icone="grafico"></span>Finanças</a>
+      <a class="nav-item" data-vista="patrimonio"><span data-icone="cofre"></span>Património</a>
       <a class="nav-item" data-vista="assistente"><span data-icone="brilho"></span>Assistente</a>
       <a class="nav-item" data-vista="como"><span data-icone="camadas"></span>Como funciona</a>
       <a class="flex items-center gap-3 rounded-[.8rem] px-[.9rem] py-[.62rem] text-[.9rem] font-medium text-white/65 transition-colors hover:bg-white/5 hover:text-white [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:flex-none" href="/demo/grua/" target="_blank" rel="noopener"><span data-icone="grua"></span>Grua-torre em 3D<span class="ml-auto text-white/40" aria-hidden="true">↗</span></a>
@@ -354,6 +355,37 @@
         <div class="cartao p-5 mt-5 min-w-0"><div class="rotulo">Contratos em obra</div><div class="serif text-lg font-semibold mt-0.5">O que falta faturar de cada obra</div><div id="g-contratos" class="mt-3"></div></div>
       </section>
 
+      <section id="v-patrimonio" class="vista hidden">
+        <div><div class="rotulo">Património</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">Tudo o que tem, num só número</h2>
+          <p class="text-sm text-[#7b6a5d] mt-1 max-w-3xl">Casas, ações, cripto, contas e créditos, avaliados sozinhos onde se pode: a casa pela morada, a cripto pela quantidade. A empresa entra só pelo valor da sua parte e pelo que lhe paga; as contas dela ficam nas outras secções, e nada se mistura.</p>
+          <p id="p-sub" class="text-xs text-[#a08b7a] mt-1.5"></p></div>
+        <div id="p-tiles" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5"></div>
+        <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-5 mt-5">
+          <div class="cartao p-5 min-w-0"><div class="rotulo">Composição</div><div class="serif text-lg font-semibold mt-0.5">Os ativos por tipo</div><div id="p-comp" class="mt-4"></div></div>
+          <div class="cartao p-5 min-w-0"><div class="rotulo">Evolução</div><div class="serif text-lg font-semibold mt-0.5">Património líquido, últimos 12 meses</div>
+            <p class="text-xs text-[#7b6a5d] mt-1">Ativos menos dívidas, no fim de cada mês.</p>
+            <div class="h-60 mt-3"><canvas id="p-graf" role="img" aria-label="Património líquido nos últimos 12 meses"></canvas></div></div>
+        </div>
+        <div class="cartao p-5 mt-5 min-w-0">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div><div class="rotulo">Ativos</div><div class="serif text-lg font-semibold mt-0.5">O que tem, e de onde vem cada valor</div>
+              <p class="text-xs text-[#7b6a5d] mt-1">Os preços atualizam-se sozinhos; o resto é estimado (e pode corrigir) ou indicado por si.</p></div>
+            <div class="flex flex-wrap gap-2"><button id="p-precos" type="button" class="btn btn-claro !py-1.5 !px-3 !text-xs">Atualizar preços</button>
+              <button id="p-novo" type="button" class="btn btn-cobre !py-1.5 !px-3 !text-xs">+ Adicionar</button></div>
+          </div>
+          <div id="p-adicionar" class="hidden mt-4"></div>
+          <div id="p-ativos" class="p-lista mt-4"></div>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-5 mt-5">
+          <div class="cartao p-5 min-w-0"><div class="rotulo">Dívidas</div><div class="serif text-lg font-semibold mt-0.5">Créditos e leasings</div>
+            <p class="text-xs text-[#7b6a5d] mt-1">Abatem ao património líquido.</p><div id="p-dividas" class="p-lista mt-3"></div></div>
+          <div class="cartao p-5 min-w-0"><div class="rotulo">A empresa no seu património</div><div class="serif text-lg font-semibold mt-0.5">O valor da sua parte e o que lhe paga</div>
+            <p class="text-xs text-[#7b6a5d] mt-1">As contas da empresa ficam nas Finanças.</p><div id="p-empresa" class="mt-4"></div></div>
+        </div>
+        <p class="text-xs text-[#a08b7a] mt-5 max-w-4xl">Imóveis: mediana do valor por m² das vendas dos últimos 12 meses na freguesia (ou no concelho), INE. Cripto: CoinGecko, de hora a hora. Ações e ETF: último fecho, em euros ao câmbio do BCE. Veículos: desvalorização média ou anúncios de carros iguais. Os meses antes de hoje no gráfico são de demonstração. Tudo o que adicionar fica só neste navegador.
+          <button id="p-repor" type="button" class="g-link">Repor o exemplo</button></p>
+      </section>
+
       <section id="v-assistente" class="vista hidden">
         <div class="grid xl:grid-cols-[1fr_340px] gap-5">
           <div class="cartao overflow-hidden flex flex-col h-[calc(100vh-190px)] min-h-[560px]" id="caixa-chat">
@@ -460,8 +492,11 @@
 <div id="toasts"></div>
 
 <script src="dados.js?v=3"></script>
-<script src="app.js?v=4"></script>
-<script src="gestao_dados.js?v=1"></script>
-<script src="gestao.js?v=1"></script>
+<script src="app.js?v=5"></script>
+<script src="gestao_dados.js?v=2"></script>
+<script src="gestao.js?v=2"></script>
+<script src="patrimonio_dados.js?v=1"></script>
+<script src="patrimonio_textos.js?v=1"></script>
+<script src="patrimonio.js?v=1"></script>
 </body>
 </html>

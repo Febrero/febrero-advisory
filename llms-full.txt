@@ -8,7 +8,7 @@ https://febreroai.com/en/work/processes/
 An AI layer on top of the systems the company already runs: ERP, CRM, email, spreadsheets. Nothing to migrate and nothing new for the team to learn, so adoption is easy — and processes that take days start taking hours.
 
 ### Business dashboard: interactive demo (febreroai.com/demo/business)
-A fictional construction company with AI working across the business: it qualifies leads and drafts the next email, reads quote requests and floor plans to prepare estimates, turns site sheets into progress bills, checks supplier invoices, and shows the accounts and the next 12 months. In English, Portuguese and Spanish, nothing to install.
+A fictional construction company with AI working across the business: it qualifies leads and drafts the next email, reads quote requests and floor plans to prepare estimates, turns site sheets into progress bills, checks supplier invoices, and shows the accounts and the next 12 months. Apart from the company, the owner's net worth: homes valued from their address, crypto from the amount held, shares at the last close. In English, Portuguese and Spanish, nothing to install.
 
 ### A tower crane in 3D, piece by piece (febreroai.com/demo/grua)
 A 3D tower-crane simulator that runs in the browser, built in code from the datasheet: load curve, load-moment limiter, lifting cycle and mast climbing. Change the load and the wind and watch the limiter decide. The console is in Portuguese.

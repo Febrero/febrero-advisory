@@ -22,7 +22,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <!-- the stylesheet is shared by the PT, EN and ES versions -->
-<link rel="stylesheet" href="../empresa/estilo.css?v=4">
+<link rel="stylesheet" href="../empresa/estilo.css?v=5">
 </head>
 <body>
 <div class="flex h-screen overflow-hidden">
@@ -41,11 +41,15 @@
 
     <nav id="nav" class="mt-8 flex flex-col gap-1 pl-3">
       <a class="nav-item" data-vista="painel"><span data-icone="painel"></span>Dashboard</a>
+      <a class="nav-item" data-vista="leads"><span data-icone="funil"></span>Leads and quotes<span class="distintivo" id="n-leads">5</span></a>
       <a class="nav-item" data-vista="pedidos"><span data-icone="caixa"></span>Quote requests<span class="distintivo" id="n-pedidos">4</span></a>
       <a class="nav-item" data-vista="planta"><span data-icone="planta"></span>Floor plan → Estimate</a>
       <a class="nav-item" data-vista="obras"><span data-icone="grua"></span>Sites</a>
       <a class="nav-item" data-vista="autos"><span data-icone="regua"></span>Progress billing<span class="distintivo" id="n-autos">3</span></a>
       <a class="nav-item" data-vista="faturas"><span data-icone="fatura"></span>Invoices<span class="distintivo" id="n-faturas">4</span></a>
+      <a class="nav-item" data-vista="clientes"><span data-icone="pessoas"></span>Clients</a>
+      <a class="nav-item" data-vista="financas"><span data-icone="grafico"></span>Finance</a>
+      <a class="nav-item" data-vista="patrimonio"><span data-icone="cofre"></span>Net worth</a>
       <a class="nav-item" data-vista="assistente"><span data-icone="brilho"></span>Assistant</a>
       <a class="nav-item" data-vista="como"><span data-icone="camadas"></span>How it works</a>
       <a class="flex items-center gap-3 rounded-[.8rem] px-[.9rem] py-[.62rem] text-[.9rem] font-medium text-white/65 transition-colors hover:bg-white/5 hover:text-white [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:flex-none" href="/demo/grua/" target="_blank" rel="noopener"><span data-icone="grua"></span>3D tower crane<span class="ml-auto text-white/40" aria-hidden="true">↗</span></a>
@@ -290,7 +294,99 @@
         </div>
       </section>
 
+      <!-- ===== LEADS AND QUOTES (../empresa/gestao.js, texts in gestao_dados.js) ===== -->
+      <section id="v-leads" class="vista hidden">
+        <div><div class="rotulo">Sales · from first contact to winning the contract</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">Leads and quotes, in order of priority</h2>
+          <p class="text-sm text-[#7b6a5d] mt-1 max-w-3xl">The AI reads the emails, WhatsApp messages and calls and qualifies every contact: stage, probability of closing, expected value and the next step. Those we owe a reply come first; with ▶ the AI writes the email for that step.</p></div>
+        <div id="g-leads-tiles" class="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-5"></div>
+        <div class="cartao p-4 md:p-5 mt-5 min-w-0">
+          <div id="g-leads-filtros" class="seg" role="group" aria-label="Filter leads"></div>
+          <input id="g-leads-q" type="search" placeholder="Search company, sector, location…" aria-label="Search leads"
+            class="mt-3 w-full text-sm bg-white border border-[#eadfd2] rounded-xl px-3 py-2 outline-none focus:border-[#d6c1ab]">
+          <div id="g-leads" class="mt-2"></div>
+          <div class="flex justify-center mt-3"><button id="g-leads-mais" class="btn btn-claro hidden" type="button"></button></div>
+        </div>
+        <div class="mt-9"><div class="rotulo">Quotes</div><h2 class="serif text-2xl font-semibold mt-1">Open quotes</h2>
+          <p class="text-sm text-[#7b6a5d] mt-1 max-w-3xl">Sorted by weighted value (value × probability). Mark the ones you win or lose: the forecast in Finance updates.</p></div>
+        <div id="g-prop-tiles" class="grid sm:grid-cols-3 gap-4 mt-4"></div>
+        <div class="cartao p-4 md:p-5 mt-4 min-w-0"><div id="g-propostas"></div></div>
+        <div class="cartao p-5 mt-5"><div class="rotulo">How it's calculated</div><div id="g-leads-como" class="text-sm text-[#5b4b40] mt-2 space-y-2"></div></div>
+      </section>
+
+      <!-- ===== CLIENTS (../empresa/gestao.js) ===== -->
+      <section id="v-clientes" class="vista hidden">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div><div class="rotulo">Invoicing by site</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">Each site, invoiced month by month</h2>
+            <p class="text-sm text-[#7b6a5d] mt-1 max-w-3xl">Each client's contract with its invoices month by month: paid, outstanding, overdue, or a progress bill that was left uninvoiced. Tap the name to see the notes, the invoices and the last contact.</p></div>
+          <div class="flex flex-wrap gap-1.5 text-[11.5px]" aria-label="Legend"><span class="g-mes mc-paga !min-w-0">paid</span><span class="g-mes mc-receber !min-w-0">outstanding</span>
+            <span class="g-mes mc-vencida !min-w-0">overdue</span><span class="g-mes mc-falta !min-w-0">not invoiced</span><span class="g-mes mc-agora !min-w-0">this month</span><span class="g-mes mc-seguir !min-w-0">upcoming</span></div>
+        </div>
+        <div id="g-cli-tiles" class="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-5"></div>
+        <div id="g-clientes" class="mt-2"></div>
+      </section>
+
+      <!-- ===== FINANCE (../empresa/gestao.js) ===== -->
+      <section id="v-financas" class="vista hidden">
+        <div><div class="rotulo">Finance</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">The year's accounts and the next 12 months</h2>
+          <p class="text-sm text-[#7b6a5d] mt-1 max-w-3xl">Invoices read from the invoicing software, expenses from the e-Fatura tax portal and the bank statements, payments from the bank. The forecast combines what is left to invoice on the sites and the likely share of the quotes.</p></div>
+        <div id="g-fin-tiles" class="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 mt-5"></div>
+        <div class="cartao p-5 mt-5 min-w-0">
+          <div class="rotulo">Invoiced excl. VAT · expenses paid</div><div id="g-fin-meses-t" class="serif text-lg font-semibold mt-0.5"></div>
+          <div class="h-64 mt-3"><canvas id="g-graf-meses" aria-label="Invoicing and expenses by month"></canvas></div>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-5 mt-5">
+          <div class="cartao p-5 min-w-0"><div class="rotulo">Outstanding invoices</div><div class="serif text-lg font-semibold mt-0.5">Who owes us, and since when</div>
+            <p class="text-xs text-[#7b6a5d] mt-1">Mark them here when they are paid, or automatically from the bank statement.</p><div id="g-receber" class="mt-3"></div></div>
+          <div class="cartao p-5 min-w-0"><div class="rotulo">By client and by supplier</div><div id="g-fin-clientes-t" class="serif text-lg font-semibold mt-0.5"></div><div id="g-fin-clientes"></div>
+            <div id="g-fin-forn-t" class="serif text-lg font-semibold mt-6"></div><div id="g-fin-forn"></div></div>
+        </div>
+        <div class="cartao p-5 mt-5 min-w-0">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div><div class="rotulo">Forecast</div><div id="g-prev-t" class="serif text-lg font-semibold mt-0.5"></div>
+              <p class="text-xs text-[#7b6a5d] mt-1">What the company will invoice each month, excl. VAT: what is left on the sites under way and the likely share of the quotes.</p></div>
+            <div class="flex flex-wrap gap-4 text-xs text-[#5b4b40]"><span class="inline-flex items-center gap-1.5"><i class="w-3 h-3 rounded-sm bg-[#c47a3c]"></i>Contracted</span>
+              <span class="inline-flex items-center gap-1.5"><i class="w-3 h-3 rounded-sm bg-[#7fb39d]"></i>Likely</span>
+              <span class="inline-flex items-center gap-1.5"><i class="w-4 border-t-2 border-dashed border-[#b4442a]"></i><span id="g-leg-desp">Average expenses</span></span></div>
+          </div>
+          <div id="g-prev-resumo" class="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-4 rounded-xl bg-[#faf6f1] border border-[#f0e6da] p-4"></div>
+          <div class="h-72 mt-4"><canvas id="g-graf-prev" aria-label="Forecast invoicing by month"></canvas></div>
+          <div id="g-prev-linha" class="flex flex-wrap gap-x-6 gap-y-1 text-[13px] text-[#7b6a5d] mt-3"></div>
+        </div>
+        <div class="cartao p-5 mt-5 min-w-0"><div class="rotulo">Contracts on site</div><div class="serif text-lg font-semibold mt-0.5">What is left to invoice on each site</div><div id="g-contratos" class="mt-3"></div></div>
+      </section>
+
       <!-- ===== ASSISTANT ===== -->
+      <section id="v-patrimonio" class="vista hidden">
+        <div><div class="rotulo">Net worth</div><h2 class="serif text-2xl md:text-3xl font-semibold mt-1">Everything you own, in one number</h2>
+          <p class="text-sm text-[#7b6a5d] mt-1 max-w-3xl">Homes, shares, crypto, accounts and loans, valued automatically wherever possible: a home from its address, crypto from the amount. The company counts only through the value of your stake and what it pays you; its accounts stay in the other sections, and nothing gets mixed up.</p>
+          <p id="p-sub" class="text-xs text-[#a08b7a] mt-1.5"></p></div>
+        <div id="p-tiles" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5"></div>
+        <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-5 mt-5">
+          <div class="cartao p-5 min-w-0"><div class="rotulo">Composition</div><div class="serif text-lg font-semibold mt-0.5">Assets by kind</div><div id="p-comp" class="mt-4"></div></div>
+          <div class="cartao p-5 min-w-0"><div class="rotulo">Trend</div><div class="serif text-lg font-semibold mt-0.5">Net worth, last 12 months</div>
+            <p class="text-xs text-[#7b6a5d] mt-1">Assets minus debts, at the end of each month.</p>
+            <div class="h-60 mt-3"><canvas id="p-graf" role="img" aria-label="Net worth over the last 12 months"></canvas></div></div>
+        </div>
+        <div class="cartao p-5 mt-5 min-w-0">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div><div class="rotulo">Assets</div><div class="serif text-lg font-semibold mt-0.5">What you own, and where each value comes from</div>
+              <p class="text-xs text-[#7b6a5d] mt-1">Prices update by themselves; the rest is estimated (and you can correct it) or entered by you.</p></div>
+            <div class="flex flex-wrap gap-2"><button id="p-precos" type="button" class="btn btn-claro !py-1.5 !px-3 !text-xs">Update prices</button>
+              <button id="p-novo" type="button" class="btn btn-cobre !py-1.5 !px-3 !text-xs">+ Add</button></div>
+          </div>
+          <div id="p-adicionar" class="hidden mt-4"></div>
+          <div id="p-ativos" class="p-lista mt-4"></div>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-5 mt-5">
+          <div class="cartao p-5 min-w-0"><div class="rotulo">Debts</div><div class="serif text-lg font-semibold mt-0.5">Loans and leases</div>
+            <p class="text-xs text-[#7b6a5d] mt-1">They come off your net worth.</p><div id="p-dividas" class="p-lista mt-3"></div></div>
+          <div class="cartao p-5 min-w-0"><div class="rotulo">The company in your net worth</div><div class="serif text-lg font-semibold mt-0.5">The value of your stake and what it pays you</div>
+            <p class="text-xs text-[#7b6a5d] mt-1">The company’s accounts stay in Finance.</p><div id="p-empresa" class="mt-4"></div></div>
+        </div>
+        <p class="text-xs text-[#a08b7a] mt-5 max-w-4xl">Property: median price per m² of sales over the last 12 months in the parish (or the municipality), INE Portugal. Crypto: CoinGecko, every hour. Shares and ETFs: last close, in euros at the ECB rate. Vehicles: average depreciation or listings of the same car. The months before today in the chart are demo data. Anything you add stays in this browser only.
+          <button id="p-repor" type="button" class="g-link">Restore the example</button></p>
+      </section>
+
       <section id="v-assistente" class="vista hidden">
         <div class="grid xl:grid-cols-[1fr_340px] gap-5">
           <div class="cartao overflow-hidden flex flex-col h-[calc(100vh-190px)] min-h-[560px]" id="caixa-chat">
@@ -397,6 +493,11 @@
 <div id="toasts"></div>
 
 <script src="dados.js?v=1"></script>
-<script src="app.js?v=1"></script>
+<script src="app.js?v=3"></script>
+<script src="gestao_dados.js?v=1"></script>
+<script src="../empresa/gestao.js?v=2"></script>
+<script src="../empresa/patrimonio_dados.js?v=1"></script>
+<script src="patrimonio_textos.js?v=1"></script>
+<script src="../empresa/patrimonio.js?v=1"></script>
 </body>
 </html>

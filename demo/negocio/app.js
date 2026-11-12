@@ -53,6 +53,10 @@ const ICONES = {
   tarefa: '<rect x="3" y="5" width="6" height="6" rx="1"/><path d="m3 17 2 2 4-4M13 6h8M13 12h8M13 18h8"/>',
   predio: '<rect x="4" y="2" width="16" height="20" rx="1.5"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
   ue: '<circle cx="12" cy="12" r="10"/><path d="M12 6v.01M16.2 7.8v.01M18 12v.01M16.2 16.2v.01M12 18v.01M7.8 16.2v.01M6 12v.01M7.8 7.8v.01"/>',
+  funil: '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5Z"/>',
+  pessoas: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20a6.5 6.5 0 0 0-4-6"/>',
+  grafico: '<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx=".5"/><rect x="12.5" y="8" width="3" height="10" rx=".5"/><rect x="18" y="5" width="3" height="13" rx=".5"/>',
+  cofre: '<rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="12" cy="11.5" r="3.2"/><path d="M12 8.3v1.2M12 13.5v1.2M8.8 11.5h1.2M14 11.5h1.2M6 19v2M18 19v2"/>',
 };
 function icone(nome, cls = "w-[18px] h-[18px]") {
   return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[nome] || ""}</svg>`;
@@ -100,11 +104,15 @@ const notaIA = (html, extra = "") => `<div class="flex gap-2 text-sm rounded-xl 
 // ---------- navegação ----------
 const VISTAS = {
   painel: ["Panel", ""],
+  leads: ["Leads y presupuestos", "Comercial · del primer contacto a la adjudicación"],
   pedidos: ["Solicitudes de presupuesto", "Paso 1 · email y WhatsApp en una sola bandeja"],
   planta: ["Plano → Presupuesto", "Paso 3 · mediciones y presupuesto a partir de los planos"],
   obras: ["Obras", "Pasos 5 y 6 · licencias, planificación, costes y dirección facultativa"],
   autos: ["Certificaciones de obra", "Paso 7 · de los partes de obra a la certificación de cada cliente"],
   faturas: ["Facturas de proveedores", "Paso 7 · comprobadas con el pedido y los albaranes"],
+  clientes: ["Clientes", "Cada obra, facturada mes a mes"],
+  financas: ["Finanzas", "Las cuentas del año y los próximos 12 meses"],
+  patrimonio: ["Patrimonio", "Lo que es suyo, fuera de la empresa"],
   assistente: ["Asistente", "Pregunte a la empresa o atienda a los clientes a cualquier hora"],
   como: ["Cómo funciona", "Por encima de los sistemas que ya usan"],
 };
@@ -1511,7 +1519,11 @@ async function tour() {
 function pararTour() { tourAtivo = false; $("#legenda-tour").classList.add("hidden"); }
 
 // ================= arranque =================
-const INICIAR = { painel: iniciarPainel, pedidos: iniciarPedidos, planta: iniciarPlanta, obras: iniciarObras, autos: iniciarAutos, faturas: iniciarFaturas, assistente: iniciarAssistente };
+const INICIAR = { painel: iniciarPainel, pedidos: iniciarPedidos, planta: iniciarPlanta, obras: iniciarObras, autos: iniciarAutos, faturas: iniciarFaturas, assistente: iniciarAssistente,
+  // the business side (gestao.js): pipeline, clients, accounts and forecast
+  leads: () => window.GESTAO_UI.leads(), clientes: () => window.GESTAO_UI.clientes(), financas: () => window.GESTAO_UI.financas(),
+  // the owner's net worth, apart from the company (patrimonio.js)
+  patrimonio: () => window.PATRIMONIO_UI.iniciar() };
 document.addEventListener("DOMContentLoaded", () => {
   pintarIcones();
   $("#marca-nome").textContent = D.empresa.nome;

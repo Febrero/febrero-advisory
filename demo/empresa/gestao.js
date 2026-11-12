@@ -19,7 +19,9 @@ const mesLongo = (m) => T.mesesLongos[Number(m.slice(5, 7)) - 1];
 const dm = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : "");
 const tpl = (s, o = {}) => String(s).replace(/\{(\w+)\}/g, (_, k) => (o[k] ?? ""));
 const eur2 = (n) => eur(n, 2);
-const curtoV = (n) => (n >= 1e6 ? fmt(n / 1e6, 2) + " M€" : n >= 10000 ? fmt(n / 1000, 0) + "k €" : eur(n));
+// short amounts for chips and axes, in the page's own style: «410k €», «1,20 M€» here; «€410k», «€1.20M» where the app has comEuro()
+const curto = (s, u) => (typeof comEuro === "function" ? comEuro(s + u) : s + (u === "M" ? " M€" : "k €"));
+const curtoV = (n) => (n >= 1e6 ? curto(fmt(n / 1e6, 2), "M") : n >= 10000 ? curto(fmt(n / 1000, 0), "k") : eur(n));
 const obraDe = (id) => D.obras.find((o) => o.id === id);
 const autoDe = (id) => calcAuto(D.contratos.find((c) => c.id === id));
 
@@ -44,7 +46,7 @@ function gerarFaturas() {
         base: r2(base), iva, total: r2(base + iva), estado: aberta ? "por_receber" : "paga", pagaEm });
     });
   }
-  fs.sort((a, b) => a.data.localeCompare(b.data) || a.obra.localeCompare(b.obra)).forEach((f, i) => { f.numero = `FT ${ANO}/${i + 1}`; });
+  fs.sort((a, b) => a.data.localeCompare(b.data) || a.obra.localeCompare(b.obra)).forEach((f, i) => { f.numero = tpl(T.numeroFatura, { a: ANO, n: i + 1 }); });
   return fs;
 }
 // a contract, month by month: what was invoiced, October's auto (ready in «Autos»), what else is due and the rest of the work
@@ -272,7 +274,7 @@ function detalheLead(l) {
       <span class="text-xs text-[#7b6a5d]">${L.prepararSub}</span></div><div id="g-rasc-${l.id}"></div>` : ""}
     ${linha(L.resumo, l.resumo)}${linha(L.passo, l.passo)}${linha(L.pessoa, l.pessoa)}
     ${l.pedidos?.length ? linha(L.pediram, l.pedidos.join("; ")) : ""}${l.objecoes?.length ? linha(L.objecoes, l.objecoes.join("; ")) : ""}
-    ${linha(L.historico, tpl(L.historicoTxt, { e: l.emails, r: l.respostas, c: l.chamadas, m: l.reunioes }))}
+    ${linha(L.historico, [l.emails, l.respostas, l.chamadas, l.reunioes].map((n, i) => tpl(L.historicoN[i][n === 1 ? 0 : 1], { n })).join(" · "))}
     ${linha(L.fit, l.razoes?.length ? `${l.fit} · ${l.razoes.join(", ")}` : String(l.fit))}
     ${linha(L.valor, tpl(L.valorTxt, { v: eur(l.valor), f: l.fonte, p: `${Math.round(l.prob * 100)}%`, ev: eur(l.ev) }))}
     ${links ? `<div class="flex flex-wrap gap-3">${links}</div>` : ""}
@@ -299,12 +301,13 @@ async function avancar(id) {
   if (aberto !== id) { aberto = id; desenharLeads(); }
   const caixa = $(`#g-rasc-${id}`);
   if (!caixa) return;
-  const R = T.rascunho, nome = (l.pessoa || "").split(/[,(]/)[0].trim();
+  const R = T.rascunho, nome = (l.pessoa || "").split(/[,(]/)[0].trim(), primeiro = nome.split(" ")[0];
   const fat = FATURAS.find((f) => f.obra === l.obra && estadoFatura(f) === "vencida");
   const p = PROPOSTAS.find((x) => x.id === l.proposta);
-  const corpo = tpl(l.rascunho || R.generico, { nome: nome ? ` ${nome.split(" ")[0] === "Eng.ª" || nome.split(" ")[0] === "Dra." || nome.split(" ")[0] === "Dr." || nome.split(" ")[0] === "Arq.ª" || nome.split(" ")[0] === "Eng." ? nome : nome.split(" ")[0]}` : "",
+  // the greeting: «Eng.ª Carla Mendes» when the name starts with a title, «Teresa» otherwise, nobody when the contact is an office (org)
+  const corpo = tpl(l.rascunho || R.generico, { nome: nome && !l.org ? " " + (R.titulos.includes(primeiro) ? nome : primeiro) : "",
     passo: (l.passo || "").replace(/^./, (c) => c.toLowerCase()), valor: p ? eur(l.id === "d-restaurante" ? Math.round(p.valor * 0.97) : p.valor) : "", fatura: fat ? `${fat.numero}, ${eur2(fat.total)}` : "" })
-    + "\n" + tpl(R.assinatura, { empresa: D.empresa.nome });
+    .trimEnd() + "\n" + tpl(R.assinatura, { empresa: D.empresa.nome });
   caixa.innerHTML = `<div class="rounded-xl border border-[#f0dcc6] bg-[#fffaf4] p-3 mt-1">
     <div class="flex items-center gap-2 text-xs font-semibold text-[#a35b1f]">${icone("brilho", "w-4 h-4")}${tpl(R.titulo, { n: esc(l.nome) })}</div>
     <div class="text-[11.5px] text-[#7b6a5d] mt-1">${tpl(R.assunto, { a: esc(l.ultima?.assunto ? "Re: " + l.ultima.assunto.replace(/^Re: /, "") : tpl(R.assuntoGen, { nome: l.nome })) })}</div>
@@ -432,10 +435,15 @@ function previsao() {
   const contratado = somar(linhas, (l) => l.contratado), provavel = somar(linhas, (l) => l.provavel);
   return { de: m0, ate: linhas[11].mes, linhas, custoMes, contratado, provavel, despesas: custoMes * 12 };
 }
+// the year so far, without VAT: invoiced and spent (the tiles below, and the company's lines in «Património», patrimonio.js)
+function totaisAno() {
+  const faturado = somar(FATURAS.filter((f) => f.data.startsWith(ANO)), (f) => f.base), despesas = somar(Object.values(DESP), (d) => d.total);
+  return { ano: ANO, faturado, despesas, resultado: faturado - despesas };
+}
 function desenharFinancas() {
   const doAno = FATURAS.filter((f) => f.data.startsWith(ANO)), pagas = doAno.filter((f) => f.estado === "paga"), abertas = FATURAS.filter((f) => f.estado === "por_receber");
   const vencidas = abertas.filter((f) => estadoFatura(f) === "vencida");
-  const faturado = somar(doAno, (f) => f.base), despesas = somar(Object.values(DESP), (d) => d.total), iva = somar(doAno, (f) => f.iva);
+  const { faturado, despesas } = totaisAno(), iva = somar(doAno, (f) => f.iva);
   const F = T.finTiles;
   $("#g-fin-tiles").innerHTML = [
     tileHtml(tpl(F[0], { a: ANO }), eur(faturado), tpl(F[1], { t: eur(somar(doAno, (f) => f.total)), n: doAno.length })),
@@ -517,7 +525,7 @@ function desenharPrevisao(faturadoAno) {
 
 // ---------- start ----------
 montar();
-window.GESTAO_UI = { leads: iniciarLeads, clientes: iniciarClientes, financas: iniciarFinancas };
+window.GESTAO_UI = { leads: iniciarLeads, clientes: iniciarClientes, financas: iniciarFinancas, totaisAno, curtoV };
 document.addEventListener("DOMContentLoaded", () => {
   const q = $("#g-leads-q");
   let t = null;

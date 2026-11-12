@@ -1,0 +1,88 @@
+// Património (patrimonio.js): every visible text of the net-worth section, in Portuguese. The EN and ES folders have a translated
+// copy of this file; keys, {placeholders} and the order of the lists stay the same.
+window.PATRIMONIO_TEXTOS = {
+  local: "pt-PT",
+  inePeriodo: "{q}.º trimestre de {a}", inePeriodoCurto: "{q}.º trim. {a}", mesAno: "{m} de {a}", usd: "{p} US$",
+  classes: { imovel: "Imóveis", empresa: "Empresa", acao: "Ações e ETF", deposito: "Contas e depósitos", cripto: "Cripto", veiculo: "Veículos", outro: "Outros" },
+  // the example person (fictional): the owner of the company in the other sections
+  exemplo: {
+    casa: "Casa de família", casaMorada: "Avenida da República, Avenidas Novas, Lisboa", apartamento: "Apartamento arrendado", apartamentoMorada: "Rua do Bonfim, Bonfim, Porto",
+    metodoBalanco: "capital próprio no balanço de 2025", contaOrdem: "Conta à ordem", deposito: "Depósito a prazo (12 meses)", ppr: "PPR", banco: "Banco Exemplo", seguradora: "Seguradora Exemplo",
+    arte: "Obras de arte", arteNota: "avaliação de 2025", credito: "Crédito habitação", leasing: "Leasing automóvel",
+  },
+  tiles: {
+    liquido: "Património líquido", liquidoDet: "{a} em ativos − {d} de dívidas", ativos: "Ativos", ativosDet: "{n} ativos em {t} tipos", ativosUmTipo: "{n} ativos, todos do mesmo tipo",
+    umAtivo: "1 ativo", nenhum: "ainda nenhum", dividas: "Dívidas", dividasDet: "{v} por mês em prestações", semDividas: "sem dívidas", rendimentos: "Rendimentos do património",
+    porAno: "por ano: {x}", rendas: "rendas {v}", dividendos: "dividendos {v}", juros: "juros {v}", semRendimentos: "sem rendimentos indicados",
+  },
+  sub: "Atualizado às {h} · cripto {c} · imóveis pelo INE ({p})", criptoCG: "da CoinGecko às {h}", criptoRef: "a preço de referência",
+  semAtivos: "Ainda não há ativos: use «+ Adicionar».", semAtivosComp: "Ainda não há ativos.", semDividas: "Sem dívidas registadas.", ate: "até {a}", porMes: "{v} por mês",
+  editar: "Editar {n}", remover: "Remover {n}", confirmar: "Carregue outra vez para remover", removido: "Removido: {n}.",
+  // where each value comes from (the line in the middle of each asset)
+  fontes: {
+    anuncios: "{n} anúncios parecidos na zona (exemplo)", ineDa: "o INE dá {v}", indicado: "valor indicado por si", ine: "INE, {p}: {m} €/m² ({onde}, {e})", semIne: "sem dados do INE para esta zona",
+    concelhoTodo: "{c}, todo o concelho", novos: "novos", usados: "usados", arrendado: "arrendado a {v}/mês", imovel: "Imóvel", veiculo: "Veículo", carros: "{n} anúncios de carros iguais (exemplo)",
+    depreciacao: "estimativa: {v} na compra, menos 15% por ano", cg: "CoinGecko às {h}", referencia: "preço de referência", por: "{v} por {s}", fecho: "fecho de {d}: {v}{bce}",
+    bce: " (câmbio do BCE)", semPreco: "sem preço", conta: "Conta", saldoIndicado: "saldo indicado por si", taxa: "{t}% ao ano", empresa: "Empresa",
+    ligada: "as contas dela estão nas outras secções", outro: "Outro",
+  },
+  composicao: "Composição dos ativos: {x}",
+  // the company in the owner's net worth
+  empresa: {
+    semEmpresa: "Nenhuma empresa ligada a este património.", valor: "Valor da sua participação", valorDet: "{p}% da {n} · {m}", pagou: "O que a empresa lhe pagou em {a}",
+    pagouDet: "salário de {s}/mês ({t} até agora) + dividendos de {d}", faturado: "Faturado pela empresa em {a}", faturadoDet: "sem IVA · está nas Finanças",
+    saldo: "Saldo da empresa em {a}", saldoDet: "faturado menos despesas · não entra no património até ser distribuído", abrir: "Abrir as Finanças da empresa →",
+  },
+  grafico: { liquido: "líquido", ativos: "ativos", dividas: "dívidas", hoje: " (hoje)", aria: "Património líquido nos últimos 12 meses: de {a} para {b}" },
+  // adding and editing: the name and the hint of each type
+  tipos: {
+    imovel: ["Casa ou terreno", "pela morada"], veiculo: ["Veículo", "marca, modelo e ano"], cripto: ["Cripto", "moeda e quantidade"], acao: ["Ações e ETF", "ticker e quantidade"],
+    deposito: ["Conta ou depósito", "saldo"], empresa: ["Empresa", "a sua participação"], outro: ["Outros", "arte, ouro, relógios"], divida: ["Crédito", "habitação, leasing"],
+  },
+  tiposAria: "Que tipo de ativo quer adicionar?", guardar: "Guardar", adicionar: "Adicionar", cancelar: "cancelar", editarTitulo: "Editar: {n}",
+  guardado: "Guardado: {n} · {v}", adicionado: "Adicionado: {n} · {v}", aLer: "A ler o documento…",
+  comp: {
+    procurando: "A procurar anúncios parecidos…", usar: "Usar este valor",
+    nota: "Exemplo para a demonstração. No produto, esta pesquisa corre quando o ativo é adicionado e fica guardada para a zona e o tamanho: quem vier a seguir recebe-a logo, e cada valor que os clientes corrigem afina a estimativa.",
+  },
+  imovel: {
+    morada: "Morada", moradaPh: "ex.: Avenida da República 50, Lisboa", procurar: "Procurar", concelho: "Concelho", concelhoPh: "ex.: Lisboa", freguesia: "Freguesia", freguesiaPh: "ex.: Avenidas Novas",
+    nome: "Nome", nomePh: "ex.: Casa de família", tipologia: "Tipologia", tipologias: ["T0", "T1", "T2", "T3", "T4", "T5+", "Moradia", "Loja ou escritório"], area: "Área (m²)", estado: "Estado",
+    usado: "Usado", novo: "Novo", renda: "Renda por mês (€)", rendaPh: "se estiver arrendado", manual: "Valor que prefere usar (€)", manualPh: "vazio = estimativa do INE",
+    lerDoc: "📄 Ler a caderneta predial", docAria: "Caderneta predial (PDF ou foto)", ouMorada: "ou escreva a morada:", aProcurar: "A procurar…",
+    naoEncontrei: "Não encontrei esta morada: escreva-a de outra forma ou escolha o concelho abaixo.", semProcura: "Não consegui procurar agora: escolha o concelho e a freguesia abaixo.",
+    estimativa: "{a} m² × {m} €/m²: mediana das vendas de casas {e} nos últimos 12 meses {onde} (INE, {p}).", naFreguesia: "na freguesia de {f}", noConcelho: "no concelho de {c}",
+    novas: "novas", usadas: "usadas", indiqueArea: "Indique a área para ver a estimativa.", semDados: "Não há dados do INE para este concelho: indique o valor.",
+    procureMorada: "Procure a morada (ou escolha o concelho): a freguesia, o concelho e o preço por m² da zona são preenchidos sozinhos.",
+    lido: "✓ Lido de «{f}»: artigo matricial U-0000, Arroios (Lisboa), T2, 92 m² de área bruta privativa. Na demonstração os dados são de exemplo e o ficheiro não sai do seu computador; no produto, a IA lê a caderneta, a escritura ou o contrato de arrendamento.",
+    docNome: "Apartamento em Arroios", procurarParecidas: "🔎 Procurar casas parecidas à venda", indiqueZona: "Indique primeiro a zona e a área.",
+    parecidas: "{n} anúncios de {t} com {a} a {b} m² em {z}: mediana do preço pedido {m} €/m², entre {min} e {max}. Os preços pedidos costumam ficar acima das vendas (INE: {ine} €/m²).",
+    fica: "✓ Fica {v}, pelos anúncios parecidos. Pode mudar o valor quando quiser.", faltaConcelho: "Falta o concelho (procure a morada ou escreva-o).",
+    faltaArea: "Indique a área (ou o valor que prefere usar).", nomeAuto: "{t} em {z}",
+  },
+  veiculo: {
+    marca: "Marca", marcaPh: "ex.: Volkswagen", modelo: "Modelo", modeloPh: "ex.: Golf 1.5 TSI", ano: "Ano", compra: "Preço de compra (€)", compraPh: "preço de compra", matricula: "Matrícula",
+    opcional: "opcional", manual: "Valor que prefere usar (€)", manualPh: "vazio = estimativa", lerDoc: "📄 Ler o documento único", docAria: "Documento único automóvel (PDF ou foto)",
+    estimativa: "{v} na compra, menos 15% por ano ({n} {a}). No produto, pelo valor de anúncios de carros iguais.", ano1: "ano", anos: "anos",
+    semEstimativa: "Com o ano e o preço de compra mostramos uma estimativa do valor atual.",
+    lido: "✓ Lido de «{f}»: marca, modelo, data da primeira matrícula e matrícula. Na demonstração os dados são de exemplo e o ficheiro não sai do seu computador.",
+    procurarIguais: "🔎 Procurar carros iguais à venda", indiqueMarca: "Indique primeiro a marca, o modelo e o ano.",
+    precisaCompra: "Na demonstração precisamos do preço de compra para o exemplo; no produto bastam a marca, o modelo, o ano e os quilómetros.",
+    iguais: "{n} anúncios de {c} de {a}: preços pedidos entre {min} e {max}, mediana {m}.", fica: "✓ Fica {v}, pelos anúncios de carros iguais. Pode mudar o valor quando quiser.",
+    faltaMarca: "Falta a marca.", faltaCompra: "Indique o preço de compra (ou o valor que prefere usar).",
+  },
+  cripto: { moeda: "Moeda", quantidade: "Quantidade", qtdPh: "ex.: 0,25", valor: "{q} {s} × {v} ({fonte}). O preço atualiza-se de hora a hora.", um: "1 {s} = {v}. Indique a quantidade.",
+    falta: "Indique a quantidade." },
+  acao: { grupos: ["Portugal", "Estados Unidos", "ETF", "Europa"], titulo: "Ação ou ETF", quantidade: "Quantidade", qtdPh: "ex.: 50",
+    valor: "{q} × {v} (fecho de {d}{fx}). No produto, de hora a hora.", fx: ", em euros ao câmbio do BCE", fecho: "Fecho de {d}: {v}. Indique a quantidade.", falta: "Indique a quantidade." },
+  deposito: { tipo: "Tipo", tipos: ["Conta à ordem", "Depósito a prazo", "PPR", "Certificados de Aforro", "Certificados do Tesouro", "Outra conta"], banco: "Banco", bancoPh: "ex.: Banco Exemplo",
+    saldo: "Saldo (€)", taxa: "Taxa anual (%)", opcional: "opcional", nota: "No produto, os saldos podem vir sozinhos do banco (open banking, com a sua autorização).", falta: "Indique o saldo." },
+  empresaF: { empresa: "Empresa", empresaPh: "ex.: Construtora Exemplo, Lda", pct: "A sua parte (%)", valor: "Valor da empresa (€)", metodo: "Como se chegou ao valor",
+    metodos: ["capital próprio no balanço de 2025", "avaliação independente", "valor indicado por si"], dividendos: "Dividendos por ano (€)", dividendosPh: "por ano",
+    nota: "A empresa entra no património só por este valor e pelo que lhe paga; as contas dela ficam nas outras secções.", falta: "Indique a empresa e o valor." },
+  outro: { oque: "O quê", oquePh: "ex.: Relógio, ouro, coleção", valor: "Valor (€)", nota: "Nota", notaPh: "ex.: avaliação de 2025", falta: "Indique o quê e o valor." },
+  divida: { tipo: "Tipo", tipos: ["Crédito habitação", "Crédito pessoal", "Leasing automóvel", "Cartão de crédito", "Outra dívida"], banco: "Banco", bancoPh: "ex.: Banco Exemplo",
+    capital: "Capital em dívida (€)", prestacao: "Prestação por mês (€)", fim: "Termina em", fimPh: "ano", falta: "Indique o capital em dívida." },
+  precosOk: "Preços da cripto atualizados às {h} (CoinGecko).", precosErro: "Não consegui falar com a CoinGecko: ficam os preços de referência.",
+  precosSem: "Não há cripto para atualizar: as ações ficam no último fecho.", reposto: "Exemplo reposto.",
+};

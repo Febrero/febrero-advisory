@@ -290,3 +290,59 @@ html[lang|="es"] .hoje::before { content: "hoy"; }
 .g-tile { container-type: inline-size; }
 .g-val { font-size: 26px; font-size: clamp(14px, 12.5cqi, 26px); line-height: 1.25; }
 .g-val-p { font-size: 22px; font-size: clamp(14px, 12cqi, 22px); }
+
+/* ---------- the owner's net worth (patrimonio.js) ---------- */
+.p-comp-barra { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; margin-bottom: 16px; }
+.p-comp-barra span { display: block; height: 100%; min-width: 3px; }
+.p-comp-lista { display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; gap: 8px 12px; align-items: center; font-size: 13.5px; }
+.p-comp-lista i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+.p-comp-lista .v { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.p-comp-lista .p { color: var(--mudo); font-variant-numeric: tabular-nums; text-align: right; min-width: 44px; }
+.p-lista { container-type: inline-size; }
+.p-grupo + .p-grupo { margin-top: 18px; }
+.p-grupo-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 6px 4px; border-bottom: 1px solid var(--linha);
+  font-size: 10.5px; font-weight: 600; color: #a08b7a; text-transform: uppercase; letter-spacing: .08em; }
+.p-grupo-cab b { color: var(--tinta); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; font-size: 13px; }
+.p-ativo { display: grid; grid-template-columns: 34px minmax(0,1.5fr) minmax(0,1.3fr) 120px 68px; gap: 4px 12px; align-items: center; padding: 10px 4px;
+  border-bottom: 1px solid #f3ece4; font-size: 13.5px; }
+.p-ativo b { display: block; font-weight: 600; }
+.p-ativo small { display: block; color: var(--mudo); font-size: 12px; }
+.p-ico { width: 32px; height: 32px; flex: none; border-radius: .6rem; display: inline-flex; align-items: center; justify-content: center; background: #faf6f1;
+  border: 1px solid #f0e6da; color: #a35b1f; }
+.p-fonte { font-size: 12.5px; color: #5b4b40; min-width: 0; }
+.p-v { text-align: right; font-weight: 600; font-size: 14.5px; white-space: nowrap; }
+.p-divida .p-v { color: var(--vermelho); }
+.p-divida .p-ico { color: var(--vermelho); }
+.p-acoes { display: flex; gap: 4px; justify-content: flex-end; }
+@container (max-width: 620px) {
+  .p-ativo { grid-template-columns: 34px minmax(0,1fr) auto; gap: 2px 10px; }
+  .p-ativo .p-ico { grid-row: 1 / 3; }
+  .p-ativo .p-fonte { grid-column: 2 / -1; grid-row: 2; }
+  .p-ativo .p-acoes { grid-column: 2 / -1; grid-row: 3; justify-content: flex-start; margin-top: 4px; }
+}
+.p-tipos { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.p-tipos button { display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: 10px; align-items: center; text-align: left; padding: 9px 11px;
+  border-radius: .8rem; border: 1px solid var(--linha); background: #fff; transition: border-color .2s, background .2s; }
+.p-tipos button .p-ico { grid-row: 1 / 3; }
+.p-tipos button b { font-weight: 600; font-size: 13.5px; }
+.p-tipos button small { font-size: 11.5px; color: var(--mudo); }
+.p-tipos button:hover, .p-tipos button[aria-pressed="true"] { border-color: #e3c4a5; background: #fffaf4; }
+.p-form { display: grid; gap: 12px; padding: 16px; border: 1px solid #f0e6da; border-radius: .9rem; background: #faf6f1; }
+.p-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 12px; }
+.p-campo { display: grid; gap: 4px; font-size: 12px; font-weight: 600; color: var(--mudo); min-width: 0; }
+.p-largo { grid-column: 1 / -1; }
+.p-linha { display: flex; gap: 8px; }
+.p-linha input { flex: 1; }
+.p-campo input, .p-campo select { width: 100%; min-width: 0; padding: .5rem .7rem; border-radius: .7rem; border: 1px solid var(--linha); background: #fff; color: var(--tinta);
+  font: inherit; font-size: 14px; font-weight: 400; }
+.p-campo input:focus, .p-campo select:focus { border-color: var(--cobre); }
+@media (max-width: 640px) { .p-campo input, .p-campo select { font-size: 16px; } }
+.p-resultados { display: grid; gap: 6px; }
+.p-resultados:empty { display: none; }
+.p-resultados button { text-align: left; padding: .5rem .8rem; border-radius: .7rem; border: 1px solid var(--linha); background: #fff; font-size: 13.5px; }
+.p-resultados button:hover { border-color: #e3c4a5; background: #fffaf4; }
+.p-estimativa, .p-comparaveis:not(:empty) { padding: 12px 14px; border-radius: .8rem; border: 1px solid #f0dcc6; background: #fbf3ea; font-size: 13.5px; color: #3b2b22; }
+.p-comparaveis:not(:empty) { border-color: #c9d6ef; background: #eef2fb; }
+.p-estimativa b, .p-comparaveis b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.p-lido { font-size: 12.5px; color: var(--verde); }
+.p-lido:empty { display: none; }

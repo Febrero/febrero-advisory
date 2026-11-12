@@ -22,7 +22,7 @@ Nothing to migrate and nothing new for the team to learn, so adoption is fast. E
 - [Commerce and retail](https://febreroai.com/en/work/commerce-retail/): Turning content and collections into something you can buy in one tap. Clients and projects: SIC Shop, fuse.cards.
 - [Assets, markets and Web3](https://febreroai.com/en/work/markets-web3/): Where the asset's economics are the product: economic design, the market, and the platform under it. Clients and projects: pump.horse, memes.army.
 - [Tourism and web experiences](https://febreroai.com/en/work/web-experiences/): Sites that sell the experience, and experiences that only exist in the browser. Clients and projects: Alentours · Évora, trenches.wtf.
-- [Business dashboard, interactive demo](https://febreroai.com/demo/business/): a fictitious builder with AI across the business (leads and quotes, sites, progress billing, invoices, accounts and forecast). Also in [Portuguese](https://febreroai.com/demo/empresa/) and [Spanish](https://febreroai.com/demo/negocio/).
+- [Business dashboard, interactive demo](https://febreroai.com/demo/business/): a fictitious builder with AI across the business (leads and quotes, sites, progress billing, invoices, accounts and forecast, plus the owner's net worth kept apart). Also in [Portuguese](https://febreroai.com/demo/empresa/) and [Spanish](https://febreroai.com/demo/negocio/).
 
 ## Background
 - AI Implementation Consultant (2026–). Earlier: VP of Web3 Engineering and Head of Blockchain at RealFevr; lecturer at NOVA University and the University of Leeds (blockchain, crypto economics, DeFi), 2018–2025; co-host of CryptoCafe; peer-reviewed publication in IEEE Transactions on Engineering Management (DOI 10.1109/TEM.2020.3030202).

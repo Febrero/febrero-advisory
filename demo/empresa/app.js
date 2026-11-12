@@ -111,6 +111,7 @@ const VISTAS = {
   faturas: ["Faturas de fornecedores", "Passo 7 · conferidas com a encomenda e as guias de remessa"],
   clientes: ["Clientes", "Cada obra, faturada mês a mês"],
   financas: ["Finanças", "As contas do ano e os próximos 12 meses"],
+  patrimonio: ["Património", "O que é seu, fora da empresa"],
   assistente: ["Assistente", "Pergunte à empresa, ou responda aos clientes a qualquer hora"],
   como: ["Como funciona", "Por cima dos sistemas que já usam"],
 };
@@ -1515,7 +1516,9 @@ function pararTour() { tourAtivo = false; $("#legenda-tour").classList.add("hidd
 // ================= arranque =================
 const INICIAR = { painel: iniciarPainel, pedidos: iniciarPedidos, planta: iniciarPlanta, obras: iniciarObras, autos: iniciarAutos, faturas: iniciarFaturas, assistente: iniciarAssistente,
   // the business side (gestao.js): pipeline, clients, accounts and forecast
-  leads: () => window.GESTAO_UI.leads(), clientes: () => window.GESTAO_UI.clientes(), financas: () => window.GESTAO_UI.financas() };
+  leads: () => window.GESTAO_UI.leads(), clientes: () => window.GESTAO_UI.clientes(), financas: () => window.GESTAO_UI.financas(),
+  // the owner's net worth, apart from the company (patrimonio.js)
+  patrimonio: () => window.PATRIMONIO_UI.iniciar() };
 document.addEventListener("DOMContentLoaded", () => {
   pintarIcones();
   $("#marca-nome").textContent = D.empresa.nome;
