@@ -314,7 +314,7 @@ function historico(t) {
 function grafPatrimonio(h) {
   const box = $("#graf-pat");
   for (const s of box.querySelectorAll("svg")) s.remove();
-  const W = Math.max(280, box.clientWidth || 280), H = 240, M = { t: 40, r: 12, b: 28, l: 58 };
+  const W = Math.max(240, box.clientWidth || 240), H = 240, M = { t: 40, r: 12, b: 28, l: 58 };
   const pw = W - M.l - M.r, ph = H - M.t - M.b;
   const vals = h.map((p) => p.liquido), min0 = Math.min(...vals), max0 = Math.max(...vals);
   const passo = passoBonito((max0 - min0) / 3 || max0 / 4), base = Math.floor((min0 * 0.98) / passo) * passo, topo = Math.ceil(max0 / passo) * passo;

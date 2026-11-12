@@ -55,13 +55,22 @@ h2{margin:0;color:var(--ink);font-size:17px;letter-spacing:-.01em;font-weight:60
 .avisos{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:8px}
 .avisos li{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border:1px solid rgba(250,178,25,.28);border-radius:8px;background:rgba(250,178,25,.05);color:var(--ink);font-size:14px}
 .avisos li::before{content:"⚠";color:var(--warning);font-size:15px;line-height:1.5}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+/* KPI tiles (Pedro 2026-11-12: «ajusta o tamanho dos containers e números para ficar bem em todos os tamanhos»): the six of
+   Contas sit in one row only where they fit, else 3×2, else 2×3; groups of four go 4 or 2×2, the three of Orçamentos 3 or 1.
+   The amount scales with its own tile (container units), so «1.509.960,00 €» never leaves the box */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+#tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
+#prop-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1240px){#tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){.tiles,#tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#prop-tiles{grid-template-columns:1fr}}
+@media(max-width:359px){.tiles,#tiles{grid-template-columns:1fr}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;min-width:0;container-type:inline-size}
 .tile .rot{font-size:13px;color:var(--muted)}
-.tile .val{color:var(--ink);font-size:26px;font-weight:600;letter-spacing:-.02em;margin:4px 0 2px;white-space:nowrap}
+.tile .val{color:var(--ink);font-size:22px;font-size:clamp(14px,12.5cqi,26px);font-weight:600;letter-spacing:-.02em;margin:4px 0 2px;white-space:nowrap}
 .tile .det{font-size:12.5px;color:var(--body)}
 .tile.destaque{border-color:rgba(210,190,244,.42);background:linear-gradient(160deg,rgba(210,190,244,.08),var(--surface) 60%)}
-.grelha{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.grelha{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
 .legenda{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--body)}
 .legenda span{display:inline-flex;align-items:center;gap:7px}
 .legenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
@@ -142,7 +151,7 @@ td b{color:var(--ink);font-weight:500}
 .registo time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
 footer{color:var(--muted);font-size:12.5px;margin-top:22px}
 .oculto{display:none!important}
-@media(max-width:900px){.grelha{grid-template-columns:1fr}}
+@media(max-width:900px){.grelha{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:1040px){
   .fat{grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 2px}
   .fat.cab-f{display:none}
@@ -159,9 +168,8 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
   .prop .mais{grid-row:5}
 }
 @media(max-width:520px){
-  .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tiles{gap:10px}
   .tile{padding:14px}
-  .tile .val{font-size:21px}
   .cartao{padding:16px 14px}
   .fat .est,.fat .acoes{grid-column:1/-1;justify-content:flex-start}
 }
@@ -354,7 +362,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
 </main>
 <div id="aviso" role="alert"></div>
 
-<script src="dados.js"></script>
+<script src="dados.js?v=c4ec3195"></script>
 <script>
 "use strict";
 // the local preview can point at a test server (?api=…); the published page always talks to the bot's server
@@ -487,7 +495,7 @@ const nomeMes = (m) => `${MESES_L[Number(m.slice(5)) - 1]} ${m.slice(0, 4)}`;
 function grafMeses(meses) {
   const box = $("#graf-meses");
   for (const s of box.querySelectorAll("svg")) s.remove();
-  const W = Math.max(300, box.clientWidth), H = 250, M = { t: 64, r: 6, b: 28, l: 40 };
+  const W = Math.max(240, box.clientWidth), H = 250, M = { t: 64, r: 6, b: 28, l: 40 };
   const pw = W - M.l - M.r, ph = H - M.t - M.b;
   const max = Math.max(1, ...meses.flatMap((m) => [m.faturado, m.despesas]));
   const passo = passoBonito(max / 4), topo = Math.ceil(max / passo) * passo;
@@ -653,7 +661,7 @@ function desenharPrevisao(p) {
 function grafPrevisao(p) {
   const box = $("#graf-prev");
   for (const s of box.querySelectorAll("svg")) s.remove();
-  const W = Math.max(300, box.clientWidth), H = 250, M = { t: 64, r: 6, b: 28, l: 44 };
+  const W = Math.max(240, box.clientWidth), H = 250, M = { t: 64, r: 6, b: 28, l: 44 };
   const pw = W - M.l - M.r, ph = H - M.t - M.b;
   const max = Math.max(1, p.custoMes, ...p.meses.map((m) => m.contratado + m.provavel));
   const passo = passoBonito(max / 4), topo = Math.ceil(max / passo) * passo;
@@ -741,6 +749,6 @@ let redim = null;
 window.addEventListener("resize", () => { clearTimeout(redim); redim = setTimeout(() => { if (dados) desenharGraficos(); }, 150); });
 document.addEventListener("DOMContentLoaded", () => carregar());
 </script>
-<script src="demo.js"></script>
+<script src="demo.js?v=790efe5a"></script>
 </body>
 </html>
