@@ -846,7 +846,7 @@ function detalheLead(l) {
   return el("div", { class: "det" },
     l.lixo ? el("div", { class: "linha" },
       el("button", { class: "btn peq principal", type: "button", text: "↩ Tirar do lixo", onclick: () => mudarLead(l, "restaurar") }),
-      el("small", { class: "sub", text: [`No lixo desde ${dma(diaDe(l.lixo.em))}`, l.lixo.fora ? "o PC já não o lista: esta é a cópia guardada no lixo" : "",
+      el("small", { class: "sub", text: [`No lixo desde ${dma(diaDe(l.lixo.em))}`, l.lixo.motivo || "", l.lixo.fora ? "o PC já não o lista: esta é a cópia guardada no lixo" : "",
         escreveuDepois(l) ? `escreveu a ${dm(String(l.ultima.at).slice(0, 10))}, depois de ir para o lixo` : ""].filter(Boolean).join(" · ") })) : null,
     podeAvancar(l) ? el("div", { class: "linha" },
       el("button", { class: "btn peq principal", type: "button", disabled: aPreparar(l) ? "" : null, onclick: () => avancarLead(l),
