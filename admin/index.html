@@ -155,7 +155,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
 .filtros button[aria-pressed=true]{background:rgba(210,190,244,.16);border-color:#8e76a8;color:#fff}
 .filtros button .c{color:var(--muted);margin-left:5px;font-variant-numeric:tabular-nums}
 .procura input{width:100%;padding:9px 14px;border-radius:8px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);margin-bottom:6px}
-.lead{display:grid;grid-template-columns:42px minmax(0,1.4fr) 150px 130px 110px 60px minmax(0,1.6fr) 150px;gap:4px 12px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(221,210,241,.07)}
+.lead{display:grid;grid-template-columns:42px minmax(0,1.4fr) 150px 130px 110px 60px minmax(0,1.6fr) 172px;gap:4px 12px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(221,210,241,.07)}
 .lead.cab-f{color:var(--muted);font-size:12px;border-bottom:1px solid var(--line);padding-block:6px}
 .lead b{color:var(--ink);font-weight:500}
 .lead small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -168,6 +168,10 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
 .lead .acoes button{width:30px;height:30px;border-radius:8px;border:1px solid #3f3449;background:rgba(210,190,244,.04);color:#ddd2ea;cursor:pointer;font-size:14px;line-height:1}
 .lead .acoes button:hover{border-color:#8e76a8;color:#fff}
 .lead .acoes button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lead .acoes .lixo{margin-left:6px}
+.lead .acoes .lixo:hover{border-color:#8a3a3a;color:#f0a0a0}
+#aviso.on:has(.anular){pointer-events:auto}
+#aviso .anular{margin-left:12px;padding:3px 10px;border-radius:6px;border:1px solid #8e76a8;background:none;color:var(--accent);font:inherit;font-size:13px;cursor:pointer}
 .lead.adiado{opacity:.55}
 .lead .devemos{display:block;color:var(--warning);font-size:12px;font-weight:600}
 .lead .c-et .chip{white-space:normal;align-items:flex-start}
@@ -188,7 +192,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
 .lead .det .linha{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .lead .det a{color:var(--accent)}
 .mais-leads{display:flex;justify-content:center;margin-top:12px}
-@media(max-width:1040px){
+@media(max-width:1100px){
   .lead{grid-template-columns:34px minmax(0,1fr) auto;gap:4px 10px}
   .lead.cab-f{display:none}
   .lead .c-nome{grid-column:2;grid-row:1}.lead .pos{grid-column:1;grid-row:1}.lead .c-ev{grid-column:3;grid-row:1}
@@ -311,7 +315,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
     <div id="tab-leads" role="tabpanel" aria-labelledby="s-leads" hidden>
       <div class="tiles" id="leads-tiles"></div>
       <div class="cartao">
-        <div class="cab"><div><h2>Leads qualificados</h2><div class="sub" id="leads-sub">Pela ordem de trabalho: primeiro a quem devemos resposta, depois o valor esperado (probabilidade × valor). Muda a ordem com as setas; a Daniela liga por esta ordem.</div></div></div>
+        <div class="cab"><div><h2>Leads qualificados</h2><div class="sub" id="leads-sub">Pela ordem de trabalho: primeiro a quem devemos resposta, depois o valor esperado (probabilidade × valor). Muda a ordem com as setas; a Daniela liga por esta ordem. 🗑 manda um lead para o lixo (tiras de lá com ↩).</div></div></div>
         <div class="filtros" id="leads-filtros" role="group" aria-label="Filtrar leads"></div>
         <div class="procura"><input id="leads-q" type="search" placeholder="Procurar empresa, setor, local, email…" aria-label="Procurar leads"></div>
         <div id="leads"></div>
@@ -735,7 +739,10 @@ const FILTROS = [
   ["ia", "IA", (l) => ATIVAS.has(l.etapa) && l.oferta === "IA"],
   ["video", "Vídeos", (l) => ATIVAS.has(l.etapa) && l.oferta === "vídeo"],
   ["fechados", "Clientes / sem interesse", (l) => ["cliente", "sem_interesse", "remover"].includes(l.etapa)],
+  ["lixo", "🗑 Lixo", (l) => !!l.lixo],
 ];
+// a lead in the trash shows only under «Lixo» (Pedro 2026-11-12: «a way to send leads to trash (keep them in trash)»)
+const doFiltro = (k) => { const f = FILTROS.find(([x]) => x === k)[2]; return (l) => (k === "lixo") === !!l.lixo && f(l); };
 const COR_ETAPA = { cliente: "bom", negociacao: "bom", proposta: "bom", reuniao_feita: "bom", reuniao_marcada: "bom", interessado: "meio",
   conversa: "meio", mais_tarde: "neutro", recado: "neutro", contactado: "neutro", por_contactar: "neutro", sem_interesse: "mau", remover: "mau" };
 async function carregarLeads() {
@@ -745,9 +752,12 @@ async function carregarLeads() {
   catch (e) { if (e.message !== "sessão") caixa.replaceChildren(el("p", { class: "sub", text: "Não consegui ler os leads: " + e.message })); }
 }
 const pct = (p) => p >= 0.1 ? `${Math.round(p * 100)}%` : `${(p * 100).toFixed(1).replace(".", ",")}%`;
+const diaDe = (ms) => new Date(ms).toISOString().slice(0, 10);
+// they wrote after the lead went to the trash (the card reached Telegram anyway): flagged in «Lixo» so it isn't missed
+const escreveuDepois = (l) => !!(l.lixo && l.ultima?.at && Date.parse(l.ultima.at) > (l.lixo.em || 0));
 function desenharLeads() {
-  const d = leadsDados, todos = d.leads || [];
-  if (!todos.length) return $("#leads").replaceChildren(el("p", { class: "sub", text: "Ainda não há leads: corre a qualificação no PC (Leads/manage-leads/qualificacao)." }));
+  const d = leadsDados, comLixo = d.leads || [], todos = comLixo.filter((l) => !l.lixo);
+  if (!comLixo.length) return $("#leads").replaceChildren(el("p", { class: "sub", text: "Ainda não há leads: corre a qualificação no PC (Leads/manage-leads/qualificacao)." }));
   const ativos = todos.filter((l) => ATIVAS.has(l.etapa));
   const soma = (arr, f) => arr.reduce((s, l) => s + (f(l) || 0), 0);
   $("#leads-tiles").replaceChildren(
@@ -755,18 +765,17 @@ function desenharLeads() {
     tile("Devemos resposta", String(todos.filter((l) => l.devemos).length), "a última mensagem foi deles"),
     tile("Quentes", String(todos.filter((l) => QUENTES.has(l.etapa)).length), "interessados, reuniões e propostas"),
     tile("Clientes", String(todos.filter((l) => l.etapa === "cliente").length), d.totais ? `${d.totais.contactadas} empresas contactadas, ${d.totais.responderam} responderam` : ""));
-  $("#leads-filtros").replaceChildren(...FILTROS.map(([k, rot, f]) => el("button", { type: "button", "aria-pressed": String(leadsFiltro === k),
-    onclick: () => { leadsFiltro = k; leadsN = 60; desenharLeads(); } }, rot, el("span", { class: "c", text: String(todos.filter(f).length) }))));
-  const filtro = FILTROS.find(([k]) => k === leadsFiltro)[2];
+  $("#leads-filtros").replaceChildren(...FILTROS.map(([k, rot]) => el("button", { type: "button", "aria-pressed": String(leadsFiltro === k),
+    onclick: () => { leadsFiltro = k; leadsN = 60; desenharLeads(); } }, rot, el("span", { class: "c", text: String(comLixo.filter(doFiltro(k)).length) }))));
   const q = leadsQ.trim().toLowerCase();
-  const lista = todos.filter(filtro).filter((l) => !q || [l.nome, l.legal, l.setor, l.local, l.email, l.pessoa, l.resumo].join(" ").toLowerCase().includes(q))
-    .sort((a, b) => (a.pos ?? 1e9) - (b.pos ?? 1e9) || b.ev - a.ev);
+  const lista = comLixo.filter(doFiltro(leadsFiltro)).filter((l) => !q || [l.nome, l.legal, l.setor, l.local, l.email, l.pessoa, l.resumo].join(" ").toLowerCase().includes(q))
+    .sort(leadsFiltro === "lixo" ? (a, b) => (b.lixo.em || 0) - (a.lixo.em || 0) : (a, b) => (a.pos ?? 1e9) - (b.pos ?? 1e9) || b.ev - a.ev);
   const cab = el("div", { class: "lead cab-f" }, el("span", { text: "#" }), el("span", { text: "Empresa" }), el("span", { text: "Etapa" }),
     el("span", { text: "Probabilidade" }), el("span", { class: "n", text: "Valor esperado" }), el("span", { class: "n", text: "Fit" }), el("span", { text: "Próximo passo" }), el("span", {}));
   const agora = Date.now();
   const linhas = lista.slice(0, leadsN).map((l) => {
     const m = l.manual || {}, adiado = (m.adiar_ate || 0) > agora;
-    const botao = (ico, rot, acao, valor) => el("button", { type: "button", title: rot, "aria-label": `${rot}: ${l.nome}`, text: ico,
+    const botao = (ico, rot, acao, valor, cls) => el("button", { type: "button", class: cls, title: rot, "aria-label": `${rot}: ${l.nome}`, text: ico,
       onclick: async (ev) => { ev.stopPropagation(); await mudarLead(l, acao, valor); } });
     const linha = el("div", { class: "lead" + (adiado ? " adiado" : "") },
       el("span", { class: "pos" + (m.pin ? " fixo" : ""), text: l.pos ? (m.pin ? "📌" : String(l.pos)) : "—" }),
@@ -775,30 +784,33 @@ function desenharLeads() {
         onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); leadsAberto = leadsAberto === l.id ? null : l.id; desenharLeads(); } } },
         el("b", { text: l.nome }), el("small", { text: [l.setor, l.local, l.oferta].filter(Boolean).join(" · ") })),
       el("span", { class: "c-et" }, el("span", { class: "chip " + (COR_ETAPA[l.etapa] || "neutro") }, el("i", { "aria-hidden": "true", text: "•" }), l.rotulo),
-        l.devemos ? el("span", { class: "devemos", text: "devemos resposta" }) : adiado ? el("small", { text: `adiado até ${dm(new Date(m.adiar_ate).toISOString().slice(0, 10))}` }) : null),
+        l.lixo ? (escreveuDepois(l) ? el("span", { class: "devemos", text: "escreveu depois do lixo" }) : el("small", { text: `no lixo desde ${dm(diaDe(l.lixo.em))}` }))
+        : l.devemos ? el("span", { class: "devemos", text: "devemos resposta" }) : adiado ? el("small", { text: `adiado até ${dm(new Date(m.adiar_ate).toISOString().slice(0, 10))}` }) : null),
       el("span", { class: "c-prob prob" }, el("span", { class: "trilho", "aria-hidden": "true" }, el("span", { style: `width:${Math.max(2, Math.min(100, l.prob * 100))}%` })), pct(l.prob)),
       el("span", { class: "n c-ev" }, el("b", { text: eur(l.ev) }), el("small", { text: `de ${eur(l.valor)}` })),
       el("span", { class: "n c-fit", text: String(l.fit) }),
       el("span", { class: "passo", title: l.proximo_passo }, botaoAvancar(l),
         el("span", { class: "corpo" }, el("span", { class: "txt", text: l.proximo_passo }), el("small", { text: estadoAvancar(l) || (l.ultimo_toque ? `último contacto ${dm(String(l.ultimo_toque).slice(0, 10))}` : "nunca contactado") }))),
-      el("span", { class: "acoes" }, botao("↑", "Subir", "subir"), botao("↓", "Descer", "descer"),
-        m.pin ? botao("✕", "Soltar do topo", "soltar") : botao("📌", "Pôr no topo", "topo"), botao("💤", "Adiar 7 dias", "adiar", 7)));
+      l.lixo ? el("span", { class: "acoes" }, botao("↩", "Tirar do lixo", "restaurar"))
+        : el("span", { class: "acoes" }, botao("↑", "Subir", "subir"), botao("↓", "Descer", "descer"),
+          m.pin ? botao("✕", "Soltar do topo", "soltar") : botao("📌", "Pôr no topo", "topo"), botao("💤", "Adiar 7 dias", "adiar", 7), botao("🗑", "Enviar para o lixo", "lixo", null, "lixo")));
     if (leadsAberto === l.id) linha.append(detalheLead(l));
     return linha;
   });
-  $("#leads").replaceChildren(cab, ...(linhas.length ? linhas : [el("p", { class: "sub", text: "Nenhum lead com este filtro." })]));
+  $("#leads").replaceChildren(cab, ...(linhas.length ? linhas : [el("p", { class: "sub", text: leadsFiltro === "lixo" && !q ? "O lixo está vazio. 🗑 num lead manda-o para aqui." : "Nenhum lead com este filtro." })]));
   $("#leads-mais").classList.toggle("oculto", lista.length <= leadsN);
   $("#leads-mais").textContent = `Mostrar mais (${lista.length - leadsN})`;
   $("#leads-como").replaceChildren(
     el("p", { text: "Etapa: o ponto mais avançado da relação (clientes, propostas e reuniões do previsao.json e do Cal.com; respostas lidas no email; chamadas da Daniela). Cada etapa tem uma probabilidade base de fecho em ~3 meses, ajustada pelo interesse e se falámos com quem decide (lidos nas conversas pelo Claude), pelo fit e pelo tempo de silêncio." }),
     el("p", { text: "Fit (0–100): dimensão e sinais — PME Líder, a contratar, contratos públicos, PRR, quartos, avaliações, empresa média/grande — e se temos o decisor, telemóvel ou email direto. Valor: a proposta, se houver; senão 10.000 € num projeto de IA, 600 € num ano de vídeos." }),
+    el("p", { text: "Lixo (🗑): o lead sai de todas as listas e das contas acima, da ordem de trabalho, da lista das 9h, das chamadas da Daniela e dos envios automáticos de email e WhatsApp. Se responder, a resposta continua a chegar ao Telegram. Fica no lixo até o tirares (↩), também depois da atualização diária do PC." }),
     el("p", { text: `Atualizado no PC ${d.gerado ? new Date(d.gerado).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—"}.` }));
 }
 // ▶ (Pedro 2026-11-11: «um botão de acção para aplicar a sugestão corrente… pode enviar sempre pelo telegram»): the bot writes
 // the email that carries out the next step and posts it in Telegram as a card, to send, edit or drop there. Email only: never a
 // Daniela call. Shown where there is a conversation to move on (the cold ones are the sequence's and Daniela's).
 const AVANCA = new Set(["negociacao", "proposta", "reuniao_feita", "reuniao_marcada", "interessado", "conversa", "mais_tarde", "recado"]);
-const podeAvancar = (l) => AVANCA.has(l.etapa) && !!(l.email || l.telefone);
+const podeAvancar = (l) => !l.lixo && AVANCA.has(l.etapa) && !!(l.email || l.telefone);
 const hhmm = (ms) => new Date(ms).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
 const aPreparar = (l) => l.acao?.estado === "a preparar" && Date.now() - (l.acao.em || 0) < 3 * 60e3;
 function estadoAvancar(l) {
@@ -832,6 +844,10 @@ function detalheLead(l) {
   const linha = (rot, txt) => txt ? el("div", {}, el("b", { text: rot + ": " }), txt) : null;
   const ct = m.contacto;
   return el("div", { class: "det" },
+    l.lixo ? el("div", { class: "linha" },
+      el("button", { class: "btn peq principal", type: "button", text: "↩ Tirar do lixo", onclick: () => mudarLead(l, "restaurar") }),
+      el("small", { class: "sub", text: [`No lixo desde ${dma(diaDe(l.lixo.em))}`, l.lixo.fora ? "o PC já não o lista: esta é a cópia guardada no lixo" : "",
+        escreveuDepois(l) ? `escreveu a ${dm(String(l.ultima.at).slice(0, 10))}, depois de ir para o lixo` : ""].filter(Boolean).join(" · ") })) : null,
     podeAvancar(l) ? el("div", { class: "linha" },
       el("button", { class: "btn peq principal", type: "button", disabled: aPreparar(l) ? "" : null, onclick: () => avancarLead(l),
         text: aPreparar(l) ? "A preparar…" : l.email ? "▶ Preparar este email no Telegram" : "▶ Preparar a mensagem de WhatsApp no Telegram" }),
@@ -845,17 +861,35 @@ function detalheLead(l) {
     el("div", { class: "linha" }, ...[...new Set([l.ultima?.de, ...(l.enderecos || []), l.email].filter(Boolean))].slice(0, 4).map((e) => el("a", { href: "mailto:" + e, text: e })),
       l.telefone ? el("a", { href: "tel:+351" + l.telefone.replace(/\D/g, "").slice(-9), text: l.telefone }) : null,
       l.site ? el("a", { href: /^http/.test(l.site) ? l.site : "https://" + l.site, target: "_blank", rel: "noopener noreferrer", text: "site" }) : null),
-    nota,
-    el("div", { class: "linha" },
+    l.lixo ? null : nota,
+    l.lixo ? null : el("div", { class: "linha" },
       el("button", { class: "btn peq", type: "button", text: "Guardar nota", onclick: () => mudarLead(l, "nota", nota.value) }),
       el("button", { class: "btn peq", type: "button", text: "Pôr na posição…", onclick: () => { const n = prompt(`Posição para ${l.nome}:`, String(l.pos || 1)); if (n) mudarLead(l, "posicao", Number(n)); } }),
       el("button", { class: "btn peq", type: "button", text: "Adiar 30 dias", onclick: () => mudarLead(l, "adiar", 30) }),
       l.devemos ? el("button", { class: "btn peq", type: "button", text: "✔️ Já respondi (telefone, WhatsApp…)", onclick: () => mudarLead(l, "tratado") }) : null,
-      (m.pin || m.rank !== undefined || m.adiar_ate) ? el("button", { class: "btn peq", type: "button", text: "Repor ordem automática", onclick: () => mudarLead(l, "repor") }) : null));
+      (m.pin || m.rank !== undefined || m.adiar_ate) ? el("button", { class: "btn peq", type: "button", text: "Repor ordem automática", onclick: () => mudarLead(l, "repor") }) : null,
+      el("button", { class: "btn peq", type: "button", text: "🗑 Enviar para o lixo", onclick: () => mudarLead(l, "lixo") })));
 }
 async function mudarLead(l, acao, valor) {
-  try { await api("/leads/ordem", { method: "POST", body: { id: l.id, acao, valor } }); await carregarLeads(); }
-  catch (e) { if (e.message !== "sessão") aviso(`${l.nome}: não gravou (${e.message})`); }
+  // the trash moves the row at once (the list takes a moment to download again); «Anular» may come after that download
+  const atual = (leadsDados?.leads || []).find((x) => x.id === l.id) || l;
+  if (acao === "lixo") { atual.lixo = { em: Date.now(), por: "painel" }; if (leadsAberto === l.id) leadsAberto = null; desenharLeads(); }
+  if (acao === "restaurar") { delete atual.lixo; desenharLeads(); }
+  try {
+    await api("/leads/ordem", { method: "POST", body: { id: l.id, acao, valor } });
+    if (acao === "lixo") avisoComAnular(`🗑 ${l.nome} foi para o lixo.`, () => mudarLead(l, "restaurar"));
+    if (acao === "restaurar") aviso(`↩ ${l.nome} saiu do lixo.`);
+    await carregarLeads();
+  } catch (e) {
+    if (e.message !== "sessão") aviso(`${l.nome}: não gravou (${e.message})`);
+    if (acao === "lixo" || acao === "restaurar") carregarLeads();
+  }
+}
+// «Anular» in the notice after 🗑 (it sits next to 💤, easy to hit by mistake)
+function avisoComAnular(texto, anular) {
+  aviso(texto);
+  const t = $("#aviso");
+  t.append(el("button", { type: "button", class: "anular", text: "Anular", onclick: () => { t.classList.remove("on"); anular(); } }));
 }
 $("#leads-mais").addEventListener("click", () => { leadsN += 100; desenharLeads(); });
 let leadsT = null;
