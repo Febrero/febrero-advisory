@@ -110,6 +110,13 @@ svg text{font-family:var(--sans)}
 .tip div i{width:12px;height:2px;border-radius:1px;display:inline-block}
 .tip div strong{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
 .tip div span{color:var(--muted)}
+.resumo-prev{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px 22px;margin:0 0 18px;padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
+.resumo-prev:empty{display:none}
+.resumo-prev>div{min-width:0}
+.resumo-prev b{display:block;color:var(--ink);font-size:20px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.resumo-prev span{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+.resumo-prev .forte b{color:var(--accent)}
+#tabela-prev tfoot td{font-weight:600;color:var(--ink);border-top:1px solid var(--line)}
 table{width:100%;border-collapse:collapse;font-size:14px}
 #contratos,#tabela-prev,#tabela-meses,#clientes{overflow-x:auto}      /* wide tables scroll inside their card on a phone */
 th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
@@ -337,9 +344,10 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
         <div class="cab">
           <div><h2 id="t-prev">Próximos 12 meses</h2><div class="sub">O que vamos faturar por mês, sem IVA: contratos em curso e o provável das propostas</div></div>
           <div class="legenda"><span><i style="background:var(--s1)"></i>Contratado</span><span><i style="background:var(--s3)"></i>Provável</span>
-            <span><i class="chave-linha" style="background:var(--s2)"></i>Despesas médias</span>
+            <span><i class="chave-linha" style="background:var(--s2)"></i><span id="leg-desp-prev">Despesas médias</span></span>
             <button class="ligar" id="ver-tabela-prev" type="button" aria-expanded="false">Ver tabela</button></div>
         </div>
+        <div class="resumo-prev" id="prev-resumo"></div>
         <div id="graf-prev"><div class="tip" id="tip-prev"></div></div>
         <div id="tabela-prev" class="oculto"></div>
       </div>
@@ -670,8 +678,28 @@ function desenharPrevisao(p) {
     tile("Despesas previstas", eur(t.despesas), p.custoMes ? `~${eur(p.custoMes)}/mês, média de ${p.custoMeses.map((m) => MESES[Number(m.slice(5)) - 1]).join(", ")}` : "sem despesas do PC"),
     tile("Saldo previsto", (t.resultado > 0 ? "+" : "") + eur(t.resultado),
       `${eur(t.contratado)} contratados − ${eur(t.despesas)} de despesas. Se as propostas correrem como previsto: ${(t.resultado + t.provavel > 0 ? "+" : "") + eur(t.resultado + t.provavel)}`));
-  $("#tabela-prev").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mês" }), el("th", { class: "n", text: "Contratado" }), el("th", { class: "n", text: "Provável" }), el("th", { class: "n", text: "Despesas médias" }))),
-    el("tbody", {}, p.meses.map((m) => el("tr", {}, el("td", { text: nomeMes(m.mes) }), el("td", { class: "n", text: eur(m.contratado) }), el("td", { class: "n", text: eur(m.provavel) }), el("td", { class: "n", text: eur(p.custoMes) }))))));
+  // the year at a glance, above the chart (Pedro 2026-11-12: «mais detalhe aqui tipo valor sum em 12 meses… para motivar»)
+  const total = t.contratado + t.provavel, mes = (m) => m.contratado + m.provavel;
+  const melhor = p.meses.reduce((a, m) => (mes(m) > mes(a) ? m : a), p.meses[0]);
+  const abertas = p.propostas.filter((x) => x.estado !== "ganha" && x.estado !== "perdida");
+  const seTudo = t.contratado + abertas.reduce((s, x) => s + (x.valor12 || 0), 0) + p.contratos.filter((c) => !c.certo).reduce((s, c) => s + (c.valor12 || 0), 0);
+  const faturado = dados?.kpis?.faturado?.base || 0, vezes = faturado > 0 ? total / faturado : 0;
+  const stat = (val, rot, forte) => el("div", { class: forte ? "forte" : null }, el("b", { text: val }), el("span", { text: rot }));
+  $("#prev-resumo").replaceChildren(...(total > 0 ? [
+    stat(eur(total), `nos 12 meses · ${Math.round((t.contratado / total) * 100)}% já contratado`, true),
+    stat(eur(total / 12), "por mês, em média"),
+    stat(curto(melhor.mes), `o melhor mês: ${eur(mes(melhor))}`),
+    vezes ? stat(vezes >= 2 ? `${vezes.toFixed(1).replace(".", ",")}×` : `${vezes >= 1 ? "+" : "−"}${Math.abs(Math.round((vezes - 1) * 100))}%`,
+      `face aos ${eur(faturado)} faturados em ${dados.ano} até hoje`) : null,
+    seTudo > total + 0.5 ? stat(eur(seTudo), abertas.length === 1 ? "se a proposta em aberto fechar" : `se as ${abertas.length} propostas em aberto fecharem`) : null] : []));
+  let acum = 0;
+  const linhasPrev = p.meses.map((m) => { acum += mes(m); return el("tr", {}, el("td", { text: nomeMes(m.mes) }), el("td", { class: "n", text: eur(m.contratado) }),
+    el("td", { class: "n", text: eur(m.provavel) }), el("td", { class: "n", text: eur(mes(m)) }), el("td", { class: "n", text: eur(acum) }), el("td", { class: "n", text: eur(p.custoMes) })); });
+  $("#tabela-prev").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mês" }), el("th", { class: "n", text: "Contratado" }), el("th", { class: "n", text: "Provável" }),
+    el("th", { class: "n", text: "Total" }), el("th", { class: "n", text: "Acumulado" }), el("th", { class: "n", text: "Despesas médias" }))),
+    el("tbody", {}, linhasPrev),
+    el("tfoot", {}, el("tr", {}, el("td", { text: "12 meses" }), el("td", { class: "n", text: eur(t.contratado) }), el("td", { class: "n", text: eur(t.provavel) }),
+      el("td", { class: "n", text: eur(total) }), el("td", {}), el("td", { class: "n", text: eur(t.despesas) })))));
   const periodo = (c) => !c.inicio ? "início por definir" : c.ate ? `${curto(c.inicio)} → ${curto(c.ate)}` : `desde ${curto(c.inicio)}, sem fim definido`;
   const chip = (c) => (c.certo ? el("span", { class: "chip bom" }, el("i", { "aria-hidden": "true", text: "✓" }), c.estado)
     : el("span", { class: "chip meio" }, el("i", { "aria-hidden": "true", text: "…" }), `${c.estado === "teste" ? "à experiência" : "por confirmar"} · conta ${Math.round(c.peso * 100)}%`));
@@ -699,30 +727,36 @@ function grafPrevisao(p) {
   const reto = (x, a, b) => `M${x},${b}V${a}H${x + bw}V${b}Z`;                 // square ends (the lower segment)
   const redondo = (x, a, b) => { const r = Math.min(4, b - a, bw / 2);          // the top segment: 4px rounded data-end
     return `M${x},${b}V${a + r}Q${x},${a} ${x + r},${a}H${x + bw - r}Q${x + bw},${a} ${x + bw},${a + r}V${b}Z`; };
+  // each bar's value where there is room (full on a wide screen, «2,9K €» on a tablet); on a phone only the best month's (the
+  // first bar's label ran into the axis there; next month is in the «Contratado» tile)
+  const iMelhor = p.meses.reduce((b, m, i, a) => (m.contratado + m.provavel > a[b].contratado + a[b].provavel ? i : b), 0);
+  const rotulo = (v) => (banda >= 76 ? eur(Math.round(v)).replace(",00 €", " €") : `${compacto(v)} €`);
+  let acum = 0;
   p.meses.forEach((m, i) => {
-    const x0 = M.l + banda * i, cx = x0 + banda / 2, x = cx - bw / 2;
+    const x0 = M.l + banda * i, cx = x0 + banda / 2, x = cx - bw / 2, ate = (acum += m.contratado + m.provavel);
     const fundo = sv("rect", { x: x0 + 1, y: M.t - 8, width: banda - 2, height: ph + 8, rx: 4, class: "banda" });
     svg.append(fundo);
     const yc = y(m.contratado), yp = y(m.contratado + m.provavel);
     if (m.contratado > 0) svg.append(sv("path", { d: m.provavel > 0 ? reto(x, yc, y(0)) : redondo(x, yc, y(0)), class: "s1" }));
     if (m.provavel > 0 && yc - 2 - yp > 0.5) svg.append(sv("path", { d: redondo(x, yp, m.contratado > 0 ? yc - 2 : y(0)), class: "s3" }));   // 2px surface gap
-    if (i === 0 && m.contratado + m.provavel > 0) {                      // one direct label: next month
-      const t = sv("text", { x: cx, y: yp - 7, class: "rot-valor", "text-anchor": "middle" }); t.textContent = eur(m.contratado + m.provavel).replace(",00 €", " €"); svg.append(t);
+    if (m.contratado + m.provavel > 0 && (banda >= 44 || i === iMelhor)) {
+      const aEsquerda = banda < 44 && i === 0;                           // the best month first on a phone: start at its bar
+      const t = sv("text", { x: aEsquerda ? x : cx, y: yp - 7, class: "rot-valor", "text-anchor": aEsquerda ? "start" : "middle" });
+      t.textContent = rotulo(m.contratado + m.provavel); svg.append(t);
     }
     const lb = sv("text", { x: cx, y: H - 9, class: "tick", "text-anchor": "middle" }); lb.textContent = MESES[Number(m.mes.slice(5)) - 1]; svg.append(lb);
     const hit = sv("rect", { x: x0, y: M.t - 8, width: banda, height: ph + 8, class: "hit", tabindex: "0",
       "aria-label": `${nomeMes(m.mes)}: contratado ${eur(m.contratado)}, provável ${eur(m.provavel)}` });
     const ver = () => { esconderTip(); fundo.classList.add("on");
-      mostrarTip($("#tip-prev"), box, nomeMes(m.mes), [["var(--s1)", m.contratado, "contratado"], ["var(--s3)", m.provavel, "provável"], ["var(--s2)", p.custoMes, "despesas médias"]], cx); };
+      mostrarTip($("#tip-prev"), box, nomeMes(m.mes), [["var(--s1)", m.contratado, "contratado"], ["var(--s3)", m.provavel, "provável"], ["var(--s2)", p.custoMes, "despesas médias"],
+        ["transparent", ate, `acumulado desde ${MESES[Number(p.de.slice(5)) - 1]}`]], cx); };
     hit.addEventListener("pointerenter", ver); hit.addEventListener("focus", ver);
     hit.addEventListener("pointerleave", esconderTip); hit.addEventListener("blur", esconderTip);
     svg.append(hit);
   });
-  if (p.custoMes > 0) {                                                  // the average monthly spend, as a reference line
-    svg.insertBefore(sv("line", { x1: M.l, x2: W - M.r, y1: y(p.custoMes), y2: y(p.custoMes), class: "ref" }), svg.querySelector(".hit"));
-    const t = sv("text", { x: W - M.r, y: y(p.custoMes) - 6, class: "rot-ref", "text-anchor": "end" }); t.textContent = `despesas ~${eur(p.custoMes).replace(/,\d\d €/, " €")}/mês`;
-    svg.insertBefore(t, svg.querySelector(".hit"));
-  }
+  // the average monthly spend, as a reference line; its value goes in the legend (in the chart it sat on the bars' labels)
+  if (p.custoMes > 0) svg.insertBefore(sv("line", { x1: M.l, x2: W - M.r, y1: y(p.custoMes), y2: y(p.custoMes), class: "ref" }), svg.querySelector(".hit"));
+  $("#leg-desp-prev").textContent = p.custoMes > 0 ? `Despesas médias, ~${eur(p.custoMes).replace(/,\d\d €/, " €")}/mês` : "Despesas médias";
   box.append(svg);
 }
 $("#ver-tabela-prev").addEventListener("click", () => {
