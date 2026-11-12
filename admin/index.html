@@ -117,6 +117,17 @@ svg text{font-family:var(--sans)}
 .resumo-prev span{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
 .resumo-prev .forte b{color:var(--accent)}
 #tabela-prev tfoot td{font-weight:600;color:var(--ink);border-top:1px solid var(--line)}
+/* Valor da empresa: what a buyer would weigh for and against, and an offer as multiples */
+.valor-listas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px 28px}
+.valor-listas h3{margin:0 0 8px;color:var(--ink);font-size:14px;font-weight:600}
+.valor-lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.valor-lista li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;color:var(--body)}
+.valor-lista li::before{flex:none;width:18px;height:18px;margin-top:2px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0b0a10}
+.valor-lista.bom li::before{content:"✓";background:var(--good)}
+.valor-lista.risco li::before{content:"!";background:var(--warning)}
+.valor-lista li.vazio{color:var(--muted)}.valor-lista li.vazio::before{content:none}
+.oferta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;font-size:14px;color:var(--body)}
+.oferta input{width:min(100%,220px);padding:9px 12px;border-radius:8px;border:1px solid #3f3449;background:var(--bg);color:var(--ink);font-size:18px;font-variant-numeric:tabular-nums}
 table{width:100%;border-collapse:collapse;font-size:14px}
 #contratos,#tabela-prev,#tabela-meses,#clientes{overflow-x:auto}      /* wide tables scroll inside their card on a phone */
 th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
@@ -292,6 +303,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       <button type="button" role="tab" id="s-contas" aria-controls="tab-contas" aria-selected="true">Contas</button>
       <button type="button" role="tab" id="s-carteira" aria-controls="tab-carteira" aria-selected="false">Clientes</button>
       <button type="button" role="tab" id="s-previsao" aria-controls="tab-previsao" aria-selected="false">Previsão</button>
+      <button type="button" role="tab" id="s-valor" aria-controls="tab-valor" aria-selected="false">Valor da empresa</button>
       <button type="button" role="tab" id="s-propostas" aria-controls="tab-propostas" aria-selected="false">Potenciais clientes</button>
       <button type="button" role="tab" id="s-leads" aria-controls="tab-leads" aria-selected="false">Leads</button>
     </div>
@@ -355,6 +367,25 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
         <div class="cab"><div><h2>Contratos</h2><div class="sub">O que já está acordado. Os que estão à experiência ou por confirmar entram no provável com o peso indicado.</div></div></div>
         <div id="contratos"></div>
       </div>
+    </div>
+
+    <div id="tab-valor" role="tabpanel" aria-labelledby="s-valor" hidden>
+      <div class="tiles" id="valor-tiles"></div>
+      <div class="cartao">
+        <div class="cab"><div><h2>O que um comprador olharia</h2><div class="sub" id="valor-sub"></div></div></div>
+        <div class="resumo-prev" id="valor-resumo"></div>
+        <div class="valor-listas">
+          <div><h3>A favor</h3><ul class="valor-lista bom" id="valor-fortes"></ul></div>
+          <div><h3>O que apontaria</h3><ul class="valor-lista risco" id="valor-riscos"></ul></div>
+        </div>
+      </div>
+      <div class="cartao" style="margin-top:12px">
+        <div class="cab"><div><h2>Se recebesse uma oferta</h2><div class="sub">Escreve o valor: vês quantas vezes é a receita e o lucro, e em quantos anos o comprador o recupera.</div></div></div>
+        <label class="oferta"><span>Oferta</span><input id="valor-oferta" type="number" inputmode="numeric" min="0" step="1000" placeholder="ex.: 100000"><span>€</span></label>
+        <div class="resumo-prev" id="valor-multiplos"></div>
+        <p class="sub">Empresas pequenas de serviços vendem-se muitas vezes por poucas vezes o lucro anual. Receita recorrente e contratos longos fazem subir o múltiplo; um cliente muito grande e a dependência do fundador fazem descer. O número certo dá-o um consultor de fusões e aquisições.</p>
+      </div>
+      <p class="sub" id="valor-pressupostos" style="margin-top:12px"></p>
     </div>
 
     <div id="tab-propostas" role="tabpanel" aria-labelledby="s-propostas" hidden>
@@ -460,7 +491,7 @@ async function carregar() {
   finally { p.classList.remove("a-ler"); }
 }
 // ------------------------------------------------------------ tabs (the last one opened is remembered on this device)
-const SEPARADORES = ["contas", "carteira", "previsao", "propostas", "leads"];
+const SEPARADORES = ["contas", "carteira", "previsao", "valor", "propostas", "leads"];
 let separador = "contas";
 try { separador = SEPARADORES.includes(localStorage.getItem("fin_tab")) ? localStorage.getItem("fin_tab") : "contas"; } catch (e) {}
 function abrirSeparador(nome) {
@@ -508,6 +539,8 @@ function desenhar() {
   desenharPrevisao(d.previsao);
   desenharPropostas(d.previsao);
   desenharCarteira(d.carteira);
+  $("#s-valor").hidden = !d.valor;                // the server before «Valor da empresa» doesn't send it
+  if (d.valor) desenharValor(d.valor); else if (separador === "valor") separador = "previsao";
   abrirSeparador(separador);
 }
 const ROT = { paga: "paga", por_receber: "por receber", anulada: "anulada", substituida: "substituída" };
@@ -769,6 +802,72 @@ $("#ver-tabela-prev").addEventListener("click", () => {
 
 // ------------------------------------------------------------ Potenciais clientes: the proposals
 const ESTADO_PROP = { "ganha": ["bom", "✓"], "perdida": ["mau", "×"], "em pausa": ["neutro", "‖"], "a preparar": ["neutro", "…"] };
+// ------------------------------------------------------------ Valor da empresa (Pedro 2026-11-12: «imagine we get an offer to sell
+// the company what stats would an investor want to look at?»): a year at today's pace, the margin after his pay, what is
+// contracted, the bank from 0; what a buyer would weigh for and against; an offer read as multiples
+const pc = (x) => `${Math.round((Number(x) || 0) * 100)}%`;
+const mesAno = (m) => `${MESES_L[Number(m.slice(5, 7)) - 1]} de ${m.slice(0, 4)}`;
+const comSinal = (n) => (n > 0 ? "+" : "") + eur(n);
+function desenharValor(v) {
+  const desde = mesAno(v.inicio), top = v.clientes[0], rec = v.receita ? v.recorrente / v.receita : 0, p = v.propostas;
+  const pessoas = `${v.pessoas} ${v.pessoas === 1 ? "pessoa" : "pessoas"}${v.horasExternasMes ? ` + ${v.horasExternasMes} h externas por mês` : ", sem horas externas"}`;
+  $("#valor-tiles").replaceChildren(
+    tile("Receita anual ao ritmo atual", eur(v.arr), `avenças de ${eur(v.mrr)} por mês × 12`, true),
+    tile("Lucro anual depois do teu salário", comSinal(v.depoisSalario), `${eur(v.antesSalario)} antes dos ${eur(v.retiradaMensal * 12)} do teu salário · margem ${pc(v.margem)}`),
+    tile("Já contratado, 12 meses", eur(v.contratado), `${v.arr ? pc(v.contratado / v.arr) + " de um ano ao ritmo atual · " : ""}mais ${eur(v.provavel)} prováveis`),
+    tile("Banco (estimativa)", eur(v.caixa), `recebido ${eur(v.recebido)} − despesas ${eur(v.despesas)} − ${v.fechados} × ${eur(v.retiradaMensal)} de salário`
+      + (v.ivaRecebido ? ` · inclui ${eur(v.ivaRecebido)} de IVA a entregar` : "")));
+  $("#valor-sub").textContent = `Desde ${desde}: ${v.meses} ${v.meses === 1 ? "mês" : "meses"} de faturação`;
+  const stat = (val, rot) => el("div", {}, el("b", { text: val }), el("span", { text: rot }));
+  $("#valor-resumo").replaceChildren(
+    stat(eur(v.receita), `faturado desde ${desde}, sem IVA · ${v.nFaturas} ${v.nFaturas === 1 ? "fatura" : "faturas"} · ${pc(rec)} de avenças`),
+    top ? stat(pc(top.peso), `o maior cliente: ${top.nome}${v.clientes.length > 2 ? ` · os 3 maiores: ${pc(v.clientes.slice(0, 3).reduce((s, c) => s + c.peso, 0))}` : ""}`) : null,
+    stat(String(v.ativos), `${v.ativos === 1 ? "cliente" : "clientes"} com contrato · ${v.novos} desde ${desde}`),
+    stat(comSinal(v.sobraMes), "sobram por mês, depois das despesas e do teu salário"),
+    stat(v.prazoMedio == null ? "—" : `${v.prazoMedio} dias`, v.prazoMedio == null ? "até receber: ainda nenhuma fatura marcada paga"
+      : `até receber, em média (${v.nPagas} ${v.nPagas === 1 ? "paga" : "pagas"})${v.vencido ? ` · ${eur(v.vencido)} vencido` : ""}`),
+    stat(p.decididas ? pc(p.ganhas / p.decididas) : "—", p.decididas ? `propostas ganhas (${p.ganhas} de ${p.decididas}) · ${eur(p.ponderado)} ponderados em aberto`
+      : `nenhuma proposta decidida · ${p.abertas} em aberto, ${eur(p.ponderado)} ponderados`),
+    stat(eur(v.porPessoa.receita ?? 0), `receita anual por pessoa (${pessoas})`));
+  const fortes = [
+    rec >= 0.5 ? `${pc(rec)} do que faturaste desde ${desde} são avenças mensais: receita que se repete.` : null,
+    v.contratado > 0 ? `${eur(v.contratado)} já contratados para os próximos 12 meses.` : null,
+    p.ponderado > 0 ? `${eur(p.ponderado)} ponderados em ${p.abertas} propostas abertas (${eur(p.valorAberto)} se fecharem todas).` : null,
+    v.margem >= 0.2 ? `Margem de ${pc(v.margem)} depois do teu salário.` : null,
+    v.prazoMedio != null && v.prazoMedio <= 30 ? `Os clientes pagam em média em ${v.prazoMedio} dias.` : null].filter(Boolean);
+  const riscos = [
+    v.meses < 12 ? `${v.meses} ${v.meses === 1 ? "mês" : "meses"} de faturação: um comprador quer ver pelo menos 12, de preferência 24 a 36.` : null,
+    top && top.peso > 0.3 ? `${top.nome} vale ${pc(top.peso)} do que faturaste${top.ate ? `, e o contrato acaba em ${mesAno(top.ate)}` : ""}.` : null,
+    v.pessoas === 1 && !v.horasExternasMes ? "Uma pessoa e nenhum trabalho externo: as vendas e a entrega dependem todas de ti." : null,
+    v.sobraMes < v.mrr * 0.1 ? (v.sobraMes >= 0 ? `Depois do teu salário sobram ${eur(v.sobraMes)} por mês ao ritmo de hoje.`
+      : `Ao ritmo de hoje faltam ${eur(-v.sobraMes)} por mês para pagar o teu salário.`) : null,
+    !p.decididas ? "Nenhuma proposta marcada como ganha ou perdida: a taxa de conversão ainda não se mede (marca-as em «Potenciais clientes»)." : null,
+    v.prazoMedio > 30 ? `Os clientes pagam em média ao fim de ${v.prazoMedio} dias.` : null,
+    v.vencido > 0 ? `${eur(v.vencido)} em faturas vencidas.` : null,
+    v.caixa < 0 ? `Com ${eur(v.retiradaMensal)} de salário por mês, o banco estaria em ${eur(v.caixa)}: as retiradas passam o que entrou.` : null].filter(Boolean);
+  const li = (t) => el("li", { text: t });
+  $("#valor-fortes").replaceChildren(...(fortes.length ? fortes.map(li) : [el("li", { class: "vazio", text: "Ainda nada a destacar." })]));
+  $("#valor-riscos").replaceChildren(...(riscos.length ? riscos.map(li) : [el("li", { class: "vazio", text: "Nada a apontar com estes números." })]));
+  $("#valor-pressupostos").textContent = `Pressupostos: desde 1 de ${desde} · ${pessoas} · salário de ${eur(v.retiradaMensal)} por mês, retirado no fim de cada mês · `
+    + `banco a 0 € no início · despesas médias de ${eur(v.custoMes)} por mês. Mudam-se no PC, em Finance\\_scripts\\previsao.json («empresa»).`;
+  desenharOferta(v);
+}
+// an offer as multiples of a year at today's pace; the years to recover it are the multiple of the profit after his pay
+function desenharOferta(v) {
+  const o = Number($("#valor-oferta").value) || 0, vezes = (x) => `${x.toLocaleString("pt-PT", { maximumFractionDigits: 1 })}×`;
+  const stat = (val, rot) => el("div", {}, el("b", { text: val }), el("span", { text: rot }));
+  $("#valor-multiplos").replaceChildren(...(o > 0 ? [
+    stat(v.arr > 0 ? vezes(o / v.arr) : "—", "a receita anual ao ritmo atual"),
+    stat(v.antesSalario > 0 ? vezes(o / v.antesSalario) : "—", "o lucro anual antes do teu salário (se o comprador ficar no teu lugar)"),
+    stat(v.depoisSalario > 0 ? `${(o / v.depoisSalario).toLocaleString("pt-PT", { maximumFractionDigits: 1 })} anos` : "—",
+      v.depoisSalario > 0 ? "para o comprador o recuperar, ao lucro de hoje e pagando a quem faça o teu trabalho" : "sem lucro depois de pagar o teu salário: não se recupera ao ritmo de hoje")] : []));
+}
+try { $("#valor-oferta").value = localStorage.getItem("fin_oferta") || ""; } catch (e) {}
+$("#valor-oferta").addEventListener("input", () => {
+  try { localStorage.setItem("fin_oferta", $("#valor-oferta").value); } catch (e) {}
+  if (dados?.valor) desenharOferta(dados.valor);
+});
+
 function desenharPropostas(p) {
   const t = p.totais;
   $("#prop-tiles").replaceChildren(
