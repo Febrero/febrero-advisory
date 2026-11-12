@@ -774,26 +774,42 @@ async function mudarProposta(id, estado) {
 // ongoing clients… we have access to the contracts we signed and the invoices already»
 let carteiraAberto = null;
 const MESES_C = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 const mesTxt = (m, ano = true) => (m ? `${MESES_C[Number(m.slice(5, 7)) - 1]}${ano ? " " + m.slice(0, 4) : ""}` : "");
 const valorCurto = (n) => `${String(Math.round(n)).replace(/\B(?=(\d{3})+$)/g, ".")} €`;
 const ESTADO_C = { ativo: ["bom", "Ativo"], assinado: ["bom", "Assinado"], teste: ["meio", "Em teste"], incerto: ["neutro", "Por confirmar"], terminado: ["neutro", "Terminado"] };
 const ROT_MES = { paga: "paga", por_receber: "por receber", vencida: "vencida", em_falta: "por faturar", este_mes: "a faturar este mês", previsto: "a seguir",
   sem_fatura: "sem fatura (contrato por confirmar)", nada: "nada a faturar" };
-const curtoCli = (x) => x.cliente.split(/\s+[—–(]/)[0];
+const curtoCli = (x) => x.cliente.split(/\s+[—–(]/)[0].replace(/,?\s+(Lda|S\.?A)\.?$/i, "");
+// per client, for the tiles (a client with two contracts, such as a job and a maintenance, shows once)
+function porCliente(lista, valor, meses) {
+  const m = new Map();
+  for (const x of lista) {
+    const k = curtoCli(x), a = m.get(k) || { v: 0, meses: new Set() };
+    a.v += valor(x); for (const y of meses ? meses(x) : []) a.meses.add(y);
+    m.set(k, a);
+  }
+  return [...m];
+}
 function desenharCarteira(c) {
   const t = c?.totais || {}, lista = c?.lista || [];
-  const emFalta = lista.filter((x) => x.emFalta);
+  const emFalta = porCliente(lista.filter((x) => x.emFalta), (x) => x.emFalta, (x) => x.mesesEmFalta), esteMes = porCliente(lista.filter((x) => x.esteMes), (x) => x.esteMes);
   $("#cart-tiles").replaceChildren(
-    tile("Mensalidades", eur(t.mensal || 0), `${t.ativos || 0} ${t.ativos === 1 ? "contrato ativo" : "contratos ativos"} · por mês, sem IVA`),
-    tile("Por faturar", eur(t.emFalta || 0), emFalta.length ? emFalta.map((x) => `${curtoCli(x)}: ${x.mesesEmFalta.map((m) => mesTxt(m, false)).join(", ")}`).join(" · ") : "nenhum mês em falta", t.emFalta > 0),
+    tile(`A faturar em ${MESES_LONGOS[Number((t.mes || "0000-01").slice(5, 7)) - 1]}`, eur(t.esteMes || 0),
+      esteMes.length ? esteMes.map(([k, a]) => `${k} ${valorCurto(a.v)}`).join(" · ") : "nada por faturar este mês"),
+    tile("Por faturar", eur(t.emFalta || 0), emFalta.length ? emFalta.map(([k, a]) => `${k}: ${[...a.meses].sort().map((m) => mesTxt(m, false)).join(", ")}`).join(" · ") : "nenhum mês passado em falta", t.emFalta > 0),
     tile("Por receber", eur(t.porReceber || 0), t.nAbertas ? `${t.nAbertas} ${t.nAbertas === 1 ? "fatura" : "faturas"}${t.vencido ? ` · ${eur(t.vencido)} vencido` : ", nenhuma vencida"}` : "tudo recebido"),
-    tile("Faturado", eur(t.faturado || 0), "a estes clientes, sem IVA"));
+    t.mensal ? tile("Mensalidades", eur(t.mensal), `${t.mensais} ${t.mensais === 1 ? "contrato" : "contratos"} com mensalidade · por mês, sem IVA`)
+      : tile("Faturado", eur(t.faturado || 0), "a estes clientes, sem IVA"));
   if (!lista.length) return $("#carteira").replaceChildren(el("p", { class: "sub", text: "Ainda não há contratos: chegam do PC (Finance\\_scripts\\previsao.json) com as faturas." }));
   $("#carteira").replaceChildren(...lista.map(linhaCliente));
 }
 function linhaCliente(x) {
   const [cls, rot] = ESTADO_C[x.estado] || ["neutro", x.estado];
-  const termos = [x.mensal ? `${eur(x.mensal)}/mês + IVA${x.moeda !== "EUR" && x.original ? ` (${x.original})` : ""}` : x.unicos.map((u) => `${eur(u.valor)} em ${mesTxt(u.mes)}`).join(" + "),
+  // a job paid in many stages (a builder's monthly autos) reads as «12 autos de medição», not a list of twelve amounts
+  const rotUnicos = new Set(x.unicos.map((u) => u.o_que)).size === 1 && x.unicos[0].o_que ? x.unicos[0].o_que.replace(/^(\S+)/, "$1s") : "pagamentos";
+  const termos = [x.mensal ? `${eur(x.mensal)}/mês + IVA${x.moeda !== "EUR" && x.original ? ` (${x.original})` : ""}`
+    : x.unicos.length > 2 ? `${x.unicos.length} ${rotUnicos} + IVA` : x.unicos.map((u) => `${eur(u.valor)} em ${mesTxt(u.mes)}`).join(" + "),
     x.inicio ? `desde ${mesTxt(x.inicio)}` : "", x.mensal ? (x.meses ? `${x.meses} meses, até ${mesTxt(x.ate)}` : "sem prazo") : "",
     x.valorContrato ? `contrato de ${eur(x.valorContrato)}` : ""].filter(Boolean).join(" · ");
   const aberto = carteiraAberto === x.id, cv = x.conversa;

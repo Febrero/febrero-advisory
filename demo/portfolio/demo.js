@@ -40,6 +40,24 @@ function marcarFaturaDemo({ numero, estado, data }) {
   if (c) c.porReceber = r2(c.porReceber - sinal * f.total);
   d.registo.unshift({ ts: Date.now(), numero, de: f.estado, para: estado, por: "painel" });
   Object.assign(f, { estado, pagaEm: estado === "paga" ? quando : null, atraso: estado === "paga" ? 0 : atraso });
+  // the «Obras» tab: the same invoice in its job, the months it pays and the totals (as the server's carteira() would)
+  for (const x of d.carteira?.lista || []) {
+    const g = x.faturas.find((y) => y.numero === numero);
+    if (!g) continue;
+    Object.assign(g, { estado, pagaEm: f.pagaEm });
+    x.recebido = r2(x.recebido + sinal * f.total);
+    x.porReceber.total = r2(x.porReceber.total - sinal * f.total); x.porReceber.n -= sinal;
+    if (atraso > 0) { x.porReceber.vencido = r2(x.porReceber.vencido - sinal * f.total); x.porReceber.nVencidas -= sinal; }
+    for (const m of x.mesAMes) if (m.faturas.includes(numero)) {
+      const fs = x.faturas.filter((y) => m.faturas.includes(y.numero));
+      m.estado = fs.some((y) => y.estado === "por_receber" && y.vencimento < d.hoje) ? "vencida" : fs.some((y) => y.estado === "por_receber") ? "por_receber" : "paga";
+    }
+  }
+  if (d.carteira) {
+    const t = d.carteira.totais, l = d.carteira.lista;
+    t.porReceber = r2(l.reduce((s, x) => s + x.porReceber.total, 0)); t.vencido = r2(l.reduce((s, x) => s + x.porReceber.vencido, 0));
+    t.nAbertas = l.reduce((s, x) => s + x.porReceber.n, 0);
+  }
   return { ok: true };
 }
 // the next 12 months again after a proposal is won, lost or reopened (the server's previsao(), on the page)
