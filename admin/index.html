@@ -149,6 +149,38 @@ td b{color:var(--ink);font-weight:500}
 .registo li{padding:6px 0;border-bottom:1px solid rgba(221,210,241,.07)}
 .registo time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
 footer{color:var(--muted);font-size:12.5px;margin-top:22px}
+/* clientes */
+.cli{display:grid;gap:8px;padding:16px 4px;border-bottom:1px solid rgba(221,210,241,.07)}
+.cli:last-child{border-bottom:0}
+.cli .topo{display:flex;gap:6px 14px;align-items:baseline;flex-wrap:wrap}
+.cli .topo .nome{color:var(--ink);font-weight:600;font-size:15px;cursor:pointer;background:none;border:0;padding:0;font-family:inherit;text-align:left}
+.cli .topo .nome:hover{text-decoration:underline;text-underline-offset:3px}
+.cli .topo .nome:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cli .termos{color:var(--body);font-size:13px}
+.cli .oque{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.cli .numeros{display:flex;gap:4px 18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.cli .numeros b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.cli .numeros .alerta,.cli .numeros .alerta b{color:var(--serious)}
+.cli .conversa{font-size:13px;color:var(--body);overflow-wrap:anywhere}
+.cli .conversa .devemos{color:var(--warning);font-weight:600;margin-left:6px}
+.cli.fraco{opacity:.72}
+.meses-c{display:flex;gap:4px;flex-wrap:wrap}
+.mc{min-width:44px;padding:4px 6px;border-radius:6px;border:1px solid #2a2532;font-size:11.5px;line-height:1.3;text-align:center;font-variant-numeric:tabular-nums;color:#6d6778}
+.mc small{display:block;font-size:10.5px}
+.mc.paga{background:rgba(12,163,12,.16);border-color:rgba(12,163,12,.5);color:#c4f1c4}
+.mc.por_receber{background:rgba(250,178,25,.13);border-color:rgba(250,178,25,.5);color:#fde3a8}
+.mc.vencida{background:rgba(208,59,59,.2);border-color:rgba(208,59,59,.65);color:#f6c0c0}
+.mc.em_falta{border-color:var(--serious);color:#f6c9b6}
+.mc.este_mes{border:1px dashed #8e76a8;color:var(--ink)}
+.mc.previsto,.mc.sem_fatura{border:1px dashed #3f3449;color:var(--muted)}
+.cli .det{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:13.5px;display:grid;gap:6px;overflow-wrap:anywhere}
+.cli .det b{font-weight:600}
+.cli .det a{color:var(--accent)}
+.cli .det table{width:100%;border-collapse:collapse;font-size:13px}
+.cli .det td{padding:5px 8px 5px 0;border-top:1px solid rgba(221,210,241,.07);vertical-align:middle}
+.cli .det td.n{text-align:right;font-variant-numeric:tabular-nums}
+.legenda-c{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legenda-c .mc{min-width:0;padding:1px 7px;display:inline-block}
 /* leads */
 .filtros{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px}
 .filtros button{padding:5px 12px;border-radius:999px;border:1px solid #3f3449;background:none;color:#ddd2ea;cursor:pointer;font-size:13px}
@@ -251,6 +283,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
     <div class="sub" id="subtitulo"></div>
     <div class="separadores" role="tablist" aria-label="Secções">
       <button type="button" role="tab" id="s-contas" aria-controls="tab-contas" aria-selected="true">Contas</button>
+      <button type="button" role="tab" id="s-carteira" aria-controls="tab-carteira" aria-selected="false">Clientes</button>
       <button type="button" role="tab" id="s-previsao" aria-controls="tab-previsao" aria-selected="false">Previsão</button>
       <button type="button" role="tab" id="s-propostas" aria-controls="tab-propostas" aria-selected="false">Potenciais clientes</button>
       <button type="button" role="tab" id="s-leads" aria-controls="tab-leads" aria-selected="false">Leads</button>
@@ -284,6 +317,18 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       <div class="cab"><h2>Últimas alterações</h2></div>
       <ul class="registo" id="registo"></ul>
     </div>
+    </div>
+
+    <div id="tab-carteira" role="tabpanel" aria-labelledby="s-carteira" hidden>
+      <div class="tiles" id="cart-tiles"></div>
+      <div class="cartao">
+        <div class="cab">
+          <div><h2>Clientes em curso</h2><div class="sub">Cada contrato com as faturas mês a mês. Toca no nome para ver as notas, as faturas e os contactos.</div></div>
+          <div class="legenda-c" aria-label="Legenda"><span class="mc paga">paga</span><span class="mc por_receber">por receber</span><span class="mc vencida">vencida</span>
+            <span class="mc em_falta">por faturar</span><span class="mc este_mes">este mês</span><span class="mc previsto">a seguir</span></div>
+        </div>
+        <div id="carteira"></div>
+      </div>
     </div>
 
     <div id="tab-previsao" role="tabpanel" aria-labelledby="s-previsao" hidden>
@@ -407,7 +452,7 @@ async function carregar() {
   finally { p.classList.remove("a-ler"); }
 }
 // ------------------------------------------------------------ tabs (the last one opened is remembered on this device)
-const SEPARADORES = ["contas", "previsao", "propostas", "leads"];
+const SEPARADORES = ["contas", "carteira", "previsao", "propostas", "leads"];
 let separador = "contas";
 try { separador = SEPARADORES.includes(localStorage.getItem("fin_tab")) ? localStorage.getItem("fin_tab") : "contas"; } catch (e) {}
 function abrirSeparador(nome) {
@@ -454,6 +499,7 @@ function desenhar() {
     `${r.numero}: ${ROT[r.de] || r.de || "—"} → ${ROT[r.para] || r.para} (${r.por})`)) : [el("li", { class: "sub", text: "Ainda nada mudou." })]));
   desenharPrevisao(d.previsao);
   desenharPropostas(d.previsao);
+  desenharCarteira(d.carteira);
   abrirSeparador(separador);
 }
 const ROT = { paga: "paga", por_receber: "por receber", anulada: "anulada", substituida: "substituída" };
@@ -721,6 +767,68 @@ function desenharPropostas(p) {
 async function mudarProposta(id, estado) {
   try { await api("/proposta", { method: "POST", body: { id, estado } }); await carregar(); return ""; }
   catch (e) { console.error("proposta", id, e); return e.message === "sessão" ? "" : `Não gravou: ${e.message}`; }
+}
+
+// ------------------------------------------------------------ Clientes (2026-11-12): the contracts running (previsao.json on
+// the PC) with their invoices month by month, from GET /api/financas → carteira (financas.mjs). Pedro: «a new pane for
+// ongoing clients… we have access to the contracts we signed and the invoices already»
+let carteiraAberto = null;
+const MESES_C = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const mesTxt = (m, ano = true) => (m ? `${MESES_C[Number(m.slice(5, 7)) - 1]}${ano ? " " + m.slice(0, 4) : ""}` : "");
+const valorCurto = (n) => `${String(Math.round(n)).replace(/\B(?=(\d{3})+$)/g, ".")} €`;
+const ESTADO_C = { ativo: ["bom", "Ativo"], assinado: ["bom", "Assinado"], teste: ["meio", "Em teste"], incerto: ["neutro", "Por confirmar"], terminado: ["neutro", "Terminado"] };
+const ROT_MES = { paga: "paga", por_receber: "por receber", vencida: "vencida", em_falta: "por faturar", este_mes: "a faturar este mês", previsto: "a seguir",
+  sem_fatura: "sem fatura (contrato por confirmar)", nada: "nada a faturar" };
+const curtoCli = (x) => x.cliente.split(/\s+[—–(]/)[0];
+function desenharCarteira(c) {
+  const t = c?.totais || {}, lista = c?.lista || [];
+  const emFalta = lista.filter((x) => x.emFalta);
+  $("#cart-tiles").replaceChildren(
+    tile("Mensalidades", eur(t.mensal || 0), `${t.ativos || 0} ${t.ativos === 1 ? "contrato ativo" : "contratos ativos"} · por mês, sem IVA`),
+    tile("Por faturar", eur(t.emFalta || 0), emFalta.length ? emFalta.map((x) => `${curtoCli(x)}: ${x.mesesEmFalta.map((m) => mesTxt(m, false)).join(", ")}`).join(" · ") : "nenhum mês em falta", t.emFalta > 0),
+    tile("Por receber", eur(t.porReceber || 0), t.nAbertas ? `${t.nAbertas} ${t.nAbertas === 1 ? "fatura" : "faturas"}${t.vencido ? ` · ${eur(t.vencido)} vencido` : ", nenhuma vencida"}` : "tudo recebido"),
+    tile("Faturado", eur(t.faturado || 0), "a estes clientes, sem IVA"));
+  if (!lista.length) return $("#carteira").replaceChildren(el("p", { class: "sub", text: "Ainda não há contratos: chegam do PC (Finance\\_scripts\\previsao.json) com as faturas." }));
+  $("#carteira").replaceChildren(...lista.map(linhaCliente));
+}
+function linhaCliente(x) {
+  const [cls, rot] = ESTADO_C[x.estado] || ["neutro", x.estado];
+  const termos = [x.mensal ? `${eur(x.mensal)}/mês + IVA${x.moeda !== "EUR" && x.original ? ` (${x.original})` : ""}` : x.unicos.map((u) => `${eur(u.valor)} em ${mesTxt(u.mes)}`).join(" + "),
+    x.inicio ? `desde ${mesTxt(x.inicio)}` : "", x.mensal ? (x.meses ? `${x.meses} meses, até ${mesTxt(x.ate)}` : "sem prazo") : "",
+    x.valorContrato ? `contrato de ${eur(x.valorContrato)}` : ""].filter(Boolean).join(" · ");
+  const aberto = carteiraAberto === x.id, cv = x.conversa;
+  const nome = el("button", { type: "button", class: "nome", "aria-expanded": String(aberto), text: curtoCli(x),
+    onclick: () => { carteiraAberto = aberto ? null : x.id; desenharCarteira(dados.carteira); } });
+  const meses = el("div", { class: "meses-c", role: "list", "aria-label": `Faturas de ${curtoCli(x)} por mês` },
+    ...x.mesAMes.filter((m) => m.estado !== "nada").map((m) => {
+      const txt = `${mesTxt(m.mes)}: ${ROT_MES[m.estado] || m.estado}${m.devido ? `, ${eur(m.devido)} sem IVA` : ""}${m.faturas.length ? ` (${m.faturas.join(", ")})` : ""}`
+        + (m.falta && m.falta < m.devido && m.estado !== "previsto" ? `, faltam ${eur(m.falta)}` : "");
+      return el("span", { class: "mc " + m.estado, role: "listitem", title: txt, "aria-label": txt }, mesTxt(m.mes, false), el("small", { text: valorCurto(m.devido) }));
+    }));
+  const numeros = el("div", { class: "numeros" },
+    el("span", {}, "Faturado ", el("b", { text: eur(x.faturado.base) }), ` sem IVA · ${x.faturado.n} ${x.faturado.n === 1 ? "fatura" : "faturas"}`),
+    el("span", {}, "Recebido ", el("b", { text: eur(x.recebido) })),
+    x.porReceber.n ? el("span", { class: x.porReceber.nVencidas ? "alerta" : null }, "Por receber ", el("b", { text: eur(x.porReceber.total) }),
+      x.porReceber.nVencidas ? ` · ${eur(x.porReceber.vencido)} vencido` : "") : null,
+    x.emFalta ? el("span", { class: "alerta" }, "Por faturar ", el("b", { text: eur(x.emFalta) }), ` (${x.mesesEmFalta.map((m) => mesTxt(m, false)).join(", ")})`) : null,
+    x.proximo && (x.certo || x.estado === "teste") ? el("span", {}, "Próxima fatura ", el("b", { text: eur(x.proximo.valor) }), ` em ${mesTxt(x.proximo.mes)}`) : null);
+  const partesCv = cv ? [cv.pessoa ? `👤 ${cv.pessoa}` : "", cv.ultimo_toque ? `último contacto ${dm(String(cv.ultimo_toque).slice(0, 10))}` : "",
+    cv.proximo_passo && !/^ver à mão$/i.test(cv.proximo_passo) ? `➜ ${cv.proximo_passo}` : ""].filter(Boolean) : [];
+  const conversa = partesCv.length || cv?.devemos ? el("div", { class: "conversa" }, partesCv.join(" · "), cv.devemos ? el("span", { class: "devemos", text: "devemos resposta" }) : null) : null;
+  const det = aberto ? el("div", { class: "det" },
+    x.notas ? el("div", {}, el("b", { text: "Notas: " }), x.notas) : null,
+    cv?.resumo ? el("div", {}, el("b", { text: "Última conversa: " }), cv.resumo) : null,
+    cv?.ultima ? el("div", {}, el("b", { text: "Último email deles: " }), `${dm(String(cv.ultima.at).slice(0, 10))}${cv.ultima.assunto ? ` · ${cv.ultima.assunto}` : ""}`) : null,
+    cv && (cv.email || cv.telefone) ? el("div", { class: "linha" }, cv.email ? el("a", { href: "mailto:" + cv.email, text: cv.email }) : null, cv.email && cv.telefone ? " · " : "",
+      cv.telefone ? el("a", { href: "tel:+351" + cv.telefone.replace(/\D/g, "").slice(-9), text: cv.telefone }) : null) : null,
+    x.faturas.length ? el("table", {}, el("tbody", {}, ...x.faturas.map((f) => {
+      const g = (dados.faturas || []).find((y) => y.numero === f.numero) || f;
+      return el("tr", {}, el("td", { text: f.numero }), el("td", { text: dma(f.data) }), el("td", { class: "n", text: eur(f.total) }), el("td", {}, estadoDe(g)),
+        el("td", { class: "n" }, f.pdf ? el("button", { class: "btn peq", type: "button", text: "PDF", "aria-label": `Abrir o PDF da ${f.numero}`, onclick: (ev) => abrirPdf(f.numero, ev.currentTarget) }) : null));
+    }))) : el("div", { class: "sub", text: "Ainda sem faturas." })) : null;
+  return el("div", { class: "cli" + (x.certo || x.estado === "teste" ? "" : " fraco") },
+    el("div", { class: "topo" }, nome, el("span", { class: "chip " + cls }, el("i", { "aria-hidden": "true", text: "•" }), rot), el("span", { class: "termos", text: termos })),
+    x.o_que ? el("div", { class: "oque", text: x.o_que }) : null, meses, numeros, conversa, det);
 }
 
 // ------------------------------------------------------------ Leads (2026-11-11): every company we touched, qualified on
