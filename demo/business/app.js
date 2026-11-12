@@ -1,5 +1,5 @@
 // Febrero AI · AI layer for construction companies: interactive demo with fictional data (Example Builders).
-// English version of ../construcao/app.js. Everything is simulated in this browser: nothing is sent, nothing is stored on a server.
+// English version of ../empresa/app.js. Everything is simulated in this browser: nothing is sent, nothing is stored on a server.
 // Internal keys (views, estado, regime, fase, padrao…) stay as in the Portuguese version; only what is displayed is in English.
 "use strict";
 const D = window.DADOS;

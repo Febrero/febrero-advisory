@@ -1,4 +1,4 @@
-// Febrero AI demo · AI layer for construction companies (English version of ../construcao/dados.js).
+// Febrero AI demo · AI layer for construction companies (English version of ../empresa/dados.js).
 // EVERYTHING IN THIS FILE IS FICTIONAL: Example Builders, its clients, messages, floor plans, sites,
 // suppliers, invoices, progress bills and prices. Unit rates are demo values (excl. VAT).
 // Keys and the internal values the code compares (ids, estado, regime, tipo, faseId, padrao, "hoje", "feito"…) are the same as in the Portuguese file.
