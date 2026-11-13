@@ -52,6 +52,7 @@
       <a class="nav-item" data-vista="assistente"><span data-icone="brilho"></span>Assistente</a>
       <a class="nav-item" data-vista="como"><span data-icone="camadas"></span>Como funciona</a>
       <a class="flex items-center gap-3 rounded-[.8rem] px-[.9rem] py-[.62rem] text-[.9rem] font-medium text-white/65 transition-colors hover:bg-white/5 hover:text-white [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:flex-none" href="/demo/grua/" target="_blank" rel="noopener"><span data-icone="grua"></span>Grua-torre em 3D<span class="ml-auto text-white/40" aria-hidden="true">↗</span></a>
+      <a class="flex items-center gap-3 rounded-[.8rem] px-[.9rem] py-[.62rem] text-[.9rem] font-medium text-[#e3a56b] transition-colors hover:bg-white/5 hover:text-white [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:flex-none" href="/analise/" target="_blank" rel="noopener"><span data-icone="caixa"></span>Testar com um pedido vosso<span class="ml-auto text-white/40" aria-hidden="true">↗</span></a>
     </nav>
 
     <div class="mt-auto px-2">
@@ -80,6 +81,8 @@
           <span data-icone="procurar"></span><span>Pergunte à IA…</span><kbd class="ml-auto text-[10px] border border-[#eadfd2] rounded px-1.5 py-0.5">Ctrl K</kbd>
         </button>
         <button id="btn-tour" class="btn btn-escuro !py-2 !px-3.5 ml-auto lg:ml-0"><span data-icone="play" class="text-[#e3a56b]"></span><span class="hidden sm:inline">Demonstração guiada</span></button>
+        <!-- a análise de exemplo com um pedido real da empresa (febreroai.com/analise, com código) -->
+        <a id="btn-analise" class="btn btn-cobre !py-2 !px-3.5 whitespace-nowrap !hidden sm:!inline-flex" href="/analise/" target="_blank" rel="noopener" title="Enviem um pedido real de um cliente e recebam a nossa análise"><span data-icone="caixa"></span>Testar com um pedido vosso</a>
         <span class="chip chip-novo hidden xl:inline-flex">DEMO · dados fictícios</span>
         <!-- the same demo in other languages: the view (#hash) carries over -->
         <nav class="idiomas" aria-label="Idioma · Language · Idioma">
@@ -104,6 +107,8 @@
           <div class="flex items-center gap-2 text-white/70 text-sm"><span class="ponto-vivo"></span><span>A IA trabalhou durante a noite · atualizado às 07:00</span></div>
           <h1 id="saudacao" class="serif text-3xl md:text-[40px] leading-tight font-semibold mt-3 max-w-2xl">Bom dia. Quatro coisas para hoje.</h1>
           <ol id="briefing" class="mt-7 space-y-4 max-w-3xl"></ol>
+          <!-- no telemóvel o botão do cabeçalho não cabe: fica aqui, no fim da abertura -->
+          <a class="btn btn-cobre mt-7 sm:!hidden" href="/analise/" target="_blank" rel="noopener"><span data-icone="caixa"></span>Testar com um pedido vosso</a>
         </div>
 
         <div id="kpis" class="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-6"></div>
@@ -498,5 +503,13 @@
 <script src="patrimonio_dados.js?v=1"></script>
 <script src="patrimonio_textos.js?v=1"></script>
 <script src="patrimonio.js?v=1"></script>
+<script>
+// Quem chega com o código da análise no link (?c=) leva-o para a página de envio do ZIP.
+(() => {
+  const c = (new URLSearchParams(location.search).get("c") || "").trim().toUpperCase();
+  if (!/^[A-Z0-9-]{4,20}$/.test(c)) return;
+  document.querySelectorAll('a[href="/analise/"]').forEach((a) => { a.href = "/analise/?c=" + encodeURIComponent(c); });
+})();
+</script>
 </body>
 </html>

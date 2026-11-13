@@ -12,7 +12,9 @@
   main{max-width:760px;margin:0 auto;padding:55px 20px 80px}
   .back-link{display:inline-block;color:#c9b6df;font-size:14px;margin-bottom:44px;text-decoration:none}
   h1{font-size:clamp(36px,7vw,58px);line-height:1.1;letter-spacing:-.04em;margin-bottom:15px}
-  .sub{font-size:17px;line-height:1.7;color:#b9afc3;margin-bottom:34px}
+  .sub{font-size:17px;line-height:1.7;color:#b9afc3;margin-bottom:18px}
+  .ver-demo{display:inline-flex;align-items:center;gap:8px;margin-bottom:34px;padding:10px 16px;border:1px solid #4a3f57;border-radius:12px;color:#f3eef8;text-decoration:none;font-size:15px;line-height:1.4}
+  .ver-demo:hover{border-color:#d7bfef;background:rgba(215,191,239,.06)}
   h2{font-size:20px;margin:34px 0 12px;letter-spacing:-.02em}
   p,li{font-size:16px;line-height:1.75;color:#b9afc3}
   ol,ul{padding-left:22px}li+li{margin-top:8px}a{color:#d7bfef;text-decoration:underline;text-underline-offset:4px}
@@ -39,6 +41,7 @@
   <a class="back-link" href="/">← Febrero AI</a>
   <h1>Envie um pedido de um cliente</h1>
   <p class="sub">A nossa IA analisa-o e devolvemos-lhe, por email, um exemplo detalhado do que faria com os pedidos que vos chegam todos os dias.</p>
+  <a class="ver-demo" id="ver-demo" href="/demo/empresa/">Ver primeiro a demonstração com uma empresa fictícia <span aria-hidden="true">→</span></a>
 
   <h2>Como funciona</h2>
   <ol>
@@ -108,6 +111,10 @@
   const p = new URLSearchParams(location.search).get("c");
   if (p) { codigo.value = normal(p); verificar(); }
   codigo.addEventListener("change", verificar);
+  // A demonstração leva o código consigo: o botão «Testar com um pedido vosso» de lá volta aqui com ele.
+  const demo = () => { const c = normal(codigo.value); $("ver-demo").href = "/demo/empresa/" + (c ? "?c=" + encodeURIComponent(c) : ""); };
+  demo();
+  codigo.addEventListener("input", demo);
 
   zip.addEventListener("change", () => {
     const f = zip.files[0];
