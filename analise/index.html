@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Análise de um pedido vosso · Febrero AI</title>
+<meta name="description" content="Envie o ZIP de um pedido real de um cliente e receba uma análise de exemplo: o que o cliente pede, medições, rascunho do orçamento e pontos a esclarecer.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon-32.png?v=2">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  main{max-width:760px;margin:0 auto;padding:55px 20px 80px}
+  .back-link{display:inline-block;color:#c9b6df;font-size:14px;margin-bottom:44px;text-decoration:none}
+  h1{font-size:clamp(36px,7vw,58px);line-height:1.1;letter-spacing:-.04em;margin-bottom:15px}
+  .sub{font-size:17px;line-height:1.7;color:#b9afc3;margin-bottom:34px}
+  h2{font-size:20px;margin:34px 0 12px;letter-spacing:-.02em}
+  p,li{font-size:16px;line-height:1.75;color:#b9afc3}
+  ol,ul{padding-left:22px}li+li{margin-top:8px}a{color:#d7bfef;text-decoration:underline;text-underline-offset:4px}
+  form{margin-top:26px;padding:22px;border:1px solid var(--line,#3a3145);border-radius:16px;background:rgba(255,255,255,.03)}
+  label{display:block;font-size:14px;color:#d8cfe2;margin:16px 0 7px}
+  label:first-child{margin-top:0}
+  input[type=text]{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #4a3f57;background:#120f17;color:#f3eef8;font:inherit;font-size:17px;letter-spacing:.06em;text-transform:uppercase}
+  input[type=file]{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px dashed #5b4e6b;background:#120f17;color:#d8cfe2;font:inherit;font-size:15px}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14px;line-height:1.6;color:#b9afc3}
+  .consent input{margin-top:4px;flex:0 0 auto;width:18px;height:18px}
+  button{margin-top:20px;width:100%;padding:14px 18px;border:0;border-radius:12px;background:#d7bfef;color:#1a1320;font:inherit;font-size:17px;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .estado{min-height:22px;margin-top:9px;font-size:14px;line-height:1.5}
+  .ok{color:#9fe3b5}.erro{color:#ffb3b3}.info{color:#c9b6df}
+  progress{width:100%;height:10px;margin-top:16px;display:none;accent-color:#d7bfef}
+  .final{display:none;margin-top:26px;padding:20px;border-radius:14px;background:rgba(159,227,181,.08);border:1px solid rgba(159,227,181,.35)}
+  .final p{color:#d8f5e2;margin:0}
+  .nota{font-size:14px;color:#91849e}
+  footer{margin-top:48px;padding:20px 0 0;border-top:1px solid var(--line,#3a3145);background:none;font-size:13px;color:#91849e}
+</style>
+</head>
+<body>
+<main>
+  <a class="back-link" href="/">← Febrero AI</a>
+  <h1>Envie um pedido de um cliente</h1>
+  <p class="sub">A nossa IA analisa-o e devolvemos-lhe, por email, um exemplo detalhado do que faria com os pedidos que vos chegam todos os dias.</p>
+
+  <h2>Como funciona</h2>
+  <ol>
+    <li>Junte num ficheiro ZIP os documentos de um pedido real: o email do cliente, as plantas, o mapa de quantidades, o caderno de encargos, fotografias.</li>
+    <li>Escreva o código que lhe enviámos e envie o ZIP. Cada código serve para um único ZIP, até 25 MB.</li>
+    <li>Em um a dois dias úteis recebe a análise: o que o cliente pede, as medições e o mapa de quantidades, um rascunho do orçamento e os pontos a esclarecer com o cliente.</li>
+  </ol>
+
+  <form id="envio" novalidate>
+    <label for="codigo">Código</label>
+    <input type="text" id="codigo" name="codigo" autocomplete="off" spellcheck="false" placeholder="ABCD-12345" maxlength="20">
+    <div class="estado" id="estadoCodigo" aria-live="polite"></div>
+
+    <label for="zip">Ficheiro ZIP</label>
+    <input type="file" id="zip" name="zip" accept=".zip,application/zip,application/x-zip-compressed">
+    <div class="estado" id="estadoZip" aria-live="polite"></div>
+
+    <div class="consent">
+      <input type="checkbox" id="aceito">
+      <label for="aceito" style="margin:0">Autorizo a Febrero AI a analisar estes documentos só para preparar esta análise. Os ficheiros são apagados quando a análise termina e não são partilhados com ninguém.</label>
+    </div>
+
+    <button type="submit" id="enviar">Enviar o ZIP</button>
+    <progress id="progresso" max="100" value="0"></progress>
+    <div class="estado" id="estadoEnvio" aria-live="polite"></div>
+  </form>
+
+  <div class="final" id="final" role="status">
+    <p><b>Recebemos o seu ZIP.</b> Vamos analisá-lo e enviamos-lhe a análise por email em um a dois dias úteis. Se tiver alguma dúvida, ligue para o 936 882 364.</p>
+  </div>
+
+  <h2>O que pode enviar</h2>
+  <ul>
+    <li>PDF (incluindo plantas digitalizadas), Word e Excel (.docx, .xlsx), imagens (JPG, PNG) e desenhos em DXF.</li>
+    <li>Desenhos em DWG: por agora, exporte-os em PDF ou DXF.</li>
+    <li>Não são aceites ficheiros com macros, programas, nem ZIPs dentro do ZIP.</li>
+  </ul>
+
+  <h2>Os seus documentos</h2>
+  <p>São analisados num serviço isolado, passam por um antivírus antes de serem lidos e são apagados quando a análise termina. Pode retirar os nomes e os contactos do cliente antes de enviar. A análise é revista pela nossa equipa antes de lhe chegar.</p>
+  <p class="nota">Não tem código? Peça-o ao Pedro Febrero: 936 882 364 · <a href="mailto:pedro@gigacorp.pt">pedro@gigacorp.pt</a></p>
+
+  <footer>Febrero AI · Pedro Febrero · Lisboa, Portugal · <a href="https://febreroai.com">febreroai.com</a> · <a href="/privacy.html">Privacidade</a></footer>
+</main>
+<script>
+(() => {
+  const API = "https://lisboa-concierge-production.up.railway.app/api/analise";
+  const MAX = 25 * 1024 * 1024;
+  const $ = (id) => document.getElementById(id);
+  const codigo = $("codigo"), zip = $("zip"), aceito = $("aceito"), botao = $("enviar"), barra = $("progresso");
+  const msg = (el, texto, tipo) => { el.textContent = texto || ""; el.className = "estado " + (tipo || ""); };
+  let valido = false;
+  const normal = (c) => String(c || "").trim().toUpperCase().replace(/[^A-Z0-9-]/g, "");
+
+  async function verificar() {
+    const c = normal(codigo.value);
+    valido = false;
+    if (!c) return msg($("estadoCodigo"), "");
+    msg($("estadoCodigo"), "A verificar o código…", "info");
+    try {
+      const r = await fetch(`${API}/codigo?c=${encodeURIComponent(c)}`);
+      const j = await r.json().catch(() => ({}));
+      if (r.ok) { valido = true; msg($("estadoCodigo"), `Código válido para ${j.empresa}.`, "ok"); }
+      else msg($("estadoCodigo"), j.error || "Não conseguimos verificar o código.", "erro");
+    } catch { msg($("estadoCodigo"), "Não conseguimos verificar o código. Tente de novo daqui a pouco.", "erro"); }
+  }
+  const p = new URLSearchParams(location.search).get("c");
+  if (p) { codigo.value = normal(p); verificar(); }
+  codigo.addEventListener("change", verificar);
+
+  zip.addEventListener("change", () => {
+    const f = zip.files[0];
+    if (!f) return msg($("estadoZip"), "");
+    if (!/\.zip$/i.test(f.name)) return msg($("estadoZip"), "Escolha um ficheiro .zip.", "erro");
+    if (f.size > MAX) return msg($("estadoZip"), `O ZIP tem ${(f.size / 1048576).toFixed(1)} MB: o máximo são 25 MB.`, "erro");
+    msg($("estadoZip"), `${f.name} · ${(f.size / 1048576).toFixed(1)} MB`, "ok");
+  });
+
+  $("envio").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = zip.files[0], c = normal(codigo.value);
+    if (!valido) { await verificar(); if (!valido) return msg($("estadoEnvio"), "Confirme o código antes de enviar.", "erro"); }
+    if (!f || !/\.zip$/i.test(f.name)) return msg($("estadoEnvio"), "Escolha o ficheiro ZIP.", "erro");
+    if (f.size > MAX) return msg($("estadoEnvio"), "O ZIP tem mais de 25 MB.", "erro");
+    if (!aceito.checked) return msg($("estadoEnvio"), "Marque a autorização para podermos analisar os documentos.", "erro");
+    botao.disabled = true; barra.style.display = "block"; barra.value = 0;
+    msg($("estadoEnvio"), "A enviar…", "info");
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${API}/enviar?c=${encodeURIComponent(c)}&aceito=1`);
+    xhr.setRequestHeader("content-type", "application/zip");
+    xhr.setRequestHeader("x-ficheiro", f.name.normalize("NFD").replace(/[^\x20-\x7E]/g, "").slice(0, 80) || "pedido.zip");
+    xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) barra.value = Math.round((ev.loaded / ev.total) * 100); };
+    xhr.onload = () => {
+      let j = {};
+      try { j = JSON.parse(xhr.responseText || "{}"); } catch {}
+      if (xhr.status === 200) { $("envio").style.display = "none"; $("final").style.display = "block"; return; }
+      botao.disabled = false; barra.style.display = "none";
+      msg($("estadoEnvio"), j.error || "O envio falhou. Tente de novo daqui a pouco.", "erro");
+    };
+    xhr.onerror = () => { botao.disabled = false; barra.style.display = "none"; msg($("estadoEnvio"), "A ligação falhou. Tente de novo daqui a pouco.", "erro"); };
+    xhr.send(f);
+  });
+})();
+</script>
+</body>
+</html>
