@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1f2c33">
+<title>Daniela · assistente de IA</title>
+<link rel="icon" href="daniela.jpg">
+<link rel="apple-touch-icon" href="daniela.jpg">
+<style>
+:root{--topo:#1f2c33;--fundo:#efe7de;--eu:#d9fdd3;--ela:#fff;--tinta:#111b21;--mudo:#667781;--verde:#00a884;--verde-esc:#008069;--azul:#53bdeb;--alerta:#c0392b;--ambar:#d18b2f;--linha:#e9edef}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--fundo);font:16px/1.38 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--tinta);overscroll-behavior:none}
+.app{display:flex;flex-direction:column;height:100dvh;max-width:560px;margin:0 auto;background:var(--fundo);position:relative;overflow:hidden}
+@media (min-width:600px){body{background:#d1d7db}.app{box-shadow:0 0 30px rgba(0,0,0,.15)}}
+header{background:var(--topo);color:#fff;display:flex;align-items:center;gap:10px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;flex:none}
+header img{width:40px;height:40px;border-radius:50%;object-fit:cover}
+.quem{flex:1;min-width:0;cursor:pointer}
+.quem b{display:block;font-size:17px;font-weight:600}
+.quem span{display:block;font-size:13px;color:#aebac1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.horas{background:rgba(255,255,255,.1);border-radius:14px;padding:4px 9px;font-size:12px;text-align:right;line-height:1.15;flex:none}
+.horas b{display:block;font-size:15px;color:#7ee2c4}
+.menu{background:none;border:0;color:#aebac1;font-size:22px;padding:4px 2px 4px 6px;cursor:pointer}
+main{flex:1;overflow-y:auto;padding:10px 10px 6px;background-color:var(--fundo);background-image:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1.2px);background-size:18px 18px;-webkit-overflow-scrolling:touch}
+.dia{text-align:center;margin:4px 0 10px}.dia span{background:#fff;color:var(--mudo);font-size:12.5px;padding:4px 10px;border-radius:8px;box-shadow:0 1px .5px rgba(0,0,0,.13)}
+.aviso{margin:0 auto 10px;max-width:92%;background:#ffeecd;color:#54656f;font-size:12.5px;text-align:center;padding:6px 10px;border-radius:8px}
+.m{display:flex;margin:3px 0;animation:entra .22s ease-out}
+.m.eu{justify-content:flex-end}
+.b{max-width:86%;padding:6px 9px 7px;border-radius:8px;box-shadow:0 1px .5px rgba(0,0,0,.13);position:relative;word-wrap:break-word}
+.ela .b{background:var(--ela);border-top-left-radius:0}
+.eu .b{background:var(--eu);border-top-right-radius:0}
+.b.largo{width:86%}
+.h{float:right;font-size:11px;color:var(--mudo);margin:8px 0 -4px 10px}
+.eu .h::after{content:" ✓✓";color:var(--azul);letter-spacing:-3px;margin-right:3px}
+@keyframes entra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.escrever{display:inline-flex;gap:4px;padding:12px 14px}
+.escrever i{width:7px;height:7px;border-radius:50%;background:#9aa6ac;animation:pulo 1.1s infinite}
+.escrever i:nth-child(2){animation-delay:.15s}.escrever i:nth-child(3){animation-delay:.3s}
+@keyframes pulo{0%,60%,100%{opacity:.35;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.passos{list-style:none;margin:2px 0;padding:0;font-size:14.5px}
+.passos li{display:flex;gap:8px;align-items:flex-start;padding:3px 0;color:var(--mudo)}
+.passos li.feito{color:var(--tinta)}
+.passos li .ic{width:18px;flex:none;text-align:center}
+.passos li .gira{display:inline-block;width:13px;height:13px;border:2px solid #c9d1d5;border-top-color:var(--verde);border-radius:50%;animation:gira .7s linear infinite;margin-top:3px}
+@keyframes gira{to{transform:rotate(360deg)}}
+.passos li.feito .ic{color:var(--verde);font-weight:700}
+.doc{display:flex;gap:10px;align-items:center;background:#f5f6f6;border-radius:6px;padding:9px;margin:2px 0 4px;cursor:pointer;border:1px solid var(--linha)}
+.doc .tipo{width:38px;height:46px;border-radius:4px;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;flex:none}
+.doc .tipo.pdf{background:#e2504c}.doc .tipo.xls{background:#1d7044}.doc .tipo.ics{background:#3b82c4}.doc .tipo.eml{background:#7b6a5d}
+.doc b{display:block;font-size:14.5px}.doc span{font-size:12.5px;color:var(--mudo)}
+.doc .abrir{margin-left:auto;color:var(--verde-esc);font-size:13px;font-weight:600;flex:none}
+table.t{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0}
+table.t td{padding:4px 2px;border-bottom:1px solid var(--linha);vertical-align:top}
+table.t td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.t tr:last-child td{border-bottom:0}
+.mal{color:var(--alerta);font-weight:600}.bem{color:var(--verde-esc);font-weight:600}
+.acoes{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 2px}
+.acoes button{flex:1;min-width:120px;border:0;background:#f0f2f5;color:var(--verde-esc);font:600 14.5px inherit;font-family:inherit;padding:10px 8px;border-radius:8px;cursor:pointer}
+.acoes button.principal{background:var(--verde);color:#fff}
+.acoes button:disabled{opacity:.45}
+.obra{margin:6px 0 9px}.obra b{font-size:14.5px}.obra .lin{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mudo);margin-top:2px}
+.barra{height:7px;background:#e9edef;border-radius:4px;position:relative;margin-top:4px;overflow:hidden}
+.barra i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.barra i.feito{background:var(--verde)}.barra i.gasto{background:rgba(0,0,0,.28);height:3px;top:auto}
+.barra.alerta i.gasto{background:var(--alerta)}
+.chamada{background:#0b141a;color:#e9edef;border-radius:10px;padding:12px;font-size:14px}
+.chamada .topo{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.chamada .topo .bola{width:36px;height:36px;border-radius:50%;background:#2a3942;display:flex;align-items:center;justify-content:center;font-size:18px}
+.chamada .topo small{display:block;color:#8696a0}
+.chamada p{margin:6px 0;padding:6px 9px;border-radius:8px;background:#1f2c33;animation:entra .3s}
+.chamada p.c{background:#005c4b}
+.chamada p em{display:block;font-style:normal;font-size:11.5px;color:#8696a0;margin-bottom:1px}
+.onda{display:inline-flex;gap:2px;align-items:center;height:14px;margin-left:auto}
+.onda i{width:3px;background:var(--verde);border-radius:2px;animation:onda .8s infinite ease-in-out}
+.onda i:nth-child(2){animation-delay:.1s}.onda i:nth-child(3){animation-delay:.2s}.onda i:nth-child(4){animation-delay:.3s}
+@keyframes onda{0%,100%{height:3px}50%{height:14px}}
+.numeros{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
+.numeros div{background:#f0f2f5;border-radius:8px;padding:8px}
+.numeros b{display:block;font-size:20px;color:var(--verde-esc)}
+.numeros span{font-size:12.5px;color:var(--mudo)}
+.grande{background:linear-gradient(135deg,#005c4b,#00a884);color:#fff;border-radius:10px;padding:12px;text-align:center;margin:4px 0}
+.grande b{display:block;font-size:30px}
+.planta{width:100%;max-width:300px;display:block;border-radius:6px;background:#fff}
+.cta{text-align:center}.cta b{font-size:16px}
+footer{flex:none;background:var(--fundo);padding:4px 0 calc(6px + env(safe-area-inset-bottom))}
+.chips{display:grid;grid-template-rows:auto auto;grid-auto-flow:column;grid-auto-columns:max-content;gap:7px;overflow-x:auto;padding:4px 10px 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid #d1d7db;background:#fff;color:var(--tinta);font:500 14.5px inherit;font-family:inherit;padding:8px 13px;border-radius:18px;cursor:pointer;box-shadow:0 1px .5px rgba(0,0,0,.08);white-space:nowrap}
+.chips button.usado{background:#e7f5f1;border-color:#b6e2d5}
+.chips button:disabled{opacity:.5}
+.entrada{display:flex;gap:6px;align-items:center;padding:0 8px}
+.entrada input{flex:1;min-width:0;border:0;border-radius:22px;padding:11px 15px;font:16px inherit;font-family:inherit;background:#fff;outline:none;box-shadow:0 1px .5px rgba(0,0,0,.1)}
+.entrada button{width:46px;height:46px;border-radius:50%;border:0;background:var(--verde);color:#fff;font-size:19px;cursor:pointer;flex:none}
+.ver{position:absolute;inset:0;background:#fff;z-index:20;display:none;flex-direction:column}
+.ver.aberto{display:flex;animation:entra .2s}
+.ver .barra-ver{display:flex;align-items:center;gap:10px;background:var(--topo);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 12px 10px}
+.ver .barra-ver button{background:none;border:0;color:#fff;font-size:24px;cursor:pointer;padding:0 6px}
+.ver .barra-ver b{font-size:15.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ver .corpo{flex:1;overflow:auto;padding:16px;background:#e9edef}
+.folha{background:#fff;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.15);padding:18px 16px;font-size:13px;color:#222}
+.folha h2{margin:0 0 2px;font-size:18px}.folha h3{margin:14px 0 6px;font-size:14px}
+.folha .cab{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #222;padding-bottom:8px;margin-bottom:10px;gap:10px}
+.folha .marca{font-weight:800;font-size:16px;letter-spacing:.3px}
+.folha .mudo{color:#666;font-size:12px}
+.folha table{width:100%;border-collapse:collapse;font-size:12px}
+.folha th{background:#f0f2f5;text-align:left;padding:5px 4px;font-weight:600}
+.folha td{padding:5px 4px;border-bottom:1px solid #eee;vertical-align:top}
+.folha td.n,.folha th.n{text-align:right;white-space:nowrap}
+.folha .total td{font-weight:700;border-top:2px solid #222;border-bottom:0}
+.folha p{margin:6px 0}
+.folha .selo{display:inline-block;background:#e7f5f1;color:var(--verde-esc);font-weight:700;font-size:11px;padding:2px 7px;border-radius:10px}
+.config{position:absolute;inset:0;background:rgba(11,20,26,.55);z-index:30;display:none;align-items:flex-end}
+.config.aberto{display:flex}
+.config .caixa{background:#fff;width:100%;border-radius:14px 14px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.config label{font-size:14px;color:var(--mudo)}
+.config input{width:100%;font:17px inherit;font-family:inherit;padding:11px 12px;border:1px solid #d1d7db;border-radius:8px;margin:6px 0 12px}
+.config .acoes button{min-width:0}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <img src="daniela.jpg" alt="">
+    <div class="quem" id="quem" title="Mudar o nome da empresa"><b>Daniela</b><span id="estado">assistente de IA</span></div>
+    <div class="horas" title="Tempo de trabalho poupado hoje"><b id="horas">0 h 00</b>poupadas hoje</div>
+    <button class="menu" id="menu" aria-label="Opções">⋮</button>
+  </header>
+  <main id="chat" aria-live="polite"></main>
+  <footer>
+    <div class="chips" id="chips"></div>
+    <form class="entrada" id="form" autocomplete="off">
+      <input id="texto" placeholder="Peça qualquer coisa à Daniela…" enterkeyhint="send">
+      <button aria-label="Enviar">➤</button>
+    </form>
+  </footer>
+  <div class="ver" id="ver"><div class="barra-ver"><button id="fechar" aria-label="Fechar">←</button><b id="ver-titulo"></b></div><div class="corpo" id="ver-corpo"></div></div>
+  <div class="config" id="config"><div class="caixa">
+    <label for="nome-empresa">Nome da empresa que está a ver a demonstração</label>
+    <input id="nome-empresa" placeholder="ex.: Construções Ribeiro" maxlength="40">
+    <div class="acoes"><button type="button" id="cfg-limpar">Recomeçar a conversa</button><button type="button" class="principal" id="cfg-ok">Guardar</button></div>
+  </div></div>
+</div>
+<script>
+"use strict";
+// Demonstração de bolso (2026-11-19): tudo fictício e local, sem servidor nem modelo. ?e=Empresa personaliza o nome.
+const $ = (s) => document.querySelector(s);
+const chat = $("#chat"), chipsEl = $("#chips");
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const ler = (k) => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
+let EMPRESA = (new URLSearchParams(location.search).get("e") || ler("demo-daniela-empresa") || "").trim().slice(0, 40);
+const daEmpresa = () => EMPRESA ? "da " + EMPRESA : "da sua empresa";
+const nomeEmpresa = () => EMPRESA || "A sua empresa";
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+const hora = () => new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+const milhares = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const eur = (v) => { const [i, d] = Math.abs(v).toFixed(2).split("."); return (v < 0 ? "−" : "") + milhares(i) + "," + d + " €"; };
+let minutos = 0, ocupada = false, sessao = 0;
+
+function cabecalho() {
+  $("#estado").textContent = EMPRESA ? "assistente de IA · " + EMPRESA : "assistente de IA";
+  document.title = "Daniela · " + (EMPRESA || "assistente de IA");
+}
+function poupar(min) {
+  const ini = minutos, fim = minutos + min, t0 = performance.now();
+  minutos = fim;
+  const passo = (t) => {
+    const k = Math.min(1, (t - t0) / 900), v = Math.round(ini + (fim - ini) * k);
+    $("#horas").textContent = Math.floor(v / 60) + " h " + String(v % 60).padStart(2, "0");
+    if (k < 1) requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+  setTimeout(() => passo(t0 + 1000), 1000);   // sem animação (separador escondido), o valor final aparece na mesma
+}
+function descer() { requestAnimationFrame(() => chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" })); }
+function bolha(quem, html, largo) {
+  const m = document.createElement("div");
+  m.className = "m " + quem;
+  m.innerHTML = `<div class="b${largo ? " largo" : ""}">${html}<span class="h">${hora()}</span></div>`;
+  chat.appendChild(m); descer();
+  return m.querySelector(".b");
+}
+const eu = (texto) => bolha("eu", esc(texto));
+async function escrever(ms = 900) {
+  const m = document.createElement("div");
+  m.className = "m ela";
+  m.innerHTML = '<div class="b"><span class="escrever"><i></i><i></i><i></i></span></div>';
+  chat.appendChild(m); descer();
+  $("#estado").textContent = "a escrever…";
+  await espera(ms);
+  m.remove(); cabecalho();
+}
+async function diz(html, ms, largo) { await escrever(ms ?? Math.min(1600, 500 + html.length * 6)); return bolha("ela", html, largo); }
+async function passos(lista) {
+  await escrever(600);
+  const b = bolha("ela", '<ul class="passos">' + lista.map((p) => `<li><span class="ic"><span class="gira"></span></span><span>${p}</span></li>`).join("") + "</ul>", true);
+  const lis = b.querySelectorAll("li");
+  $("#estado").textContent = "a trabalhar…";
+  for (const li of lis) {
+    await espera(650 + Math.random() * 500);
+    li.classList.add("feito"); li.querySelector(".ic").textContent = "✓";
+  }
+  cabecalho();
+  await espera(300);
+}
+function doc({ tipo, nome, meta, titulo, corpo }) {
+  const ext = { pdf: "PDF", xls: "XLSX", ics: "ICS", eml: "EMAIL" }[tipo];
+  return `<div class="doc" data-doc="${esc(titulo || nome)}"><div class="tipo ${tipo}">${ext}</div><div><b>${esc(nome)}</b><span>${meta}</span></div><span class="abrir">Abrir</span></div>`
+    + `<template>${corpo}</template>`;
+}
+function acoes(b, botoes) {
+  return new Promise((resolve) => {
+    const d = document.createElement("div");
+    d.className = "acoes";
+    botoes.forEach((t, i) => {
+      const x = document.createElement("button");
+      x.type = "button"; x.textContent = t; if (i === 0) x.className = "principal";
+      x.onclick = () => { d.querySelectorAll("button").forEach((y) => (y.disabled = true)); x.style.opacity = 1; resolve(i); };
+      d.appendChild(x);
+    });
+    b.insertBefore(d, b.querySelector(".h")); descer();
+  });
+}
+chat.addEventListener("click", (ev) => {
+  const d = ev.target.closest(".doc");
+  if (!d) return;
+  $("#ver-titulo").textContent = d.dataset.doc;
+  $("#ver-corpo").innerHTML = d.nextElementSibling.innerHTML;
+  $("#ver").classList.add("aberto");
+});
+$("#fechar").onclick = () => $("#ver").classList.remove("aberto");
+
+// ---------------------------------------------------------------- documentos ----
+const hoje = new Date();
+const dataPT = (d) => d.toLocaleDateString("pt-PT");
+const daqui = (dias) => { const d = new Date(); d.setDate(d.getDate() + dias); return d; };
+function folha(titulo, sub, conteudo) {
+  return `<div class="folha"><div class="cab"><div><div class="marca">${esc(nomeEmpresa())}</div><div class="mudo">${sub}</div></div><span class="selo">preparado pela Daniela</span></div><h2>${titulo}</h2>${conteudo}</div>`;
+}
+const ITENS = [["Bloco térmico 30×20×25", "un", 2400, 1.42], ["Argamassa de assentamento (saco 25 kg)", "un", 180, 4.65], ["Perfil metálico 40×40×2 mm (6 m)", "un", 64, 23.8],
+  ["Isolamento XPS 40 mm", "m²", 310, 7.9], ["Bucha química + varão M12", "un", 220, 3.15], ["Tela de impermeabilização 4 kg", "m²", 145, 8.4], ["Rede de fibra de vidro 160 g", "m²", 300, 1.25]];
+function proposta() {
+  let soma = 0;
+  const linhas = ITENS.map(([d, u, q, p]) => { const t = q * p; soma += t; return `<tr><td>${d}</td><td class="n">${milhares(String(q))} ${u}</td><td class="n">${eur(p)}</td><td class="n">${eur(t)}</td></tr>`; }).join("");
+  const desc = soma * 0.08, liq = soma - desc;
+  return { total: liq, html: folha("Proposta n.º 2026/118", `Emitida a ${dataPT(hoje)} · válida 30 dias`,
+    `<p><b>Cliente:</b> Construções Ribeiro, Lda. · Eng. Carlos Matos<br><b>Obra:</b> Moradia em Pombal</p>
+    <table><tr><th>Artigo</th><th class="n">Qtd.</th><th class="n">Preço</th><th class="n">Total</th></tr>${linhas}
+    <tr><td colspan="3">Desconto de cliente (8 %)</td><td class="n">−${eur(desc)}</td></tr>
+    <tr class="total"><td colspan="3">Total sem IVA</td><td class="n">${eur(liq)}</td></tr></table>
+    <h3>Condições</h3><p>Entrega em obra em 3 dias úteis; perfil 40×40 a ${dataPT(daqui(8))} (em encomenda ao fornecedor). Pagamento a 30 dias. IVA à taxa legal.</p>`) };
+}
+const PLANTA = `<svg class="planta" viewBox="0 0 312 212" xmlns="http://www.w3.org/2000/svg" font-family="Arial" font-size="9" fill="#333">
+<rect x="10" y="10" width="280" height="180" fill="#fff" stroke="#222" stroke-width="5"/>
+<g stroke="#222" stroke-width="2.5" fill="none"><path d="M120 10V110M10 110H200M200 10V190M200 140H290M120 110V190M60 110V190"/></g>
+<g stroke="#fff" stroke-width="4"><path d="M85 110h20M135 110h20M200 60v18M200 160v18M60 145v18M120 150v18"/><path d="M40 10h40M230 10h40M290 70v40M10 40v40M140 190h40"/></g>
+<g stroke="#5aa0d6" stroke-width="3"><path d="M40 10h40M230 10h40M290 70v40M10 40v40M140 190h40"/></g>
+<text x="40" y="60">Sala 32,4 m²</text><text x="132" y="56">Cozinha</text><text x="132" y="67">14,8 m²</text><text x="225" y="75">Quarto 1</text><text x="227" y="86">13,9 m²</text>
+<text x="215" y="170">Quarto 2 12,6 m²</text><text x="18" y="155">WC</text><text x="18" y="166">4,2 m²</text><text x="75" y="150">Hall</text><text x="140" y="155">Quarto 3</text><text x="142" y="166">11,2 m²</text>
+<text x="120" y="206" font-size="10">14,00 m</text><text x="300" y="86" font-size="10" transform="rotate(90 300 86)">9,00 m</text><text x="225" y="128">IS 3,6 m²</text>
+</svg>`;
+const MEDICOES = [["Pavimento (8 divisões)", "96,4 m²"], ["Paredes exteriores", "46,0 m · 124,2 m²"], ["Paredes interiores", "41,6 m · 112,3 m²"], ["Reboco e pintura interior", "287,5 m²"], ["Teto falso", "96,4 m²"], ["Janelas", "6 un · 11,8 m²"], ["Portas interiores", "7 un"], ["Rodapé", "118,2 m"]];
+function mapaQuantidades() {
+  return folha("Mapa de quantidades", `Moradia T3 · planta piso 0 · escala 1:100 · ${dataPT(hoje)}`,
+    `<table><tr><th>Art.</th><th>Designação</th><th class="n">Quantidade</th></tr>${MEDICOES.map(([d, q], i) => `<tr><td>${i + 1}</td><td>${d}</td><td class="n">${q}</td></tr>`).join("")}
+    <tr><td>9</td><td>… + 30 artigos (estrutura, redes, revestimentos)</td><td class="n"></td></tr></table>
+    <p class="mudo">Cada quantidade tem a parcela de cálculo e a cota de onde saiu. Pé-direito 2,70 m (corte A-A).</p>`);
+}
+function orcamentoObra() {
+  const caps = [["Estrutura e alvenarias", 14820], ["Cobertura e impermeabilizações", 6340], ["Revestimentos e pavimentos", 7915], ["Caixilharia", 5480], ["Redes (águas, esgotos, eletricidade)", 4260], ["Pinturas e acabamentos", 2415]];
+  const t = caps.reduce((s, c) => s + c[1], 0);
+  return { total: t, html: folha("Orçamento — Moradia T3", `Com a vossa tabela de preços · ${dataPT(hoje)}`,
+    `<table><tr><th>Capítulo</th><th class="n">Valor</th></tr>${caps.map(([c, v]) => `<tr><td>${c}</td><td class="n">${eur(v)}</td></tr>`).join("")}
+    <tr class="total"><td>Total sem IVA</td><td class="n">${eur(t)}</td></tr></table><p class="mudo">38 artigos valorizados; 3 marcados para confirmar preço com o fornecedor.</p>`) };
+}
+function reclamacao() {
+  return `<div class="folha"><p class="mudo">Para: faturacao@fornecedor-cimentos.pt · Cc: compras</p><p><b>Assunto: Fatura FT 2026/4471 — preço diferente da encomenda</b></p>
+  <p>Boa tarde,</p><p>Na fatura FT 2026/4471, o cimento CEM II 32,5 (saco 25 kg) vem a 7,90 € por saco. Na nossa encomenda EC 0912, de dia ${dataPT(daqui(-12))}, o preço acordado foi de 6,95 €. A diferença, em 329 sacos, é de 312,55 €.</p>
+  <p>Pedimos a emissão de uma nota de crédito desse valor. Seguem em anexo a encomenda e a guia de remessa.</p><p>Com os melhores cumprimentos,<br>${esc(nomeEmpresa())}</p></div>`;
+}
+function autoMedicao() {
+  return folha("Auto de medição n.º 7", `Reabilitação em Coimbra · período até ${dataPT(hoje)}`,
+    `<table><tr><th>Capítulo</th><th class="n">% acum.</th><th class="n">Este auto</th></tr>
+    <tr><td>Demolições e estrutura</td><td class="n">100 %</td><td class="n">${eur(2150)}</td></tr><tr><td>Alvenarias e rebocos</td><td class="n">95 %</td><td class="n">${eur(6840)}</td></tr>
+    <tr><td>Caixilharia</td><td class="n">80 %</td><td class="n">${eur(5620)}</td></tr><tr><td>Pavimentos</td><td class="n">70 %</td><td class="n">${eur(3690)}</td></tr>
+    <tr class="total"><td colspan="2">Total deste auto (sem IVA)</td><td class="n">${eur(18300)}</td></tr></table><p class="mudo">Medições conferidas com o diário de obra e as fotografias de ontem.</p>`);
+}
+const convite = () => `<div class="folha"><h2>Reunião — Arq. Sofia Lopes</h2><p><b>${hoje.getDay() <= 4 ? "Quinta-feira" : "Terça-feira"}, ${dataPT(daqui(hoje.getDay() <= 4 ? 4 - hoje.getDay() || 7 : 9 - hoje.getDay()))}, 15:00–15:45</b></p>
+  <p>Local: videochamada (link no convite)</p><p>Assuntos: alterações à caixilharia da Moradia Pombal; prazo das peças desenhadas revistas.</p><p class="mudo">Convite aceite pela arquiteta. Lembrete 1 h antes.</p></div>`;
+
+// ---------------------------------------------------------------- cenários ----
+const CENARIOS = [
+  { id: "cotacao", chip: "📩 Responde ao pedido de cotação", pede: "Chegou um pedido de cotação da Construções Ribeiro. Tratas disso?", chaves: /cota|propost|pedido|preço|preco|client/i,
+    async correr() {
+      await passos(["Li o email do Eng. Carlos Matos e o anexo (PDF, 2 páginas)", "Encontrei 7 artigos e as quantidades", "Cruzei com a vossa tabela de preços e o stock", "Apliquei o desconto deste cliente (8 %)", "Preparei a proposta e o email de resposta"]);
+      const p = proposta();
+      const b = await diz(`Feito ✅ 6 dos 7 artigos estão em stock. O perfil 40×40 só chega dia ${dataPT(daqui(8))}, e já pus esse prazo na proposta.`
+        + doc({ tipo: "pdf", nome: "Proposta_2026-118.pdf", meta: `Construções Ribeiro · ${eur(p.total)} + IVA`, titulo: "Proposta n.º 2026/118", corpo: p.html }), 1100, true);
+      const i = await acoes(b, ["Enviar ao cliente", "Ainda não"]);
+      if (i === 0) { await diz(`Enviada às ${hora()} ✓ Se o Eng. Carlos não responder até sexta, ligo-lhe eu.`); poupar(95); }
+      else { await diz("Fica guardada nos rascunhos. Diga-me quando a quiser enviar."); poupar(80); }
+    } },
+  { id: "planta", chip: "📐 Mede esta planta", pede: "Mede-me esta planta e diz-me quanto material preciso", chaves: /plant|medi|desenho|quantidad|material/i, imagem: true,
+    async correr() {
+      await passos(["Li a planta (escala 1:100, 14,00 × 9,00 m)", "Identifiquei 8 divisões e as áreas", "Medi 87,6 m de paredes e contei 13 vãos", "Calculei pavimentos, rebocos, pintura e rodapés"]);
+      const b = await diz(`<table class="t">${MEDICOES.slice(0, 6).map(([d, q]) => `<tr><td>${d}</td><td class="n">${q}</td></tr>`).join("")}</table>`
+        + doc({ tipo: "xls", nome: "Mapa_de_quantidades.xlsx", meta: "38 artigos · com as fórmulas", titulo: "Mapa de quantidades", corpo: mapaQuantidades() }), 1000, true);
+      b.insertAdjacentHTML("afterbegin", "Aqui estão as medições 👇<br>");
+      const i = await acoes(b, ["Transforma em orçamento", "Chega, obrigado"]);
+      poupar(150);
+      if (i === 0) {
+        await passos(["Apliquei a vossa tabela de preços aos 38 artigos", "Marquei 3 preços para confirmar com o fornecedor"]);
+        const o = orcamentoObra();
+        await diz("Orçamento pronto:" + doc({ tipo: "pdf", nome: "Orcamento_Moradia_T3.pdf", meta: `${eur(o.total)} + IVA`, titulo: "Orçamento — Moradia T3", corpo: o.html }), 900, true);
+        poupar(120);
+      }
+    } },
+  { id: "faturas", chip: "🧾 Confere as faturas", pede: "Confere as faturas desta semana", chaves: /fatur|fornec|conf/i,
+    async correr() {
+      await passos(["Abri 23 faturas que chegaram por email", "Li cada linha (artigo, quantidade, preço)", "Comparei com as encomendas e as guias de remessa"]);
+      const b = await diz(`21 estão certas ✅ Duas têm problemas:<table class="t">
+        <tr><td>Fornecedor de cimentos — FT 4471<br><span class="mal">preço 7,90 € em vez de 6,95 €</span></td><td class="n mal">+312,55 €</td></tr>
+        <tr><td>Ferragens Norte — FT 0388<br><span class="mal">fatura duplicada (mesma guia)</span></td><td class="n mal">+1.148,00 €</td></tr></table>
+        Já tenho as reclamações escritas.` + doc({ tipo: "eml", nome: "Reclamação — FT 2026/4471", meta: "pedido de nota de crédito", titulo: "Reclamação ao fornecedor", corpo: reclamacao() }), 1100, true);
+      const i = await acoes(b, ["Enviar as reclamações", "Eu vejo depois"]);
+      if (i === 0) await diz(`Enviadas ✓ Esta semana evitámos pagar <b>${eur(1460.55)}</b> a mais.`);
+      else await diz("Ficam pendentes. Não pago nenhuma das duas até me dizer.");
+      poupar(190);
+    } },
+  { id: "cobrar", chip: "📞 Liga a quem não pagou", pede: "Liga ao cliente que ainda não pagou", chaves: /pag|cobr|liga|telef|dívida|divida/i,
+    async correr() {
+      const b = await diz(`A <b>Obras Silva</b> tem 2 faturas vencidas: <b>${eur(6420)}</b>, há 34 dias. Ligo agora?`);
+      await acoes(b, ["Liga", "Manda antes um email"]);
+      await escrever(500);
+      const c = bolha("ela", `<div class="chamada"><div class="topo"><div class="bola">📞</div><div><b>Obras Silva</b><small id="cr">a ligar…</small></div><span class="onda"><i></i><i></i><i></i><i></i></span></div><div id="falas"></div></div>`, true);
+      const cr = c.querySelector("#cr"), falas = c.querySelector("#falas");
+      c.querySelector("#cr").removeAttribute("id"); falas.removeAttribute("id");
+      await espera(1500); let s = 0; const rel = setInterval(() => { s += 3; cr.textContent = "00:" + String(s).padStart(2, "0"); }, 1000);
+      const linhas = [["c", "Daniela", `Bom dia! Fala a Daniela, assistente de IA ${daEmpresa()}. Ligo por causa das faturas de setembro, de 6.420 €. Já estão agendadas?`],
+        ["", "Sr. Silva", "Ah, sim… isso escapou-nos. Faço a transferência na sexta-feira."], ["c", "Daniela", `Ótimo, fica combinado para sexta, dia ${dataPT(daqui(((5 - hoje.getDay()) + 7) % 7 || 7))}. Mando-lhe já o IBAN e as faturas por email. Obrigada!`]];
+      for (const [cl, q, t] of linhas) { await espera(1700); falas.insertAdjacentHTML("beforeend", `<p class="${cl}"><em>${q}</em>${esc(t)}</p>`); descer(); }
+      await espera(1200); clearInterval(rel); cr.textContent = "chamada terminada · 00:" + String(s).padStart(2, "0"); c.querySelector(".onda").remove();
+      await diz("Promessa de pagamento registada para sexta ✓ Mandei-lhe o email com as faturas. Se não entrar até segunda, aviso-o.");
+      poupar(40);
+    } },
+  { id: "obras", chip: "📊 Como estão as obras?", pede: "Como estão as obras?", chaves: /obra|estado|custo|desvio|auto/i,
+    async correr() {
+      await passos(["Li os diários de obra e as faturas de ontem", "Comparei o gasto com o orçamento de cada obra"]);
+      const ob = (n, f, g, txt, alerta) => `<div class="obra"><b>${n}</b><div class="barra${alerta ? " alerta" : ""}"><i class="feito" style="width:${f}%"></i><i class="gasto" style="width:${g}%"></i></div><div class="lin"><span>${f} % feito · ${g} % gasto</span><span class="${alerta ? "mal" : "bem"}">${txt}</span></div></div>`;
+      const b = await diz(ob("Moradia em Pombal", 64, 58, "dentro do previsto") + ob("Pavilhão em Leiria", 41, 55, "⚠ 14 % acima", true)
+        + ob("Reabilitação em Coimbra", 88, 84, "auto pronto a faturar")
+        + `<span class="mal">Leiria:</span> o betão e a mão de obra da estrutura vão 9.870 € acima do orçamento. Coimbra tem <b>${eur(18300)}</b> por faturar.`, 1100, true);
+      const i = await acoes(b, ["Prepara o auto de Coimbra", "Detalha Leiria"]);
+      if (i === 0) await diz("Auto pronto para enviar ao dono de obra:" + doc({ tipo: "pdf", nome: "Auto_de_medicao_7_Coimbra.pdf", meta: `${eur(18300)} + IVA`, titulo: "Auto de medição n.º 7", corpo: autoMedicao() }), 1000, true);
+      else await diz("Leiria: o betão C25/30 veio 11 % mais caro que a proposta do fornecedor (2 entregas) e a equipa de cofragem fez 46 h extra na semana passada. Sugiro renegociar o betão antes da próxima betonagem, dia 26.", 1300);
+      poupar(70);
+    } },
+  { id: "reuniao", chip: "📅 Marca reunião com a arquiteta", pede: "Marca uma reunião com a arquiteta para esta semana", chaves: /reuni|marc|agend|arquitet/i,
+    async correr() {
+      await passos(["Vi a sua agenda desta semana", "Escrevi à Arq. Sofia Lopes com 3 horários", "Ela respondeu e escolheu um"]);
+      await diz("Ficou marcada ✓" + doc({ tipo: "ics", nome: "Reunião — Arq. Sofia Lopes", meta: "convite aceite · lembrete 1 h antes", titulo: "Reunião — Arq. Sofia Lopes", corpo: convite() }), 900, true);
+      poupar(25);
+    } },
+  { id: "resumo", chip: "🌙 O que fizeste hoje?", pede: "O que fizeste hoje?", chaves: /hoje|resum|fizeste|dia/i,
+    async correr() {
+      await escrever(1300);
+      bolha("ela", `Hoje ${daEmpresa()} 👇<div class="numeros"><div><b>47</b><span>emails lidos e respondidos</span></div><div><b>3</b><span>propostas enviadas</span></div>
+        <div><b>23</b><span>faturas conferidas</span></div><div><b>${eur(1460.55)}</b><span>pagos a mais, evitados</span></div><div><b>4</b><span>chamadas feitas</span></div><div><b>2</b><span>reuniões marcadas</span></div></div>
+        <div class="grande"><b>7 h 40</b>de trabalho que ninguém da equipa teve de fazer</div>`, true);
+      poupar(Math.max(0, 460 - minutos));
+      await diz("É como ter uma funcionária sobredotada que sabe tudo e faz tudo mais rápido do que qualquer pessoa… e ainda por cima não paga IRS nem Segurança Social 😉", 1800);
+      await diz(`<div class="cta"><b>Quer ver isto com os documentos ${daEmpresa()}?</b><br>Falamos 15 minutos e mostro-lhe com um caso vosso.</div>`
+        + `<div class="acoes"><button class="principal" type="button" onclick="location.href='tel:+351936882364'">Ligar ao Pedro</button><button type="button" onclick="location.href='https://wa.me/351936882364'">WhatsApp</button></div>`, 900, true);
+    } },
+];
+
+async function correr(c, texto) {
+  if (ocupada) return;
+  ocupada = true; chipsEl.querySelectorAll("button").forEach((b) => (b.disabled = true));
+  const minha = sessao;
+  eu(texto || c.pede);
+  if (c.imagem) { await espera(250); bolha("eu", PLANTA, true); }
+  try { await c.correr(); } catch (e) { if (minha === sessao) console.error(e); }
+  if (minha !== sessao) return;
+  const chip = chipsEl.querySelector(`[data-id="${c.id}"]`); if (chip) chip.classList.add("usado");
+  ocupada = false; chipsEl.querySelectorAll("button").forEach((b) => (b.disabled = false));
+}
+function desenharChips() {
+  chipsEl.innerHTML = "";
+  for (const c of CENARIOS) {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.id = c.id; b.textContent = c.chip;
+    b.onclick = () => correr(c);
+    chipsEl.appendChild(b);
+  }
+}
+$("#form").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const t = $("#texto").value.trim();
+  if (!t || ocupada) return;
+  $("#texto").value = "";
+  const c = CENARIOS.find((x) => x.chaves.test(t));
+  if (c) return correr(c, t);
+  ocupada = true; eu(t);
+  await diz(`Também consigo fazer isso 🙂 Na versão real, ligo-me ao email, à faturação e aos programas ${daEmpresa()} e faço-o com os vossos dados. Por agora, experimente uma das sugestões aqui em baixo 👇`, 1500);
+  ocupada = false;
+};
+async function inicio() {
+  sessao++; ocupada = false; minutos = 0; $("#horas").textContent = "0 h 00";
+  cabecalho(); desenharChips();
+  chat.innerHTML = `<div class="dia"><span>HOJE</span></div><div class="aviso">🔒 Demonstração com dados fictícios. Na versão real, a Daniela trabalha com o email, a faturação e os programas da empresa.</div>`;
+  await espera(400);
+  await diz(`Olá! 👋 Sou a Daniela, a assistente de IA ${daEmpresa()}.`, 900);
+  await diz("Leio emails e faturas, faço medições e orçamentos, ligo a clientes e fornecedores, marco reuniões. Peça-me qualquer coisa, ou toque numa sugestão aqui em baixo 👇", 1300);
+}
+function abrirConfig() { $("#nome-empresa").value = EMPRESA; $("#config").classList.add("aberto"); setTimeout(() => $("#nome-empresa").focus(), 50); }
+$("#quem").onclick = abrirConfig; $("#menu").onclick = abrirConfig;
+$("#config").onclick = (e) => { if (e.target.id === "config") $("#config").classList.remove("aberto"); };
+$("#cfg-ok").onclick = () => {
+  const novo = $("#nome-empresa").value.trim().slice(0, 40), mudou = novo !== EMPRESA;
+  EMPRESA = novo; guardar("demo-daniela-empresa", EMPRESA);
+  $("#config").classList.remove("aberto");
+  if (mudou) { const u = new URL(location.href); u.searchParams.delete("e"); history.replaceState(null, "", u); inicio(); }
+};
+$("#cfg-limpar").onclick = () => { $("#config").classList.remove("aberto"); inicio(); };
+inicio();
+</script>
+</body>
+</html>
