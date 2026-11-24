@@ -50,6 +50,7 @@ main{flex:1;overflow-y:auto;padding:10px 10px 6px;background-color:var(--fundo);
 .doc .tipo.pdf{background:#e2504c}.doc .tipo.xls{background:#1d7044}.doc .tipo.ics{background:#3b82c4}.doc .tipo.eml{background:#7b6a5d}
 .doc b{display:block;font-size:14.5px}.doc span{font-size:12.5px;color:var(--mudo)}
 .doc .abrir{margin-left:auto;color:var(--verde-esc);font-size:13px;font-weight:600;flex:none}
+.anexos{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 2px}.anexos span{background:rgba(255,255,255,.65);border:1px solid rgba(0,0,0,.08);border-radius:6px;padding:4px 8px;font-size:13px;color:var(--tinta)}
 table.t{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0}
 table.t td{padding:4px 2px;border-bottom:1px solid var(--linha);vertical-align:top}
 table.t td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -375,11 +376,121 @@ const CENARIOS = [
     } },
 ];
 
+// ---------------------------------------------------------------- têxtil (?s=textil, 2026-11-24) ----
+// Confeção: cada encomenda nova traz artigos e dezenas de componentes que não se repetem. Mesma encomenda fictícia da proposta (PL-221).
+const SETOR = (new URLSearchParams(location.search).get("s") || "").toLowerCase().startsWith("text") ? "textil" : "";
+const BOM = [["Malha piqué", "100 % algodão orgânico, 220 g/m², tubular 92 cm, GOTS", "0,36 kg", "2 reaproveitados · 1 cor nova", "n"],
+  ["Ribana 1×1", "95 % algodão, 5 % elastano, 280 g/m²", "0,045 kg", "reaproveitados", ""], ["Entretela termocolante", "30 g/m², carcela", "0,03 m", "reaproveitado", ""],
+  ["Botão 4 furos 18L", "poliéster, tom sobre tom, 3 por peça", "3 un", "2 reaproveitados · 1 novo", "n"], ["Fita de ombro", "algodão 10 mm", "0,30 m", "reaproveitado", ""],
+  ["Fita de nuca", "jacquard 12 mm com logótipo", "0,18 m", "novo", "n"], ["Linha de costura", "poliéster 120 Nm, cor a condizer", "145 m", "reaproveitados", ""],
+  ["Linha de overlock", "poliéster texturizado 160 Nm", "210 m", "reaproveitados", ""], ["Bordado no peito", "7 cm, 2 cores de linha", "1 un", "novos · cor no Branco?", "d"],
+  ["Etiqueta de marca", "tecida 50 × 20 mm", "1 un", "novo", "n"], ["Composição e cuidados", "cetim, 6 línguas", "1 un", "novo", "n"],
+  ["Etiqueta de tamanho", "tecida, S a XXL", "1 un", "reaproveitados", ""], ["Bandeira lateral", "tecida, logótipo", "1 un", "novo", "n"], ["Hangtag com cordão", "cartão 350 g", "1 un", "novo", "n"],
+  ["Saco individual", "plástico reciclado", "1 un", "reaproveitado", ""], ["Autocolante EAN", "por cor e tamanho (15)", "1 un", "novos", "n"], ["Caixa de cartão", "60 × 40 × 30 cm, 40 peças", "0,025 un", "reaproveitado", ""]];
+const GRELHA = [["Azul-marinho", 150, 300, 300, 175, 75], ["Branco", 120, 240, 240, 140, 60], ["Verde-garrafa", 90, 180, 180, 105, 25]];
+function fichaTecnica() {
+  return folha("Ficha técnica · PL-221", "Polo piqué de homem · 3 cores × 5 tamanhos · a partir do tech pack do cliente",
+    `<table><tr><th>Componente</th><th class="n">Consumo/peça</th><th>No sistema</th></tr>${BOM.map(([c, e, q, s, k]) =>
+      `<tr><td>${c}<br><span class="mudo">${e}</span></td><td class="n">${q}</td><td class="${k === "d" ? "mal" : k === "n" ? "" : "bem"}">${s}</td></tr>`).join("")}
+    <tr class="total"><td>17 componentes<br><span class="mudo">com as variantes de cor e tamanho</span></td><td class="n">47 códigos</td><td>22 reaproveitados · 25 novos</td></tr></table>
+    <p class="mudo">Cada linha leva a página do tech pack de onde veio. Consumos de malha calculados para o M e expandidos por tamanho.</p>`);
+}
+function encomendaInterna() {
+  const tot = (i) => GRELHA.reduce((s, l) => s + l[i], 0);
+  return folha("Encomenda interna EI 2026/412", "Rascunho · cliente PL-221 · entrega a 15/03/2027",
+    `<table><tr><th>Cor</th><th class="n">S</th><th class="n">M</th><th class="n">L</th><th class="n">XL</th><th class="n">XXL</th><th class="n">Total</th></tr>
+    ${GRELHA.map((l) => `<tr><td>${l[0]}</td>${l.slice(1).map((v, i) => `<td class="n${l[0] === "Verde-garrafa" && i === 4 ? " mal" : ""}">${v}</td>`).join("")}<td class="n">${milhares(String(l.slice(1).reduce((a, b) => a + b, 0)))}</td></tr>`).join("")}
+    <tr class="total"><td>Total</td>${[1, 2, 3, 4, 5].map((i) => `<td class="n">${tot(i)}</td>`).join("")}<td class="n mal">${milhares(String([1, 2, 3, 4, 5].reduce((s, i) => s + tot(i), 0)))}</td></tr></table>
+    <p class="mal">A nota de encomenda diz 2.400 peças; a grelha soma 2.380 (Verde-garrafa XXL: 25 ou 45?).</p>`);
+}
+const duvidasCliente = () => `<div class="folha"><p class="mudo">Para: o comprador do cliente · Cc: comercial</p><p><b>Assunto: PL-221 — três pontos antes de avançarmos</b></p>
+  <p>Bom dia,</p><p>Para abrirmos a produção da PL-221, precisamos de confirmar:</p>
+  <p>1. A cor da linha do bordado na cor Branco (não vem na ficha técnica).<br>2. A altura da gola: a ficha pede 4 cm e a tabela de medidas dá 3,5 cm no S.<br>3. A quantidade de Verde-garrafa XXL: a grelha diz 25 peças, o que dá 2.380 no total, e a nota de encomenda diz 2.400.</p>
+  <p>Com os melhores cumprimentos,<br>${esc(nomeEmpresa())}</p></div>`;
+const pedidoCotacao = () => `<div class="folha"><p class="mudo">Para: o vosso fornecedor habitual de etiquetas</p><p><b>Assunto: Pedido de cotação — etiquetas e hangtags PL-221</b></p>
+  <p>Bom dia,</p><p>Pedimos preço e prazo para: etiqueta de marca tecida 50 × 20 mm (2.520 un), etiqueta de composição e cuidados em cetim, 6 línguas (2.520 un), bandeira lateral tecida (2.520 un) e hangtag em cartão 350 g com cordão (2.520 un). Artes em anexo. Precisamos de tudo até 20/02.</p>
+  <p>Com os melhores cumprimentos,<br>${esc(nomeEmpresa())}</p></div>`;
+const CENARIOS_TEXTIL = [
+  { id: "abrir", chip: "🧵 Abre esta encomenda", pede: "Chegou a encomenda PL-221. Abres no sistema?", chaves: /abr|encomend|artig|ficha|tech|componente|criar|codific/i,
+    anexo: '<div class="anexos"><span>📎 PO_4471.pdf</span><span>📎 TechPack_PL-221.pdf · 14 pág.</span></div>',
+    async correr() {
+      await passos(["Li a nota de encomenda e o tech pack (14 páginas)", "1 artigo, 3 cores, 5 tamanhos, 2.400 peças, entrega a 15/03", "Listei 17 componentes, com os consumos por peça",
+        "Cruzei com os vossos artigos: 22 códigos já existem", "Criei 25 códigos novos com a vossa regra", "Montei a ficha técnica e a encomenda interna"]);
+      const b = await diz(`Pronto ✅ <b>17 componentes, 47 códigos</b>: 22 reaproveitados e 25 novos. Há <span class="mal">3 dúvidas</span> para o cliente.`
+        + doc({ tipo: "xls", nome: "Ficha_tecnica_PL-221.xlsx", meta: "17 componentes · consumos por cor e tamanho", titulo: "Ficha técnica · PL-221", corpo: fichaTecnica() })
+        + doc({ tipo: "pdf", nome: "Encomenda_interna_EI-2026-412.pdf", meta: "rascunho · 15 variantes", titulo: "Encomenda interna EI 2026/412", corpo: encomendaInterna() }), 1100, true);
+      const i = await acoes(b, ["Aprovar e criar no sistema", "Mostra as dúvidas"]);
+      if (i === 0) {
+        await passos(["Criei o artigo e as 15 variantes", "Criei os 25 componentes novos", "Gravei a ficha técnica e a encomenda interna EI 2026/412"]);
+        await diz("Está no sistema, em rascunho e em nome da Daniela ✓ Só falta a resposta do cliente às 3 dúvidas. Quer que lhe escreva?");
+      } else {
+        const d = await diz(`1. Cor da linha do bordado no Branco: não vem na ficha.<br>2. Gola: a ficha pede 4 cm, a tabela de medidas dá 3,5 cm no S.<br>3. A grelha soma 2.380 peças e a nota de encomenda diz 2.400.`
+          + doc({ tipo: "eml", nome: "PL-221 — três pontos antes de avançarmos", meta: "email ao cliente, pronto a enviar", titulo: "Email ao cliente", corpo: duvidasCliente() }), 1200, true);
+        const j = await acoes(d, ["Enviar ao cliente", "Eu trato"]);
+        await diz(j === 0 ? `Enviado às ${hora()} ✓ Quando o cliente responder, atualizo a ficha técnica e a encomenda interna.` : "Combinado. Fica tudo em rascunho até me dizer.");
+      }
+      poupar(170);
+    } },
+  { id: "duvidas", chip: "❓ Pergunta ao cliente o que falta", pede: "Pergunta ao cliente o que falta na PL-221", chaves: /falta|dúvid|duvid|pergunt|client/i,
+    async correr() {
+      await passos(["Revi a ficha técnica e a encomenda interna da PL-221", "Juntei as 3 dúvidas num só email"]);
+      const b = await diz("Email pronto 👇" + doc({ tipo: "eml", nome: "PL-221 — três pontos antes de avançarmos", meta: "para o comprador do cliente", titulo: "Email ao cliente", corpo: duvidasCliente() }), 900, true);
+      const i = await acoes(b, ["Enviar", "Ainda não"]);
+      await diz(i === 0 ? "Enviado ✓ Se não responderem até amanhã ao meio-dia, lembro-os." : "Fica nos rascunhos.");
+      poupar(25);
+    } },
+  { id: "materiais", chip: "📦 Pede os materiais novos", pede: "Pede os materiais novos da PL-221", chaves: /materia|necessid|compr|fornec|cota|requisi/i,
+    async correr() {
+      await passos(["Calculei as necessidades da PL-221 com 5 % de desperdício", "Descontei o stock e o que já está encomendado", "Escolhi os fornecedores habituais e o último preço"]);
+      const b = await diz(`<table class="t"><tr><td>Malha piqué Verde-garrafa</td><td class="n">227 kg</td></tr><tr><td>Botões Verde-garrafa</td><td class="n">1.890 un</td></tr>
+        <tr><td>Fita de nuca com logótipo</td><td class="n">454 m</td></tr><tr><td>Etiquetas (marca, composição, bandeira)</td><td class="n">3 × 2.520 un</td></tr>
+        <tr><td>Hangtags e autocolantes EAN</td><td class="n">2 × 2.520 un</td></tr></table>Preparei 5 pedidos de cotação, um por fornecedor.`
+        + doc({ tipo: "eml", nome: "Pedido de cotação — etiquetas e hangtags", meta: "1 de 5 pedidos", titulo: "Pedido de cotação", corpo: pedidoCotacao() }), 1200, true);
+      const i = await acoes(b, ["Enviar os pedidos", "Ainda não"]);
+      await diz(i === 0 ? "Enviados os 5 pedidos ✓ Quando chegarem as respostas, mostro-lhas já comparadas (preço e prazo)." : "Ficam prontos a enviar.");
+      poupar(60);
+    } },
+  { id: "prazos", chip: "🚚 Há materiais atrasados?", pede: "Há materiais atrasados?", chaves: /atras|prazo|entreg|chega/i,
+    async correr() {
+      await passos(["Li as confirmações dos fornecedores", "Comparei os prazos com o planeamento do corte e da confeção"]);
+      const b = await diz(`<table class="t"><tr><td>Malha piqué, 3 cores</td><td class="n bem">confirmada · 12/02</td></tr><tr><td>Botões</td><td class="n bem">confirmados · 09/02</td></tr>
+        <tr><td>Fita de nuca</td><td class="n mal">sem confirmação há 6 dias</td></tr><tr><td>Etiquetas</td><td class="n mal">chegam a 04/03</td></tr></table>
+        <span class="mal">Risco:</span> a confeção da PL-221 começa a 26/02 e as etiquetas só chegam a 04/03.`, 1200, true);
+      const i = await acoes(b, ["Liga ao fornecedor das etiquetas", "Avisa o planeamento"]);
+      if (i === 0) await diz("Liguei 📞 Antecipam metade para 24/02 se aceitarmos duas entregas. Aceitei e atualizei o prazo ✓ Também pedi confirmação da fita de nuca por email.", 1500);
+      else await diz("Avisei o planeamento ✓ A confeção da PL-221 passa a começar a 05/03 e a entrega ao cliente mantém-se a 15/03.", 1300);
+      poupar(40);
+    } },
+  { id: "custos", chip: "💶 Quanto custou a PL-221?", pede: "Quanto nos custou, de facto, a PL-221?", chaves: /cust|marg|real|gast|preço|preco/i,
+    async correr() {
+      await passos(["Juntei as compras, os consumos reais do corte e as horas da confeção", "Comparei com a ficha técnica e o orçamento"]);
+      const b = await diz(`<table class="t"><tr><td>Malha</td><td class="n mal">901 kg · previsto 864 (+4,3 %)</td></tr><tr><td>Aviamentos e etiquetas</td><td class="n bem">dentro do previsto</td></tr>
+        <tr><td>Confeção</td><td class="n mal">10,1 min/peça · previsto 9,2</td></tr><tr><td>Custo por peça</td><td class="n mal">${eur(8.21)} · previsto ${eur(7.84)}</td></tr>
+        <tr><td>Margem</td><td class="n mal">19,1 % · prevista 22,4 %</td></tr></table>A malha subiu no XXL: o encaixe do corte gasta 6 % mais do que a ficha técnica.`, 1300, true);
+      const i = await acoes(b, ["Corrige a ficha para as próximas", "Mostra por tamanho"]);
+      await diz(i === 0 ? "Feito ✓ O consumo do XXL passa a 0,47 kg nas próximas encomendas deste modelo, e avisei o comercial para o próximo orçamento." : "XS a L dentro do previsto; XL +3 %; XXL +6 %. O excesso está todo nos tamanhos grandes.", 1200);
+      poupar(45);
+    } },
+  { id: "resumo", chip: "🌙 O que fizeste hoje?", pede: "O que fizeste hoje?", chaves: /hoje|resum|fizeste|dia/i,
+    async correr() {
+      await escrever(1300);
+      bolha("ela", `Hoje ${daEmpresa()} 👇<div class="numeros"><div><b>6</b><span>encomendas abertas</span></div><div><b>214</b><span>componentes cruzados</span></div>
+        <div><b>58</b><span>códigos novos criados</span></div><div><b>9</b><span>pedidos a fornecedores</span></div><div><b>2</b><span>atrasos resolvidos</span></div><div><b>3</b><span>emails a clientes</span></div></div>
+        <div class="grande"><b>7 h 40</b>de trabalho que ninguém da equipa teve de fazer</div>`, true);
+      poupar(Math.max(0, 460 - minutos));
+      await diz("É como ter uma funcionária sobredotada que sabe tudo e faz tudo mais rápido do que qualquer pessoa… e ainda por cima não paga IRS nem Segurança Social 😉", 1800);
+      await diz(`<div class="cta"><b>Quer ver isto com as encomendas ${daEmpresa()}?</b><br>Falamos 15 minutos e mostro-lhe com um caso vosso.</div>`
+        + `<div class="acoes"><button class="principal" type="button" onclick="location.href='tel:+351936882364'">Ligar ao Pedro</button><button type="button" onclick="location.href='https://wa.me/351936882364'">WhatsApp</button></div>`, 900, true);
+    } },
+];
+const LISTA = () => (SETOR === "textil" ? CENARIOS_TEXTIL : CENARIOS);
+
 async function correr(c, texto) {
   if (ocupada) return;
   ocupada = true; chipsEl.querySelectorAll("button").forEach((b) => (b.disabled = true));
   const minha = sessao;
-  eu(texto || c.pede);
+  const m = eu(texto || c.pede);
+  if (c.anexo && !texto) m.querySelector(".h").insertAdjacentHTML("beforebegin", c.anexo);
   if (c.imagem) { await espera(250); bolha("eu", PLANTA, true); }
   try { await c.correr(); } catch (e) { if (minha === sessao) console.error(e); }
   if (minha !== sessao) return;
@@ -388,7 +499,7 @@ async function correr(c, texto) {
 }
 function desenharChips() {
   chipsEl.innerHTML = "";
-  for (const c of CENARIOS) {
+  for (const c of LISTA()) {
     const b = document.createElement("button");
     b.type = "button"; b.dataset.id = c.id; b.textContent = c.chip;
     b.onclick = () => correr(c);
@@ -400,19 +511,21 @@ $("#form").onsubmit = async (ev) => {
   const t = $("#texto").value.trim();
   if (!t || ocupada) return;
   $("#texto").value = "";
-  const c = CENARIOS.find((x) => x.chaves.test(t));
+  const c = LISTA().find((x) => x.chaves.test(t));
   if (c) return correr(c, t);
   ocupada = true; eu(t);
-  await diz(`Também consigo fazer isso 🙂 Na versão real, ligo-me ao email, à faturação e aos programas ${daEmpresa()} e faço-o com os vossos dados. Por agora, experimente uma das sugestões aqui em baixo 👇`, 1500);
+  await diz(`Também consigo fazer isso 🙂 Na versão real, ligo-me ao email${SETOR === "textil" ? " e aos programas de produção" : ", à faturação e aos programas"} ${daEmpresa()} e faço-o com os vossos dados. Por agora, experimente uma das sugestões aqui em baixo 👇`, 1500);
   ocupada = false;
 };
 async function inicio() {
   sessao++; ocupada = false; minutos = 0; $("#horas").textContent = "0 h 00";
   cabecalho(); desenharChips();
-  chat.innerHTML = `<div class="dia"><span>HOJE</span></div><div class="aviso">🔒 Demonstração com dados fictícios. Na versão real, a Daniela trabalha com o email, a faturação e os programas da empresa.</div>`;
+  const textil = SETOR === "textil";
+  chat.innerHTML = `<div class="dia"><span>HOJE</span></div><div class="aviso">🔒 Demonstração com dados fictícios. Na versão real, a Daniela trabalha com o email${textil ? " e os programas de produção" : ", a faturação e os programas"} da empresa.</div>`;
   await espera(400);
   await diz(`Olá! 👋 Sou a Daniela, a assistente de IA ${daEmpresa()}.`, 900);
-  await diz("Leio emails e faturas, faço medições e orçamentos, ligo a clientes e fornecedores, marco reuniões. Peça-me qualquer coisa, ou toque numa sugestão aqui em baixo 👇", 1300);
+  await diz(textil ? "Abro as encomendas novas: leio o pedido e o tech pack do cliente, cruzo cada componente com os vossos artigos e deixo a ficha técnica e a encomenda interna prontas a validar. Também peço materiais, sigo prazos e calculo custos reais. Toque numa sugestão aqui em baixo 👇"
+    : "Leio emails e faturas, faço medições e orçamentos, ligo a clientes e fornecedores, marco reuniões. Peça-me qualquer coisa, ou toque numa sugestão aqui em baixo 👇", 1300);
 }
 function abrirConfig() { $("#nome-empresa").value = EMPRESA; $("#config").classList.add("aberto"); setTimeout(() => $("#nome-empresa").focus(), 50); }
 $("#quem").onclick = abrirConfig; $("#menu").onclick = abrirConfig;
