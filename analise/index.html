@@ -39,15 +39,15 @@
 <body>
 <main>
   <a class="back-link" href="/">← Febrero AI</a>
-  <h1>Envie um pedido de um cliente</h1>
-  <p class="sub">A nossa IA analisa-o e devolvemos-lhe, por email, um exemplo detalhado do que faria com os pedidos que vos chegam todos os dias.</p>
-  <a class="ver-demo" id="ver-demo" href="/demo/empresa/">Ver primeiro a demonstração com uma empresa fictícia <span aria-hidden="true">→</span></a>
+  <h1 data-textil="Envie encomendas dos vossos clientes">Envie um pedido de um cliente</h1>
+  <p class="sub" data-textil="A nossa IA analisa-as e devolvemos-lhe, por email, um exemplo detalhado do que faria para abrir cada encomenda no vosso sistema.">A nossa IA analisa-o e devolvemos-lhe, por email, um exemplo detalhado do que faria com os pedidos que vos chegam todos os dias.</p>
+  <a class="ver-demo" id="ver-demo" href="/demo/empresa/"><span id="ver-demo-txt">Ver primeiro a demonstração com uma empresa fictícia</span> <span aria-hidden="true">→</span></a>
 
   <h2>Como funciona</h2>
   <ol>
-    <li>Junte num ficheiro ZIP os documentos de um pedido real: o email do cliente, as plantas, o mapa de quantidades, o caderno de encargos, fotografias.</li>
+    <li data-textil="Junte num ficheiro ZIP as encomendas de um a cinco clientes tal como vos chegaram: a nota de encomenda, as fichas técnicas ou tech packs, as tabelas de medidas, as listas de materiais e aviamentos, cartas de cores, emails; e, se quiserem comparar, a ficha técnica que criaram no vosso sistema para essas encomendas. Não precisamos de preços nem de stocks.">Junte num ficheiro ZIP os documentos de um pedido real: o email do cliente, as plantas, o mapa de quantidades, o caderno de encargos, fotografias.</li>
     <li>Escreva o código que lhe enviámos e envie o ZIP. Cada código serve para um único ZIP, até 25 MB.</li>
-    <li>Em um a dois dias úteis recebe a análise: o que o cliente pede, as medições e o mapa de quantidades, um rascunho do orçamento e os pontos a esclarecer com o cliente.</li>
+    <li data-textil="Em um a dois dias úteis recebe a análise: os artigos, cores e tamanhos; a estrutura técnica com todos os componentes e consumos; a codificação proposta; a encomenda interna em rascunho; e os pontos a esclarecer com o cliente.">Em um a dois dias úteis recebe a análise: o que o cliente pede, as medições e o mapa de quantidades, um rascunho do orçamento e os pontos a esclarecer com o cliente.</li>
   </ol>
 
   <form id="envio" novalidate>
@@ -75,8 +75,8 @@
 
   <h2>O que pode enviar</h2>
   <ul>
-    <li>PDF (incluindo plantas digitalizadas), Word e Excel (.docx, .xlsx), imagens (JPG, PNG) e desenhos em DXF.</li>
-    <li>Desenhos em DWG: por agora, exporte-os em PDF ou DXF.</li>
+    <li data-textil="PDF (incluindo documentos digitalizados), Word e Excel (.docx, .xlsx) e imagens (JPG, PNG).">PDF (incluindo plantas digitalizadas), Word e Excel (.docx, .xlsx), imagens (JPG, PNG) e desenhos em DXF.</li>
+    <li data-textil="">Desenhos em DWG: por agora, exporte-os em PDF ou DXF.</li>
     <li>Não são aceites ficheiros com macros, programas, nem ZIPs dentro do ZIP.</li>
   </ul>
 
@@ -94,7 +94,19 @@
   const codigo = $("codigo"), zip = $("zip"), aceito = $("aceito"), botao = $("enviar"), barra = $("progresso");
   const msg = (el, texto, tipo) => { el.textContent = texto || ""; el.className = "estado " + (tipo || ""); };
   let valido = false;
+  let setorAtual = "", empresaAtual = "";   // do código verificado (24/11)
   const normal = (c) => String(c || "").trim().toUpperCase().replace(/[^A-Z0-9-]/g, "");
+  // Texto por setor (24/11): o código diz se a empresa é de construção (o texto de sempre) ou têxtil. Cada elemento com
+  // data-textil guarda o texto da construção e troca para o do têxtil; data-textil="" esconde-o no têxtil.
+  const porSetor = [...document.querySelectorAll("[data-textil]")];
+  for (const el of porSetor) el.dataset.construcao = el.textContent;
+  function aplicarSetor(setor) {
+    for (const el of porSetor) {
+      const texto = setor === "textil" ? el.dataset.textil : el.dataset.construcao;
+      el.textContent = texto;
+      el.hidden = !texto;
+    }
+  }
 
   async function verificar() {
     const c = normal(codigo.value);
@@ -104,7 +116,7 @@
     try {
       const r = await fetch(`${API}/codigo?c=${encodeURIComponent(c)}`);
       const j = await r.json().catch(() => ({}));
-      if (r.ok) { valido = true; msg($("estadoCodigo"), `Código válido para ${j.empresa}.`, "ok"); }
+      if (r.ok) { valido = true; setorAtual = j.setor === "textil" ? "textil" : ""; empresaAtual = j.empresa || ""; aplicarSetor(j.setor); demo(); msg($("estadoCodigo"), `Código válido para ${j.empresa}.`, "ok"); }
       else msg($("estadoCodigo"), j.error || "Não conseguimos verificar o código.", "erro");
     } catch { msg($("estadoCodigo"), "Não conseguimos verificar o código. Tente de novo daqui a pouco.", "erro"); }
   }
@@ -112,7 +124,17 @@
   if (p) { codigo.value = normal(p); verificar(); }
   codigo.addEventListener("change", verificar);
   // A demonstração leva o código consigo: o botão «Testar com um pedido vosso» de lá volta aqui com ele.
-  const demo = () => { const c = normal(codigo.value); $("ver-demo").href = "/demo/empresa/" + (c ? "?c=" + encodeURIComponent(c) : ""); };
+  // Têxtil: a demonstração de bolso com uma encomenda de confeção, com o nome da empresa.
+  const demo = () => {
+    const c = normal(codigo.value);
+    if (setorAtual === "textil") {
+      $("ver-demo").href = "/demo/daniela/?s=textil" + (empresaAtual ? "&e=" + encodeURIComponent(empresaAtual) : "");
+      $("ver-demo-txt").textContent = "Ver primeiro a demonstração com uma encomenda fictícia";
+    } else {
+      $("ver-demo").href = "/demo/empresa/" + (c ? "?c=" + encodeURIComponent(c) : "");
+      $("ver-demo-txt").textContent = "Ver primeiro a demonstração com uma empresa fictícia";
+    }
+  };
   demo();
   codigo.addEventListener("input", demo);
 
