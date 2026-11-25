@@ -81,6 +81,16 @@ svg text{font-family:var(--sans)}
 .s1{fill:var(--s1)}.s2{fill:var(--s2)}.s3{fill:var(--s3)}
 .ref{stroke:var(--s2);stroke-width:2}.rot-ref{fill:var(--body);font-size:11.5px;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 .legenda i.chave-linha{width:14px;height:2px;border-radius:1px}
+.legenda i.por-receber{background:repeating-linear-gradient(135deg,var(--s1) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--s1)}
+.s1-falta{fill:url(#tracejado-s1);stroke:var(--s1);stroke-width:1}
+/* APIs: the cost per day of each one (consumos.py on the PC) */
+.apis-aviso{margin:0 0 14px;padding:10px 14px;border:1px solid rgba(250,178,25,.28);border-radius:8px;background:rgba(250,178,25,.05);color:var(--ink);font-size:13.5px}
+.apis-aviso:empty{display:none}
+#graf-apis{position:relative}
+#apis-tabela{overflow-x:auto}
+#apis-tabela table{min-width:820px}
+#apis-tabela td .sub{max-width:460px;white-space:normal}
+.cor-api{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:baseline}
 .separadores{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 2px}
 .separadores button{padding:8px 16px;border-radius:999px;border:1px solid #3f3449;background:rgba(210,190,244,.045);color:#ddd2ea;cursor:pointer;font-size:14px}
 .separadores button:hover{border-color:#8e76a8;color:#fff}
@@ -301,6 +311,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
     <div class="sub" id="subtitulo"></div>
     <div class="separadores" role="tablist" aria-label="Secções">
       <button type="button" role="tab" id="s-contas" aria-controls="tab-contas" aria-selected="true">Contas</button>
+      <button type="button" role="tab" id="s-apis" aria-controls="tab-apis" aria-selected="false">APIs</button>
       <button type="button" role="tab" id="s-carteira" aria-controls="tab-carteira" aria-selected="false">Clientes</button>
       <button type="button" role="tab" id="s-previsao" aria-controls="tab-previsao" aria-selected="false">Previsão</button>
       <button type="button" role="tab" id="s-valor" aria-controls="tab-valor" aria-selected="false">Valor da empresa</button>
@@ -314,8 +325,8 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
 
     <div class="cartao">
       <div class="cab">
-        <div><h2 id="t-meses">Faturado e despesas por mês</h2><div class="sub">Faturado sem IVA (faturas válidas) · despesas pagas, em euros</div></div>
-        <div class="legenda"><span><i style="background:var(--s1)"></i>Faturado</span><span><i style="background:var(--s2)"></i>Despesas</span>
+        <div><h2 id="t-meses">Faturado e despesas por mês</h2><div class="sub">O que se faturou em cada mês, sem IVA: a parte já paga e a que falta receber dessas faturas · despesas pagas, em euros</div></div>
+        <div class="legenda"><span><i style="background:var(--s1)"></i>Faturado, pago</span><span><i class="por-receber"></i>Faturado, por receber</span><span><i style="background:var(--s2)"></i>Despesas</span>
           <button class="ligar" id="ver-tabela" type="button" aria-expanded="false">Ver tabela</button></div>
       </div>
       <div id="graf-meses"><div class="tip" id="tip"></div></div>
@@ -336,6 +347,22 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       <div class="cab"><h2>Últimas alterações</h2></div>
       <ul class="registo" id="registo"></ul>
     </div>
+    </div>
+
+    <div id="tab-apis" role="tabpanel" aria-labelledby="s-apis" hidden>
+      <div class="tiles" id="apis-tiles"></div>
+      <div class="cartao">
+        <div class="cab">
+          <div><h2>Custo das APIs por dia</h2><div class="sub" id="apis-sub">Últimos 30 dias, em euros</div></div>
+          <div class="legenda" id="apis-legenda"></div>
+        </div>
+        <p class="apis-aviso" id="apis-aviso"></p>
+        <div id="graf-apis"><div class="tip" id="tip-apis"></div></div>
+      </div>
+      <div class="cartao" style="margin-top:12px">
+        <div class="cab"><div><h2>Cada API</h2><div class="sub">Como se lê o custo de cada uma e, nas que faltam, o que é preciso para as ler</div></div></div>
+        <div id="apis-tabela"></div>
+      </div>
     </div>
 
     <div id="tab-carteira" role="tabpanel" aria-labelledby="s-carteira" hidden>
@@ -436,6 +463,13 @@ function el(tag, attrs = {}, ...filhos) {
   return e;
 }
 function sv(tag, attrs = {}) { const e = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; }
+// one segment of a stacked bar, from yb (bottom) up to yt; only the top of a stack has rounded corners
+function segmento(x, yb, yt, w, arredondado) {
+  const h = yb - yt;
+  if (h <= 0.4) return "";
+  const r = arredondado ? Math.min(4, h, w / 2) : 0;
+  return `M${x},${yb}V${yt + r}Q${x},${yt} ${x + r},${yt}H${x + w - r}Q${x + w},${yt} ${x + w},${yt + r}V${yb}Z`;
+}
 function eur(n) { const v = Math.round((Number(n) || 0) * 100) / 100, [i, c] = Math.abs(v).toFixed(2).split("."); return `${v < 0 ? "−" : ""}${i.replace(/\B(?=(\d{3})+$)/g, ".")},${c} €`; }
 const dm = (s) => (s ? `${s.slice(8, 10)}/${s.slice(5, 7)}` : "");
 const dma = (s) => (s ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : "");
@@ -491,7 +525,7 @@ async function carregar() {
   finally { p.classList.remove("a-ler"); }
 }
 // ------------------------------------------------------------ tabs (the last one opened is remembered on this device)
-const SEPARADORES = ["contas", "carteira", "previsao", "valor", "propostas", "leads"];
+const SEPARADORES = ["contas", "apis", "carteira", "previsao", "valor", "propostas", "leads"];
 let separador = "contas";
 try { separador = SEPARADORES.includes(localStorage.getItem("fin_tab")) ? localStorage.getItem("fin_tab") : "contas"; } catch (e) {}
 function abrirSeparador(nome) {
@@ -508,6 +542,7 @@ for (const s of SEPARADORES) $("#s-" + s).addEventListener("click", () => abrirS
 function desenharGraficos() {
   if (separador === "contas" && !$("#graf-meses").classList.contains("oculto")) grafMeses(dados.meses);
   if (separador === "previsao" && !$("#graf-prev").classList.contains("oculto")) grafPrevisao(dados.previsao);
+  if (separador === "apis") grafApis(dados.consumos);
 }
 const tile = (rot, val, det, destaque) => el("div", { class: "tile" + (destaque ? " destaque" : "") }, el("div", { class: "rot", text: rot }), el("div", { class: "val", text: val }), el("div", { class: "det", text: det }));
 
@@ -520,8 +555,8 @@ function desenhar() {
   const ivaT = k.trimestres.filter((t) => t.iva).map((t) => `${t.t} ${eur(t.iva)}`).join(" · ") || "sem IVA ainda";
   $("#tiles").replaceChildren(
     tile(`Faturado em ${d.ano}`, eur(k.faturado.base), `sem IVA · ${eur(k.faturado.total)} com IVA · ${k.faturado.n} faturas`),
-    tile("Recebido", eur(k.recebido.total), k.recebido.n ? `${k.recebido.n} ${k.recebido.n === 1 ? "fatura paga" : "faturas pagas"}` : "nenhuma marcada paga"),
-    tile("Por receber", eur(k.porReceber.total), k.vencido.n ? `${eur(k.vencido.total)} já vencido · ${k.porReceber.n} faturas` : `${k.porReceber.n} faturas, nenhuma vencida`, true),
+    tile("Pago", eur(k.pago.base), `das faturas de ${d.ano}, sem IVA · ${eur(k.pago.total)} com IVA · ${k.pago.n} de ${k.faturado.n} faturas`),
+    tile("Por receber", eur(k.porReceber.total), `com IVA · ${k.vencido.n ? `${eur(k.vencido.total)} já vencido · ${k.porReceber.n} faturas` : `${k.porReceber.n} faturas, nenhuma vencida`}`, true),
     tile(`Despesas ${d.ano}`, eur(k.despesas.ano), k.despesas.ate ? `contadas até ${dm(k.despesas.ate)}` : "ainda sem dados do PC"),
     tile(`Saldo de ${d.ano}`, (k.resultado > 0 ? "+" : "") + eur(k.resultado), `${eur(k.faturado.base)} faturados (sem IVA) − ${eur(k.despesas.ano)} de despesas`),
     tile("IVA liquidado", eur(k.faturado.iva), ivaT));
@@ -539,6 +574,7 @@ function desenhar() {
   desenharPrevisao(d.previsao);
   desenharPropostas(d.previsao);
   desenharCarteira(d.carteira);
+  desenharApis(d.consumos);
   $("#s-valor").hidden = !d.valor;                // the server before «Valor da empresa» doesn't send it
   if (d.valor) desenharValor(d.valor); else if (separador === "valor") separador = "previsao";
   abrirSeparador(separador);
@@ -565,7 +601,10 @@ function grafMeses(meses) {
   const max = Math.max(1, ...meses.flatMap((m) => [m.faturado, m.despesas]));
   const passo = passoBonito(max / 4), topo = Math.ceil(max / passo) * passo;
   const y = (v) => M.t + ph - (v / topo) * ph;
-  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Faturado sem IVA e despesas por mês (os valores estão na tabela)" });
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Faturado sem IVA (pago e por receber) e despesas por mês (os valores estão na tabela)" });
+  const tracejado = sv("pattern", { id: "tracejado-s1", width: 5, height: 5, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+  tracejado.append(sv("rect", { width: 2, height: 5, class: "s1" }));
+  const defs = sv("defs", {}); defs.append(tracejado); svg.append(defs);
   for (let v = 0; v <= topo + 1e-6; v += passo) {
     svg.append(sv("line", { x1: M.l, x2: W - M.r, y1: y(v), y2: y(v), class: v === 0 ? "base" : "grid" }));
     const t = sv("text", { x: M.l - 8, y: y(v) + 4, class: "tick", "text-anchor": "end" }); t.textContent = compacto(v); svg.append(t);
@@ -578,17 +617,23 @@ function grafMeses(meses) {
     const x0 = M.l + banda * i, cx = x0 + banda / 2;
     const fundo = sv("rect", { x: x0 + 1, y: M.t - 8, width: banda - 2, height: ph + 8, rx: 4, class: "banda" });
     svg.append(fundo);
-    const d1 = barra(cx - bw - 1, y(m.faturado), bw), d2 = barra(cx + 1, y(m.despesas), bw);   // 2px surface gap between the pair
-    if (d1) svg.append(sv("path", { d: d1, class: "s1" }));
+    // the invoiced bar: what of it is paid (solid) and, on top, what is still to receive (hatched), 2px apart
+    const xf = cx - bw - 1, falta = Math.max(0, m.faturado - m.pago);
+    const d1 = falta > 0 && m.pago > 0 ? segmento(xf, y(0), y(m.pago), bw, false) : barra(xf, y(m.pago), bw);
+    const d3 = falta > 0 ? segmento(xf, m.pago > 0 ? y(m.pago) - 2 : y(0), y(m.faturado), bw, true) : "";
+    const d2 = barra(cx + 1, y(m.despesas), bw);   // 2px surface gap between the pair
+    if (d1 && m.pago > 0) svg.append(sv("path", { d: d1, class: "s1" }));
+    if (d3) svg.append(sv("path", { d: d3, class: "s1-falta" }));
     if (d2) svg.append(sv("path", { d: d2, class: "s2" }));
     if (i === iMax && m.faturado > 0) {                                  // one direct label: the best month
       const t = sv("text", { x: cx - bw / 2 - 1, y: y(m.faturado) - 7, class: "rot-valor", "text-anchor": "middle" }); t.textContent = eur(m.faturado).replace(",00 €", " €"); svg.append(t);
     }
     const lb = sv("text", { x: cx, y: H - 9, class: "tick", "text-anchor": "middle" }); lb.textContent = MESES[Number(m.mes.slice(5)) - 1]; svg.append(lb);
     const hit = sv("rect", { x: x0, y: M.t - 8, width: banda, height: ph + 8, class: "hit", tabindex: "0",
-      "aria-label": `${MESES_L[Number(m.mes.slice(5)) - 1]}: faturado ${eur(m.faturado)}, despesas ${eur(m.despesas)}, recebido ${eur(m.recebido)}` });
+      "aria-label": `${MESES_L[Number(m.mes.slice(5)) - 1]}: faturado ${eur(m.faturado)} sem IVA, dos quais pago ${eur(m.pago)} e por receber ${eur(m.porReceber)}; despesas ${eur(m.despesas)}` });
     const ver = () => { esconderTip(); fundo.classList.add("on");
-      mostrarTip($("#tip"), box, nomeMes(m.mes), [["var(--s1)", m.faturado, "faturado"], ["var(--s2)", m.despesas, "despesas"], ["var(--muted)", m.recebido, "recebido"]], cx); };
+      mostrarTip($("#tip"), box, nomeMes(m.mes), [["var(--s1)", m.faturado, "faturado (sem IVA)"], ["var(--s1)", m.pago, "· pago"],
+        ["repeating-linear-gradient(90deg,var(--s1) 0 3px,transparent 3px 5px)", m.porReceber, "· por receber"], ["var(--s2)", m.despesas, "despesas"]], cx); };
     hit.addEventListener("pointerenter", ver); hit.addEventListener("focus", ver);
     hit.addEventListener("pointerleave", esconderTip); hit.addEventListener("blur", esconderTip);
     svg.append(hit);
@@ -596,8 +641,10 @@ function grafMeses(meses) {
   box.append(svg);
 }
 function tabelaMeses(meses) {
-  const t = el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mês" }), el("th", { class: "n", text: "Faturado (sem IVA)" }), el("th", { class: "n", text: "Recebido" }), el("th", { class: "n", text: "Despesas" }))),
-    el("tbody", {}, meses.map((m) => el("tr", {}, el("td", { text: MESES_L[Number(m.mes.slice(5)) - 1] }), el("td", { class: "n", text: eur(m.faturado) }), el("td", { class: "n", text: eur(m.recebido) }), el("td", { class: "n", text: eur(m.despesas) })))));
+  const t = el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mês" }), el("th", { class: "n", text: "Faturado (sem IVA)" }), el("th", { class: "n", text: "Pago" }),
+    el("th", { class: "n", text: "Por receber" }), el("th", { class: "n", text: "Despesas" }))),
+    el("tbody", {}, meses.map((m) => el("tr", {}, el("td", { text: MESES_L[Number(m.mes.slice(5)) - 1] }), el("td", { class: "n", text: eur(m.faturado) }), el("td", { class: "n", text: eur(m.pago) }),
+      el("td", { class: "n", text: eur(m.porReceber) }), el("td", { class: "n", text: eur(m.despesas) })))));
   $("#tabela-meses").replaceChildren(t);
 }
 $("#ver-tabela").addEventListener("click", () => {
@@ -867,6 +914,105 @@ $("#valor-oferta").addEventListener("input", () => {
   try { localStorage.setItem("fin_oferta", $("#valor-oferta").value); } catch (e) {}
   if (dados?.valor) desenharOferta(dados.valor);
 });
+
+// ------------------------------------------------------------ APIs (Pedro 2026-11-25: «we need all the consumptions from every
+// single api in there and the daily cost updated daily»): each API's cost per day, read every morning by the PC
+// (Finance\_scripts\consumos.py) from its usage API or, without one, from the prepaid balance read every hour. Colours follow
+// the API (fixed order, never by rank); the smaller ones share «Outras»
+const CORES_API = { Anthropic: "#3987e5", OpenAI: "#d95926", Twilio: "#199e70", MiniMax: "#c98500", Railway: "#d55181", Apify: "#0ca30c", Modal: "#9085e9" };
+const GRUPOS_API = [...Object.keys(CORES_API), "Outras"];
+const corApi = (g) => CORES_API[g] || "#8e879c";
+const grupoApi = (a) => (CORES_API[a] ? a : "Outras");
+const diaAntes = (dia, n) => { const d = new Date(dia + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); };
+const custoDia = (c, dia) => Object.values(c.dias[dia] || {}).reduce((s, v) => s + v, 0);
+const custoGrupo = (c, dia, g) => Object.entries(c.dias[dia] || {}).reduce((s, [a, v]) => s + (grupoApi(a) === g ? v : 0), 0);
+const custoApi = (c, dias, a) => dias.reduce((s, d) => s + ((c.dias[d] || {})[a] || 0), 0);
+const valorTick = (v) => (v >= 1000 ? compacto(v) : v.toLocaleString("pt-PT", { maximumFractionDigits: 1 }));
+function desenharApis(c) {
+  if (!c?.dias) {
+    $("#apis-tiles").replaceChildren();
+    $("#apis-aviso").textContent = "Ainda não há dados: a tarefa «Financas diaria» do PC manda-os todas as manhãs.";
+    for (const id of ["#apis-legenda", "#apis-tabela"]) $(id).replaceChildren();
+    return;
+  }
+  const hoje = dados.hoje, ontem = diaAntes(hoje, 1), mes = hoje.slice(0, 7);
+  const sete = Array.from({ length: 7 }, (_, i) => diaAntes(hoje, i + 1)), doMes = Object.keys(c.dias).filter((d) => d.startsWith(mes) && d <= hoje);
+  const soma = (dias) => dias.reduce((s, d) => s + custoDia(c, d), 0), ritmo = soma(sete) / 7;
+  const fimMes = new Date(Date.UTC(+hoje.slice(0, 4), +hoje.slice(5, 7), 0)).getUTCDate();
+  const previsto = soma(doMes.filter((d) => d < hoje)) + ritmo * (fimMes - Number(hoje.slice(8, 10)) + 1);
+  const porLigar = c.fontes.filter((f) => f.estado !== "ok").map((f) => f.api);
+  const maiores = Object.entries(c.dias[ontem] || {}).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([a, v]) => `${a} ${eur(v)}`).join(" · ");
+  $("#apis-tiles").replaceChildren(
+    tile(`Ontem (${dm(ontem)})`, eur(custoDia(c, ontem)), maiores || "sem consumo registado", true),
+    tile("Últimos 7 dias", eur(soma(sete)), `≈ ${eur(ritmo)} por dia`),
+    tile(`Este mês (${MESES_L[Number(mes.slice(5)) - 1]})`, eur(soma(doMes)), `até hoje, ${dm(hoje)}`),
+    tile("Previsão do mês", eur(previsto), "ao ritmo dos últimos 7 dias"));
+  const gerado = c.gerado ? new Date(c.gerado) : null;
+  $("#apis-sub").textContent = "Últimos 30 dias, em euros ao câmbio do BCE de cada dia" + (gerado
+    ? ` · lido pelo PC às ${gerado.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })} de ${gerado.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" })}` : "");
+  $("#apis-aviso").textContent = porLigar.length ? `Ainda não contam: ${porLigar.join(", ")}. Os totais não os incluem; a tabela diz o que falta para cada uma.` : "";
+  const trinta = Array.from({ length: 30 }, (_, i) => diaAntes(hoje, 29 - i));
+  const outras = [...new Set(trinta.flatMap((d) => Object.keys(c.dias[d] || {})).filter((a) => grupoApi(a) === "Outras"))];
+  $("#apis-legenda").replaceChildren(...GRUPOS_API.filter((g) => trinta.some((d) => custoGrupo(c, d, g) > 0)).map((g) =>
+    el("span", { title: g === "Outras" ? outras.join(", ") : null }, el("i", { style: `background:${corApi(g)}` }), g === "Outras" ? `Outras (${outras.join(", ")})` : g)));
+  const estado = { ok: ["bom", "✓", "lida"], por_ligar: ["meio", "…", "por ligar"], erro: ["mau", "!", "erro"] };
+  const n = (v) => el("td", { class: "n", text: v ? eur(v) : "—" });
+  $("#apis-tabela").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "API" }), el("th", { class: "n", text: "Ontem" }),
+    el("th", { class: "n", text: "7 dias" }), el("th", { class: "n", text: "Este mês" }), el("th", { text: "Estado" }), el("th", { text: "Como se lê" }))),
+    el("tbody", {}, c.fontes.map((f) => { const [cls, ico, rot] = estado[f.estado] || estado.ok;
+      return el("tr", {}, el("td", {}, el("i", { class: "cor-api", style: `background:${corApi(grupoApi(f.api))}`, "aria-hidden": "true" }), el("b", { text: f.api })),
+        n(custoApi(c, [ontem], f.api)), n(custoApi(c, sete, f.api)), n(custoApi(c, doMes, f.api)),
+        el("td", {}, el("span", { class: "chip " + cls }, el("i", { "aria-hidden": "true", text: ico }), rot)),
+        el("td", {}, f.como, f.nota ? el("div", { class: "sub", text: f.nota }) : null)); }))));
+}
+function grafApis(c) {
+  const box = $("#graf-apis");
+  for (const s of box.querySelectorAll("svg")) s.remove();
+  if (!c?.dias) return;
+  const dias = Array.from({ length: 30 }, (_, i) => diaAntes(dados.hoje, 29 - i));
+  const grupos = GRUPOS_API.filter((g) => dias.some((d) => custoGrupo(c, d, g) > 0));
+  const W = Math.max(240, box.clientWidth), H = 240, M = { t: 30, r: 6, b: 28, l: 34 };
+  const pw = W - M.l - M.r, ph = H - M.t - M.b;
+  const totais = dias.map((d) => custoDia(c, d)), max = Math.max(0.01, ...totais);
+  const passo = passoBonito(max / 4), topo = Math.ceil(max / passo) * passo;
+  const y = (v) => M.t + ph - (v / topo) * ph;
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Custo das APIs por dia nos últimos 30 dias, por API (os valores estão na tabela abaixo)" });
+  for (let v = 0; v <= topo + 1e-6; v += passo) {
+    svg.append(sv("line", { x1: M.l, x2: W - M.r, y1: y(v), y2: y(v), class: v === 0 ? "base" : "grid" }));
+    const t = sv("text", { x: M.l - 8, y: y(v) + 4, class: "tick", "text-anchor": "end" }); t.textContent = valorTick(v); svg.append(t);
+  }
+  const banda = pw / dias.length, bw = Math.max(2, Math.min(16, banda - 3)), cada = banda < 16 ? 7 : 5;
+  const iMax = totais.indexOf(Math.max(...totais));
+  dias.forEach((dia, i) => {
+    const x0 = M.l + banda * i, x = x0 + (banda - bw) / 2;
+    const fundo = sv("rect", { x: x0 + 0.5, y: M.t - 8, width: banda - 1, height: ph + 8, rx: 3, class: "banda" });
+    svg.append(fundo);
+    const vivos = grupos.filter((g) => custoGrupo(c, dia, g) > 0);
+    let acum = 0;
+    vivos.forEach((g, k) => {          // bottom to top in the fixed order, 2px of surface between segments
+      const v = custoGrupo(c, dia, g), d = segmento(x, y(acum) - (k ? 1 : 0), y(acum + v) + (k < vivos.length - 1 ? 1 : 0), bw, k === vivos.length - 1);
+      if (d) svg.append(sv("path", { d, style: `fill:${corApi(g)}` }));
+      acum += v;
+    });
+    if (i === iMax && totais[i] > 0) {                       // one direct label: the dearest day
+      const t = sv("text", { x: Math.min(Math.max(x + bw / 2, M.l + 20), W - 24), y: y(totais[i]) - 7, class: "rot-valor", "text-anchor": "middle" });
+      t.textContent = eur(totais[i]); svg.append(t);
+    }
+    if ((dias.length - 1 - i) % cada === 0) {                // the last label ends at the edge instead of being cut
+      const ultimo = i === dias.length - 1, lb = sv("text", { x: ultimo ? W - M.r : x0 + banda / 2, y: H - 9, class: "tick", "text-anchor": ultimo ? "end" : "middle" });
+      lb.textContent = dm(dia); svg.append(lb);
+    }
+    const hit = sv("rect", { x: x0, y: M.t - 8, width: banda, height: ph + 8, class: "hit", tabindex: "0",
+      "aria-label": `${dm(dia)}: ${eur(totais[i])}` + vivos.map((g) => `, ${g} ${eur(custoGrupo(c, dia, g))}`).join("") });
+    const ver = () => { esconderTip(); fundo.classList.add("on");
+      const linhas = Object.entries(c.dias[dia] || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([a, v]) => [corApi(grupoApi(a)), v, a]);
+      mostrarTip($("#tip-apis"), box, `${dm(dia)} · ${eur(totais[i])}`, linhas.length ? linhas : [["var(--muted)", 0, "sem consumo"]], x0 + banda / 2); };
+    hit.addEventListener("pointerenter", ver); hit.addEventListener("focus", ver);
+    hit.addEventListener("pointerleave", esconderTip); hit.addEventListener("blur", esconderTip);
+    svg.append(hit);
+  });
+  box.append(svg);
+}
 
 function desenharPropostas(p) {
   const t = p.totais;
