@@ -378,7 +378,8 @@ const CENARIOS = [
 
 // ---------------------------------------------------------------- têxtil (?s=textil, 2026-11-24) ----
 // Confeção: cada encomenda nova traz artigos e dezenas de componentes que não se repetem. Mesma encomenda fictícia da proposta (PL-221).
-const SETOR = (new URLSearchParams(location.search).get("s") || "").toLowerCase().startsWith("text") ? "textil" : "";
+const SETOR_PEDIDO = (new URLSearchParams(location.search).get("s") || "").toLowerCase();
+const SETOR = SETOR_PEDIDO.startsWith("text") ? "textil" : SETOR_PEDIDO.startsWith("imo") ? "imobiliaria" : "";
 const BOM = [["Malha piqué", "100 % algodão orgânico, 220 g/m², tubular 92 cm, GOTS", "0,36 kg", "2 reaproveitados · 1 cor nova", "n"],
   ["Ribana 1×1", "95 % algodão, 5 % elastano, 280 g/m²", "0,045 kg", "reaproveitados", ""], ["Entretela termocolante", "30 g/m², carcela", "0,03 m", "reaproveitado", ""],
   ["Botão 4 furos 18L", "poliéster, tom sobre tom, 3 por peça", "3 un", "2 reaproveitados · 1 novo", "n"], ["Fita de ombro", "algodão 10 mm", "0,30 m", "reaproveitado", ""],
@@ -483,7 +484,148 @@ const CENARIOS_TEXTIL = [
         + `<div class="acoes"><button class="principal" type="button" onclick="location.href='tel:+351936882364'">Ligar ao Pedro</button><button type="button" onclick="location.href='https://wa.me/351936882364'">WhatsApp</button></div>`, 900, true);
     } },
 ];
-const LISTA = () => (SETOR === "textil" ? CENARIOS_TEXTIL : CENARIOS);
+// ---------------------------------------------------------------- imobiliária (?s=imobiliaria, 2026-11-26) ----
+// Mediação imobiliária (Pedro, na reunião com a LING: «uma demo para imobiliárias com o foco tipo Bond, assistente que atende
+// chamadas e faz gestão de propostas e condomínios… foca-te no que lhes potencialmente interessa»). Tudo fictício.
+const LEADS_HOJE = [["Sophie e Marc Dubois", "T2 com terraço", "telefone, 22:41", "FR", "220 000 €", "🔥 videovisita amanhã"],
+  ["James Carter", "Moradia T4 com piscina", "Idealista", "EN", "260 000 €", "🔥 visita sábado 11:00"],
+  ["Ana Ferreira", "T3 junto à escola", "Imovirtual", "PT", "170 000 €", "🔥 visita sexta 18:00"],
+  ["Rui e Carla Matos", "Moradia T4 com piscina", "site", "PT", "250 000 €", "🔥 crédito por aprovar"],
+  ["Hélène Martin", "Quinta com 2 ha", "Idealista", "FR", "300 000 €", "🔥 videochamada pedida"],
+  ["Paulo Nunes", "T2 com terraço", "Imovirtual", "PT", "180 000 €", "🌤 volta a falar em janeiro"],
+  ["Laura Silva", "T1 para arrendar", "site", "PT", "550 €/mês", "🌤 recebeu 3 opções"]];
+function fichaComprador() {
+  return folha("Ficha do comprador", `Chamada de ${dataPT(hoje)} às 22:41 · atendida pela Daniela`,
+    `<table><tr><td>Nome</td><td>Sophie e Marc Dubois</td></tr><tr><td>Língua</td><td>francês</td></tr><tr><td>Procuram</td><td>T2 ou T3 para habitação própria, com terraço ou varanda</td></tr>
+    <tr><td>Orçamento</td><td>até 220 000 €</td></tr><tr><td>Financiamento</td><td>crédito pré-aprovado em França</td></tr><tr><td>Prazo</td><td>mudam-se em julho</td></tr>
+    <tr><td>Próximo passo</td><td>videovisita amanhã às 18:00 com o consultor Ricardo</td></tr></table>
+    <p class="mudo">A conversa completa, traduzida, fica na ficha do contacto, no programa da agência.</p>`);
+}
+function contactosHoje() {
+  return folha("Contactos de hoje", `${dataPT(hoje)} · 14 contactos · todos respondidos em menos de 2 minutos`,
+    `<table><tr><th>Contacto</th><th>Imóvel</th><th>Origem</th><th class="n">Orçamento</th><th>Estado</th></tr>${LEADS_HOJE.map(([n, i, o, l, v, e]) =>
+      `<tr><td>${n}<br><span class="mudo">${l}</span></td><td>${i}</td><td>${o}</td><td class="n">${v}</td><td>${e}</td></tr>`).join("")}
+    <tr><td colspan="5" class="mudo">… e mais 7: 3 só curiosos e 4 a acompanhar</td></tr></table>`);
+}
+function anuncio() {
+  return folha("Anúncio · Moradia T4 com piscina", "Português · English · Français · 12 fotografias, por esta ordem",
+    `<h3>Português</h3><p>Moradia T4 com piscina e jardim, a 2 km do centro. 238 m², sala com lareira, cozinha equipada, suíte com closet e garagem para dois carros. Certificado energético B. <b>245 000 €</b></p>
+    <h3>English</h3><p>Four-bedroom villa with pool and garden, 2 km from the town centre. 238 m², living room with fireplace, fitted kitchen, master suite with walk-in closet and a double garage. Energy rating B. <b>€245,000</b></p>
+    <h3>Français</h3><p>Villa T4 avec piscine et jardin, à 2 km du centre-ville. 238 m², salon avec cheminée, cuisine équipée, suite parentale avec dressing et garage double. Classe énergétique B. <b>245 000 €</b></p>`);
+}
+function resumoPropostas() {
+  return folha("Propostas · Moradia T4 com piscina", `Para o proprietário · ${dataPT(hoje)} · preço pedido 245 000 €`,
+    `<table><tr><th></th><th>Proposta A</th><th>Proposta B</th></tr>
+    <tr><td>Valor</td><td class="n">232 000 €</td><td class="n">238 000 €</td></tr>
+    <tr><td>Pagamento</td><td>crédito pré-aprovado (declaração do banco)</td><td class="mal">depende da venda da casa atual</td></tr>
+    <tr><td>Sinal no CPCV</td><td>10 %</td><td>5 %</td></tr><tr><td>Escritura</td><td>até 60 dias</td><td>sem data</td></tr></table>
+    <h3>Recomendação</h3><p>Contraproposta de 240 000 € aos compradores da proposta A: o dinheiro é certo e a escritura é mais rápida.</p>`);
+}
+function cpcv() {
+  return folha("CPCV · rascunho", `Moradia T4 com piscina · ${dataPT(hoje)}`,
+    `<p><b>Preço:</b> 238 500 € · <b>Sinal:</b> 23 850 € (10 %) na assinatura · <b>Escritura:</b> até ${dataPT(daqui(60))}</p>
+    <h3>Documentos do imóvel</h3><table><tr><td>Caderneta predial</td><td class="bem">✓</td></tr><tr><td>Certidão permanente</td><td class="bem">✓ válida</td></tr>
+    <tr><td>Licença de utilização</td><td class="bem">✓</td></tr><tr><td>Certificado energético</td><td class="mal">caduca em 3 semanas</td></tr><tr><td>Ficha técnica da habitação</td><td class="bem">✓</td></tr></table>
+    <p class="mudo">Com as cláusulas do vosso modelo de CPCV; os dados dos compradores e do proprietário vêm das fichas.</p>`);
+}
+function convocatoria() {
+  return folha("Convocatória · Assembleia de condóminos", "Edifício Sol · 18 frações",
+    `<p>Convocam-se os condóminos do Edifício Sol para a assembleia ordinária, no dia <b>${dataPT(daqui(15))}, às 19:00</b>, na sala do condomínio.</p>
+    <p><b>Ordem de trabalhos:</b><br>1. Contas de 2026 e orçamento para 2027.<br>2. Fundo comum de reserva.<br>3. Pintura da fachada: 3 orçamentos.<br>4. Eleição da administração.</p>
+    <p class="mudo">Segue por email e, a quem não tem email, por carta registada.</p>`);
+}
+const avisoQuotas = () => `<div class="folha"><p class="mudo">Para: condómino da fração C · Edifício Jardim</p><p><b>Assunto: Quotas do condomínio em atraso</b></p>
+  <p>Boa tarde,</p><p>Segundo os nossos registos, estão por pagar as quotas de setembro, outubro e novembro da fração C, no valor de 135,00 €. Pode fazer a transferência para o IBAN do condomínio, ou responder a este email se já tiver pago.</p>
+  <p>Com os melhores cumprimentos,<br>${esc(nomeEmpresa())} · Administração do condomínio</p></div>`;
+const CENARIOS_IMOBILIARIA = [
+  { id: "chamada", chip: "📞 Atende esta chamada", pede: "Está a tocar o telefone da agência e já fechámos. Atendes?", chaves: /chamad|telef|liga|atend|toca/i,
+    async correr() {
+      await escrever(500);
+      const c = bolha("ela", `<div class="chamada"><div class="topo"><div class="bola">📞</div><div><b>+33 6 •• •• •• 48 · França</b><small>chamada a entrar · 22:41</small></div><span class="onda"><i></i><i></i><i></i><i></i></span></div><div class="falas"></div></div>`, true);
+      const cr = c.querySelector("small"), falas = c.querySelector(".falas");
+      await espera(1400); let s = 0; cr.textContent = "atendida pela Daniela · 00:00";
+      const rel = setInterval(() => { s += 4; cr.textContent = `atendida pela Daniela · 0${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }, 1000);
+      const linhas = [["", "Sophie Dubois", "Bonsoir, j'appelle pour le T2 avec terrasse que j'ai vu sur Idealista. Il est toujours disponible ?"],
+        ["c", "Daniela", "Bonsoir Sophie ! Oui, il est disponible : 92 m², une terrasse de 30 m², 185 000 €. Le condominium coûte 35 € par mois. C'est pour y habiter ?"],
+        ["", "Sophie Dubois", "Oui, on rentre au Portugal en juillet. On a un prêt pré-approuvé en France."],
+        ["c", "Daniela", "Parfait. Je vous propose une visite samedi à 11 h avec Ricardo, notre consultant, ou une visite vidéo demain à 18 h. Qu'est-ce qui vous arrange ?"],
+        ["", "Sophie Dubois", "La visite vidéo demain, c'est parfait."],
+        ["c", "Daniela", "C'est noté ! Je vous envoie le lien et la fiche du bien par WhatsApp. Bonne soirée !"]];
+      for (const [cl, q, t] of linhas) { await espera(1600); falas.insertAdjacentHTML("beforeend", `<p class="${cl}"><em>${q}</em>${esc(t)}</p>`); descer(); }
+      await espera(1000); clearInterval(rel); cr.textContent = "chamada terminada"; c.querySelector(".onda").remove();
+      const b = await diz(`Atendi em francês ✓ <b>Sophie e Marc Dubois</b> mudam-se para Portugal em julho e têm crédito pré-aprovado. Marquei uma videovisita ao T2 amanhã às 18:00 com o Ricardo e mandei-lhes a ficha por WhatsApp. Contacto quente 🔥`
+        + doc({ tipo: "pdf", nome: "Ficha_comprador_Dubois.pdf", meta: "qualificado · videovisita amanhã às 18:00", titulo: "Ficha do comprador", corpo: fichaComprador() }), 1100, true);
+      const i = await acoes(b, ["Mostra-lhes outros imóveis", "Avisa o Ricardo"]);
+      if (i === 0) await diz("Na vossa carteira há mais 2 que lhes servem: um T3 com varanda (172 000 €) e um T2 novo com garagem (199 000 €). Mandei-lhes os dois em francês, com as fotografias ✓", 1300);
+      else await diz("O Ricardo já tem a videovisita na agenda e a ficha no telemóvel, com a conversa traduzida ✓", 1000);
+      poupar(35);
+    } },
+  { id: "contactos", chip: "📥 Responde aos contactos dos portais", pede: "Responde aos contactos que chegaram dos portais", chaves: /contact|lead|portal|idealista|imovirtual|respond|pedido/i,
+    async correr() {
+      await passos(["Li 14 contactos desta noite: Idealista 7, Imovirtual 4, site 3", "Respondi a todos em menos de 2 minutos: 9 em português, 3 em inglês e 2 em francês", "Perguntei orçamento, crédito, prazo e zona", "Marquei 3 visitas nas agendas dos consultores"]);
+      const b = await diz(`<table class="t"><tr><td>🔥 Quentes: orçamento e crédito certos</td><td class="n bem">5</td></tr><tr><td>🌤 A acompanhar</td><td class="n">6</td></tr><tr><td>❄ Só curiosos</td><td class="n">3</td></tr><tr><td>Visitas marcadas</td><td class="n bem">3</td></tr></table>`
+        + doc({ tipo: "xls", nome: "Contactos_de_hoje.xlsx", meta: "14 contactos · já no vosso programa", titulo: "Contactos de hoje", corpo: contactosHoje() }), 1100, true);
+      const i = await acoes(b, ["Distribui pelos consultores", "Mostra os quentes"]);
+      if (i === 0) await diz("Feito ✓ O Ricardo ficou com 2, a Ana com 2 e o Miguel com 1, por zona e por língua. Cada um recebeu no telemóvel a ficha e a conversa.", 1100);
+      else await diz(LEADS_HOJE.slice(0, 5).map(([n, im, o, l, v, e]) => `<b>${n}</b> (${l}) · ${im} · ${v}<br><span class="mudo">${o} · ${e}</span>`).join("<br>"), 1100, true);
+      poupar(90);
+    } },
+  { id: "imovel", chip: "🏡 Prepara o anúncio do imóvel novo", pede: "Entrou uma moradia nova. Preparas o anúncio?", chaves: /anúnc|anunc|imóvel|imovel|angari|moradia|foto/i,
+    anexo: '<div class="anexos"><span>📎 12 fotografias</span><span>📎 Caderneta_predial.pdf</span><span>📎 Certificado_energetico.pdf</span></div>',
+    async correr() {
+      await passos(["Li a caderneta predial e o certificado energético (classe B)", "Vi as 12 fotografias e escolhi a ordem para os portais", "Escrevi o anúncio em português, inglês e francês", "Procurei na vossa base quem procura uma casa assim"]);
+      const b = await diz(`Anúncio pronto ✅ E há <b>4 compradores</b> na vossa base à procura disto mesmo: T4 até 260 000 €, com garagem.`
+        + doc({ tipo: "pdf", nome: "Anuncio_Moradia_T4.pdf", meta: "PT · EN · FR · 245 000 €", titulo: "Anúncio · Moradia T4 com piscina", corpo: anuncio() }), 1100, true);
+      const i = await acoes(b, ["Publica e avisa os 4", "Eu revejo primeiro"]);
+      if (i === 0) await diz(`Publicado no Idealista, no Imovirtual e no vosso site às ${hora()} ✓ Os 4 compradores receberam a ficha, cada um na sua língua, e 2 já pediram visita.`, 1300);
+      else await diz("Fica em rascunho. Quando o aprovar, publico nos portais e aviso os 4 compradores.");
+      poupar(75);
+    } },
+  { id: "propostas", chip: "🤝 Gere as propostas", pede: "Chegaram propostas para a moradia T4. O que achas?", chaves: /propost|ofert|negoc|cpcv|contrat|preço|preco/i,
+    async correr() {
+      await passos(["Recebi 2 propostas para a Moradia T4 com piscina (pedido: 245 000 €)", "Confirmei a declaração do banco da proposta A", "Comparei valor, pagamento, sinal e prazo da escritura"]);
+      const b = await diz(`<table class="t"><tr><td>Proposta A<br><span class="mudo">crédito pré-aprovado · escritura em 60 dias</span></td><td class="n bem">232 000 €</td></tr>
+        <tr><td>Proposta B<br><span class="mal">depende da venda da casa atual</span></td><td class="n">238 000 €</td></tr></table>
+        Recomendo uma contraproposta de <b>240 000 €</b> à A: o dinheiro é certo e a escritura é mais rápida.`
+        + doc({ tipo: "pdf", nome: "Propostas_Moradia_T4.pdf", meta: "resumo para o proprietário", titulo: "Propostas · Moradia T4 com piscina", corpo: resumoPropostas() }), 1200, true);
+      const i = await acoes(b, ["Envia ao proprietário", "Ainda não"]);
+      if (i === 0) {
+        await diz("Enviado ✓ O proprietário concordou, e os compradores da A aceitaram <b>238 500 €</b>.", 1600);
+        await passos(["Preenchi o vosso modelo de CPCV com os dados das duas partes", "Conferi os documentos do imóvel"]);
+        await diz(`CPCV pronto para rever. <span class="mal">Atenção:</span> o certificado energético caduca em 3 semanas, antes da escritura. Já pedi orçamento a 2 peritos.`
+          + doc({ tipo: "pdf", nome: "CPCV_Moradia_T4_rascunho.pdf", meta: `sinal 23 850 € · escritura até ${dataPT(daqui(60))}`, titulo: "CPCV · rascunho", corpo: cpcv() }), 1200, true);
+      } else await diz("Fica guardado. As duas propostas são válidas até sexta; lembro-o na quinta.");
+      poupar(120);
+    } },
+  { id: "condominios", chip: "🏢 Como estão os condomínios?", pede: "Como estão os condomínios que administramos?", chaves: /condom|quota|assembl|avaria|ocorr|infiltr/i,
+    async correr() {
+      await passos(["Li os emails e os WhatsApp dos condóminos de 6 edifícios", "Conferi as quotas pagas no extrato do banco", "Revi as ocorrências abertas e as assembleias por marcar"]);
+      const b = await diz(`<table class="t"><tr><td>Edifício Jardim<br><span class="mudo">3 frações com quotas em atraso</span></td><td class="n mal">1.140 €</td></tr>
+        <tr><td>Rua Nova, 12<br><span class="mudo">infiltração no 3.º Esq. (fotografias por WhatsApp)</span></td><td class="n mal">por resolver</td></tr>
+        <tr><td>Edifício Sol<br><span class="mudo">assembleia anual por marcar</span></td><td class="n">convocatória pronta</td></tr></table>`
+        + doc({ tipo: "eml", nome: "Aviso de quotas em atraso (3)", meta: "Edifício Jardim · um por fração", titulo: "Aviso de quotas em atraso", corpo: avisoQuotas() })
+        + doc({ tipo: "pdf", nome: "Convocatoria_Edificio_Sol.pdf", meta: `assembleia a ${dataPT(daqui(15))} · 19:00`, titulo: "Convocatória · Assembleia de condóminos", corpo: convocatoria() }), 1200, true);
+      const i = await acoes(b, ["Envia os avisos e a convocatória", "Pede orçamentos para a infiltração"]);
+      if (i === 0) await diz("Enviados ✓ Os avisos seguiram por email; a convocatória por email e, a quem não tem email, por carta registada. Se as quotas não entrarem em 10 dias, ligo aos condóminos.", 1300);
+      else await diz("Pedi orçamento a 2 canalizadores ✓ Um passa quinta de manhã e já avisei o condómino do 3.º Esq. Quando chegarem os orçamentos, mostro-lhos lado a lado.", 1300);
+      poupar(80);
+    } },
+  { id: "resumo", chip: "🌙 O que fizeste hoje?", pede: "O que fizeste hoje?", chaves: /hoje|resum|fizeste|dia/i,
+    async correr() {
+      await escrever(1300);
+      bolha("ela", `Hoje ${daEmpresa()} 👇<div class="numeros"><div><b>12</b><span>chamadas atendidas, 4 fora de horas</span></div><div><b>31</b><span>contactos respondidos, em 3 línguas</span></div>
+        <div><b>7</b><span>visitas marcadas</span></div><div><b>2</b><span>propostas tratadas e 1 CPCV</span></div><div><b>1</b><span>anúncio em 3 línguas</span></div><div><b>9</b><span>condóminos avisados</span></div></div>
+        <div class="grande"><b>7 h 40</b>de trabalho que ninguém da equipa teve de fazer</div>`, true);
+      poupar(Math.max(0, 460 - minutos));
+      await diz("É como ter uma funcionária sobredotada que atende a qualquer hora, fala três línguas e não se esquece de nenhum contacto… e ainda por cima não paga IRS nem Segurança Social 😉", 1800);
+      await diz(`<div class="cta"><b>Quer ver isto com os imóveis ${daEmpresa()}?</b><br>Falamos 15 minutos e mostro-lhe com a vossa carteira.</div>`
+        + `<div class="acoes"><button class="principal" type="button" onclick="location.href='tel:+351936882364'">Ligar ao Pedro</button><button type="button" onclick="location.href='https://wa.me/351936882364'">WhatsApp</button></div>`, 900, true);
+    } },
+];
+const LISTA = () => (SETOR === "textil" ? CENARIOS_TEXTIL : SETOR === "imobiliaria" ? CENARIOS_IMOBILIARIA : CENARIOS);
+// what the real Daniela connects to, per sector (the free-text answer and the notice at the top)
+const LIGA = { textil: "ao email e aos programas de produção", imobiliaria: "ao telefone, ao email, aos portais e ao programa", "": "ao email, à faturação e aos programas" }[SETOR];
+const TRABALHA = { textil: "o email e os programas de produção", imobiliaria: "o telefone, o email, os portais e o programa", "": "o email, a faturação e os programas" }[SETOR];
 
 async function correr(c, texto) {
   if (ocupada) return;
@@ -514,18 +656,18 @@ $("#form").onsubmit = async (ev) => {
   const c = LISTA().find((x) => x.chaves.test(t));
   if (c) return correr(c, t);
   ocupada = true; eu(t);
-  await diz(`Também consigo fazer isso 🙂 Na versão real, ligo-me ao email${SETOR === "textil" ? " e aos programas de produção" : ", à faturação e aos programas"} ${daEmpresa()} e faço-o com os vossos dados. Por agora, experimente uma das sugestões aqui em baixo 👇`, 1500);
+  await diz(`Também consigo fazer isso 🙂 Na versão real, ligo-me ${LIGA} ${daEmpresa()} e faço-o com os vossos dados. Por agora, experimente uma das sugestões aqui em baixo 👇`, 1500);
   ocupada = false;
 };
 async function inicio() {
   sessao++; ocupada = false; minutos = 0; $("#horas").textContent = "0 h 00";
   cabecalho(); desenharChips();
-  const textil = SETOR === "textil";
-  chat.innerHTML = `<div class="dia"><span>HOJE</span></div><div class="aviso">🔒 Demonstração com dados fictícios. Na versão real, a Daniela trabalha com o email${textil ? " e os programas de produção" : ", a faturação e os programas"} da empresa.</div>`;
+  chat.innerHTML = `<div class="dia"><span>HOJE</span></div><div class="aviso">🔒 Demonstração com dados fictícios. Na versão real, a Daniela trabalha com ${TRABALHA} ${SETOR === "imobiliaria" ? "da agência" : "da empresa"}.</div>`;
   await espera(400);
   await diz(`Olá! 👋 Sou a Daniela, a assistente de IA ${daEmpresa()}.`, 900);
-  await diz(textil ? "Abro as encomendas novas: leio o pedido e o tech pack do cliente, cruzo cada componente com os vossos artigos e deixo a ficha técnica e a encomenda interna prontas a validar. Também peço materiais, sigo prazos e calculo custos reais. Toque numa sugestão aqui em baixo 👇"
-    : "Leio emails e faturas, faço medições e orçamentos, ligo a clientes e fornecedores, marco reuniões. Peça-me qualquer coisa, ou toque numa sugestão aqui em baixo 👇", 1300);
+  await diz({ textil: "Abro as encomendas novas: leio o pedido e o tech pack do cliente, cruzo cada componente com os vossos artigos e deixo a ficha técnica e a encomenda interna prontas a validar. Também peço materiais, sigo prazos e calculo custos reais. Toque numa sugestão aqui em baixo 👇",
+    imobiliaria: "Atendo o telefone e os contactos dos portais a qualquer hora, em português, inglês e francês, e marco as visitas com o consultor certo. Também preparo anúncios, trato das propostas até ao CPCV e dos condomínios que administram. Toque numa sugestão aqui em baixo 👇" }[SETOR]
+    || "Leio emails e faturas, faço medições e orçamentos, ligo a clientes e fornecedores, marco reuniões. Peça-me qualquer coisa, ou toque numa sugestão aqui em baixo 👇", 1300);
 }
 function abrirConfig() { $("#nome-empresa").value = EMPRESA; $("#config").classList.add("aberto"); setTimeout(() => $("#nome-empresa").focus(), 50); }
 $("#quem").onclick = abrirConfig; $("#menu").onclick = abrirConfig;
