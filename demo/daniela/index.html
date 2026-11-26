@@ -87,6 +87,10 @@ table.t tr:last-child td{border-bottom:0}
 footer{flex:none;background:var(--fundo);padding:4px 0 calc(6px + env(safe-area-inset-bottom))}
 .chips{display:grid;grid-template-rows:auto auto;grid-auto-flow:column;grid-auto-columns:max-content;gap:7px;overflow-x:auto;padding:4px 10px 8px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
+/* com rato (web): barra fina à vista e mãozinha, porque a roda e o arrastar deslizam as sugestões para os lados */
+@media (hover:hover) and (pointer:fine){.chips{cursor:grab;scrollbar-width:thin;scrollbar-color:#c3cbd0 transparent}
+.chips::-webkit-scrollbar{display:block;height:6px}.chips::-webkit-scrollbar-thumb{background:#c3cbd0;border-radius:3px}
+.chips.a-arrastar{cursor:grabbing;user-select:none}}
 .chips button{flex:none;border:1px solid #d1d7db;background:#fff;color:var(--tinta);font:500 14.5px inherit;font-family:inherit;padding:8px 13px;border-radius:18px;cursor:pointer;box-shadow:0 1px .5px rgba(0,0,0,.08);white-space:nowrap}
 .chips button.usado{background:#e7f5f1;border-color:#b6e2d5}
 .chips button:disabled{opacity:.5}
@@ -147,6 +151,24 @@ footer{flex:none;background:var(--fundo);padding:4px 0 calc(6px + env(safe-area-
 // Demonstração de bolso (2026-11-19): tudo fictício e local, sem servidor nem modelo. ?e=Empresa personaliza o nome.
 const $ = (s) => document.querySelector(s);
 const chat = $("#chat"), chipsEl = $("#chips");
+// Pedro 26/11, no computador: «não consigo puxar os botões para o lado». Com rato, a roda e o arrastar deslizam as
+// sugestões; um arrasto não conta como toque numa sugestão. No telemóvel fica o deslizar com o dedo, como antes.
+(() => {
+  chipsEl.addEventListener("wheel", (e) => {
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || chipsEl.scrollWidth <= chipsEl.clientWidth) return;
+    chipsEl.scrollLeft += e.deltaY; e.preventDefault();
+  }, { passive: false });
+  let x0 = null, s0 = 0, arrastou = false;
+  chipsEl.addEventListener("pointerdown", (e) => { if (e.pointerType === "mouse" && e.button === 0) { x0 = e.clientX; s0 = chipsEl.scrollLeft; arrastou = false; } });
+  window.addEventListener("pointermove", (e) => {
+    if (x0 === null) return;
+    const dx = e.clientX - x0;
+    if (!arrastou && Math.abs(dx) > 6) { arrastou = true; chipsEl.classList.add("a-arrastar"); }
+    if (arrastou) chipsEl.scrollLeft = s0 - dx;
+  });
+  window.addEventListener("pointerup", () => { x0 = null; chipsEl.classList.remove("a-arrastar"); });
+  chipsEl.addEventListener("click", (e) => { if (arrastou) { e.stopPropagation(); e.preventDefault(); arrastou = false; } }, true);
+})();
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 const ler = (k) => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
@@ -485,15 +507,17 @@ const CENARIOS_TEXTIL = [
     } },
 ];
 // ---------------------------------------------------------------- imobiliária (?s=imobiliaria, 2026-11-26) ----
-// Mediação imobiliária (Pedro, na reunião com a LING: «uma demo para imobiliárias com o foco tipo Bond, assistente que atende
-// chamadas e faz gestão de propostas e condomínios… foca-te no que lhes potencialmente interessa»). Tudo fictício.
+// Mediação e promoção imobiliária (Pedro, na reunião com a LING: «uma demo para imobiliárias com o foco tipo Bond»; depois:
+// «parece muito admin de condomínios… mais tipo para promotora, vendas, leads»). Vendas e contactos; tudo fictício.
 const LEADS_HOJE = [["Sophie e Marc Dubois", "T2 com terraço", "telefone, 22:41", "FR", "220 000 €", "🔥 videovisita amanhã"],
-  ["James Carter", "Moradia T4 com piscina", "Idealista", "EN", "260 000 €", "🔥 visita sábado 11:00"],
-  ["Ana Ferreira", "T3 junto à escola", "Imovirtual", "PT", "170 000 €", "🔥 visita sexta 18:00"],
-  ["Rui e Carla Matos", "Moradia T4 com piscina", "site", "PT", "250 000 €", "🔥 crédito por aprovar"],
-  ["Hélène Martin", "Quinta com 2 ha", "Idealista", "FR", "300 000 €", "🔥 videochamada pedida"],
-  ["Paulo Nunes", "T2 com terraço", "Imovirtual", "PT", "180 000 €", "🌤 volta a falar em janeiro"],
-  ["Laura Silva", "T1 para arrendar", "site", "PT", "550 €/mês", "🌤 recebeu 3 opções"]];
+  ["James Carter", "T4 · Quinta do Rio", "Idealista", "EN", "320 000 €", "🔥 visita sábado 11:00"],
+  ["Ana Ferreira", "T3 · Jardins da Encosta", "Facebook", "PT", "200 000 €", "🔥 andar modelo sexta 18:00"],
+  ["Rui e Carla Matos", "T3 · Jardins da Encosta", "site", "PT", "195 000 €", "🔥 crédito em aprovação"],
+  ["Hélène Martin", "T2 · Edifício Miradouro", "Instagram", "FR", "180 000 €", "🔥 videochamada pedida"],
+  ["Paulo Nunes", "T1 · Jardins da Encosta", "Imovirtual", "PT", "140 000 €", "🌤 volta a falar em janeiro"],
+  ["Laura Silva", "T2 para investir", "Idealista", "PT", "170 000 €", "🌤 recebeu a tabela de preços"]];
+const FRACOES = [["A", "T1", "62 m²", "1.º", 139000], ["B", "T2", "89 m²", "1.º", 172000], ["C", "T2", "91 m² + terraço", "2.º", 179000],
+  ["D", "T3", "118 m²", "2.º", 198000], ["E", "T3", "121 m² + terraço", "3.º", 209000], ["F", "T4", "152 m²", "4.º", 265000]];
 function fichaComprador() {
   return folha("Ficha do comprador", `Chamada de ${dataPT(hoje)} às 22:41 · atendida pela Daniela`,
     `<table><tr><td>Nome</td><td>Sophie e Marc Dubois</td></tr><tr><td>Língua</td><td>francês</td></tr><tr><td>Procuram</td><td>T2 ou T3 para habitação própria, com terraço ou varanda</td></tr>
@@ -502,43 +526,46 @@ function fichaComprador() {
     <p class="mudo">A conversa completa, traduzida, fica na ficha do contacto, no programa da agência.</p>`);
 }
 function contactosHoje() {
-  return folha("Contactos de hoje", `${dataPT(hoje)} · 14 contactos · todos respondidos em menos de 2 minutos`,
-    `<table><tr><th>Contacto</th><th>Imóvel</th><th>Origem</th><th class="n">Orçamento</th><th>Estado</th></tr>${LEADS_HOJE.map(([n, i, o, l, v, e]) =>
+  return folha("Contactos de hoje", `${dataPT(hoje)} · 20 contactos · todos respondidos em menos de 2 minutos`,
+    `<table><tr><th>Contacto</th><th>Procura</th><th>Origem</th><th class="n">Orçamento</th><th>Estado</th></tr>${LEADS_HOJE.map(([n, i, o, l, v, e]) =>
       `<tr><td>${n}<br><span class="mudo">${l}</span></td><td>${i}</td><td>${o}</td><td class="n">${v}</td><td>${e}</td></tr>`).join("")}
-    <tr><td colspan="5" class="mudo">… e mais 7: 3 só curiosos e 4 a acompanhar</td></tr></table>`);
+    <tr><td colspan="5" class="mudo">… e mais 13: 5 só curiosos e 8 a acompanhar</td></tr></table>`);
 }
-function anuncio() {
-  return folha("Anúncio · Moradia T4 com piscina", "Português · English · Français · 12 fotografias, por esta ordem",
-    `<h3>Português</h3><p>Moradia T4 com piscina e jardim, a 2 km do centro. 238 m², sala com lareira, cozinha equipada, suíte com closet e garagem para dois carros. Certificado energético B. <b>245 000 €</b></p>
-    <h3>English</h3><p>Four-bedroom villa with pool and garden, 2 km from the town centre. 238 m², living room with fireplace, fitted kitchen, master suite with walk-in closet and a double garage. Energy rating B. <b>€245,000</b></p>
-    <h3>Français</h3><p>Villa T4 avec piscine et jardin, à 2 km du centre-ville. 238 m², salon avec cheminée, cuisine équipée, suite parentale avec dressing et garage double. Classe énergétique B. <b>245 000 €</b></p>`);
+function tabelaLancamento() {
+  return folha("Jardins da Encosta · tabela de lançamento", "24 frações, T1 a T4 · garagem e arrecadação incluídas · conclusão prevista em março de 2028",
+    `<table><tr><th>Fração</th><th>Tipologia</th><th>Área</th><th>Piso</th><th class="n">Preço</th></tr>${FRACOES.map(([f, t, a, p, v]) =>
+      `<tr><td>${f}</td><td>${t}</td><td>${a}</td><td>${p}</td><td class="n">${eur(v)}</td></tr>`).join("")}
+    <tr><td colspan="5" class="mudo">… e mais 18 frações, cada uma com planta, ficha e disponibilidade ao minuto</td></tr></table>
+    <h3>Texto do empreendimento (PT · EN · FR)</h3><p>Jardins da Encosta: 24 apartamentos novos, do T1 ao T4, com vista desafogada, garagem e arrecadação. Classe energética A. A 5 minutos do centro.</p>
+    <p class="mudo">Também em inglês e francês, para os portais, o site e os anúncios no Facebook e no Instagram.</p>`);
 }
 function resumoPropostas() {
-  return folha("Propostas · Moradia T4 com piscina", `Para o proprietário · ${dataPT(hoje)} · preço pedido 245 000 €`,
+  return folha("Propostas · Fração D (T3) · Jardins da Encosta", `Para o promotor · ${dataPT(hoje)} · preço de tabela 198 000 €`,
     `<table><tr><th></th><th>Proposta A</th><th>Proposta B</th></tr>
-    <tr><td>Valor</td><td class="n">232 000 €</td><td class="n">238 000 €</td></tr>
+    <tr><td>Valor</td><td class="n">189 000 €</td><td class="n">195 000 €</td></tr>
     <tr><td>Pagamento</td><td>crédito pré-aprovado (declaração do banco)</td><td class="mal">depende da venda da casa atual</td></tr>
-    <tr><td>Sinal no CPCV</td><td>10 %</td><td>5 %</td></tr><tr><td>Escritura</td><td>até 60 dias</td><td>sem data</td></tr></table>
-    <h3>Recomendação</h3><p>Contraproposta de 240 000 € aos compradores da proposta A: o dinheiro é certo e a escritura é mais rápida.</p>`);
+    <tr><td>Sinal no CPCV</td><td>10 %</td><td>5 %</td></tr><tr><td>Reforço de sinal</td><td>10 % na cobertura</td><td>não propõe</td></tr></table>
+    <h3>Recomendação</h3><p>Contraproposta de 194 000 € aos compradores da proposta A: o dinheiro é certo e o sinal é maior.</p>`);
 }
 function cpcv() {
-  return folha("CPCV · rascunho", `Moradia T4 com piscina · ${dataPT(hoje)}`,
-    `<p><b>Preço:</b> 238 500 € · <b>Sinal:</b> 23 850 € (10 %) na assinatura · <b>Escritura:</b> até ${dataPT(daqui(60))}</p>
-    <h3>Documentos do imóvel</h3><table><tr><td>Caderneta predial</td><td class="bem">✓</td></tr><tr><td>Certidão permanente</td><td class="bem">✓ válida</td></tr>
-    <tr><td>Licença de utilização</td><td class="bem">✓</td></tr><tr><td>Certificado energético</td><td class="mal">caduca em 3 semanas</td></tr><tr><td>Ficha técnica da habitação</td><td class="bem">✓</td></tr></table>
-    <p class="mudo">Com as cláusulas do vosso modelo de CPCV; os dados dos compradores e do proprietário vêm das fichas.</p>`);
+  return folha("CPCV · rascunho", `Fração D (T3) · Jardins da Encosta · ${dataPT(hoje)}`,
+    `<p><b>Preço:</b> 193 500 € · <b>Sinal:</b> 19 350 € (10 %) na assinatura · <b>Reforço:</b> 19 350 € na conclusão da cobertura · <b>Escritura:</b> até 60 dias depois da licença de utilização</p>
+    <h3>Documentos</h3><table><tr><td>Licença de construção</td><td class="bem">✓</td></tr><tr><td>Certidão permanente do promotor</td><td class="bem">✓ válida</td></tr>
+    <tr><td>Pré-certificado energético (classe A)</td><td class="bem">✓</td></tr><tr><td>Ficha técnica da habitação provisória</td><td class="bem">✓</td></tr><tr><td>Licença de utilização</td><td class="mal">prevista para março de 2028</td></tr></table>
+    <p class="mudo">Com as cláusulas do vosso modelo de CPCV para obra em construção; os dados das partes vêm das fichas.</p>`);
 }
-function convocatoria() {
-  return folha("Convocatória · Assembleia de condóminos", "Edifício Sol · 18 frações",
-    `<p>Convocam-se os condóminos do Edifício Sol para a assembleia ordinária, no dia <b>${dataPT(daqui(15))}, às 19:00</b>, na sala do condomínio.</p>
-    <p><b>Ordem de trabalhos:</b><br>1. Contas de 2026 e orçamento para 2027.<br>2. Fundo comum de reserva.<br>3. Pintura da fachada: 3 orçamentos.<br>4. Eleição da administração.</p>
-    <p class="mudo">Segue por email e, a quem não tem email, por carta registada.</p>`);
+function relatorioVendas() {
+  return folha("Relatório de vendas da semana", `Para o promotor · semana até ${dataPT(hoje)}`,
+    `<table><tr><th>Empreendimento</th><th class="n">Vendidas</th><th class="n">Reservadas</th><th class="n">Livres</th></tr>
+    <tr><td>Jardins da Encosta (24)</td><td class="n">9</td><td class="n">4</td><td class="n">11</td></tr>
+    <tr><td>Edifício Miradouro (16)</td><td class="n">14</td><td class="n">1</td><td class="n">1</td></tr>
+    <tr><td>Quinta do Rio (8 moradias)</td><td class="n">3</td><td class="n">0</td><td class="n mal">5</td></tr></table>
+    <h3>Funil desde o lançamento</h3><table><tr><td>Contactos</td><td class="n">412</td></tr><tr><td>Visitas</td><td class="n">96</td></tr><tr><td>Reservas</td><td class="n">30 (7,3 % dos contactos)</td></tr>
+    <tr><td>Origem que mais vende</td><td class="n">Idealista · 38 % das reservas</td></tr><tr><td>Anúncios no Facebook</td><td class="n">410 € por reserva</td></tr></table>
+    <h3>O que proponho</h3><p>Quinta do Rio: as moradias T4 têm visitas mas nenhuma proposta, e 3 visitantes disseram que o preço está acima. Campanha aos compradores de T4 da base e revisão do preço com o promotor.</p>`);
 }
-const avisoQuotas = () => `<div class="folha"><p class="mudo">Para: condómino da fração C · Edifício Jardim</p><p><b>Assunto: Quotas do condomínio em atraso</b></p>
-  <p>Boa tarde,</p><p>Segundo os nossos registos, estão por pagar as quotas de setembro, outubro e novembro da fração C, no valor de 135,00 €. Pode fazer a transferência para o IBAN do condomínio, ou responder a este email se já tiver pago.</p>
-  <p>Com os melhores cumprimentos,<br>${esc(nomeEmpresa())} · Administração do condomínio</p></div>`;
 const CENARIOS_IMOBILIARIA = [
-  { id: "chamada", chip: "📞 Atende esta chamada", pede: "Está a tocar o telefone da agência e já fechámos. Atendes?", chaves: /chamad|telef|liga|atend|toca/i,
+  { id: "chamada", chip: "📞 Atende esta chamada", pede: "Está a tocar o telefone da agência e já fechámos. Atendes?", chaves: /chamad|telef|atend|toca/i,
     async correr() {
       await escrever(500);
       const c = bolha("ela", `<div class="chamada"><div class="topo"><div class="bola">📞</div><div><b>+33 6 •• •• •• 48 · França</b><small>chamada a entrar · 22:41</small></div><span class="onda"><i></i><i></i><i></i><i></i></span></div><div class="falas"></div></div>`, true);
@@ -556,68 +583,85 @@ const CENARIOS_IMOBILIARIA = [
       const b = await diz(`Atendi em francês ✓ <b>Sophie e Marc Dubois</b> mudam-se para Portugal em julho e têm crédito pré-aprovado. Marquei uma videovisita ao T2 amanhã às 18:00 com o Ricardo e mandei-lhes a ficha por WhatsApp. Contacto quente 🔥`
         + doc({ tipo: "pdf", nome: "Ficha_comprador_Dubois.pdf", meta: "qualificado · videovisita amanhã às 18:00", titulo: "Ficha do comprador", corpo: fichaComprador() }), 1100, true);
       const i = await acoes(b, ["Mostra-lhes outros imóveis", "Avisa o Ricardo"]);
-      if (i === 0) await diz("Na vossa carteira há mais 2 que lhes servem: um T3 com varanda (172 000 €) e um T2 novo com garagem (199 000 €). Mandei-lhes os dois em francês, com as fotografias ✓", 1300);
+      if (i === 0) await diz("Há mais 2 que lhes servem: o T2 com terraço do Jardins da Encosta (179 000 €) e um T3 com varanda (172 000 €). Mandei-lhes os dois em francês, com as plantas e as fotografias ✓", 1300);
       else await diz("O Ricardo já tem a videovisita na agenda e a ficha no telemóvel, com a conversa traduzida ✓", 1000);
       poupar(35);
     } },
-  { id: "contactos", chip: "📥 Responde aos contactos dos portais", pede: "Responde aos contactos que chegaram dos portais", chaves: /contact|lead|portal|idealista|imovirtual|respond|pedido/i,
+  { id: "contactos", chip: "📥 Responde aos contactos de hoje", pede: "Responde aos contactos que chegaram dos portais e dos anúncios", chaves: /contact|lead|portal|idealista|imovirtual|facebook|instagram|anúnc|anunc|respond/i,
     async correr() {
-      await passos(["Li 14 contactos desta noite: Idealista 7, Imovirtual 4, site 3", "Respondi a todos em menos de 2 minutos: 9 em português, 3 em inglês e 2 em francês", "Perguntei orçamento, crédito, prazo e zona", "Marquei 3 visitas nas agendas dos consultores"]);
-      const b = await diz(`<table class="t"><tr><td>🔥 Quentes: orçamento e crédito certos</td><td class="n bem">5</td></tr><tr><td>🌤 A acompanhar</td><td class="n">6</td></tr><tr><td>❄ Só curiosos</td><td class="n">3</td></tr><tr><td>Visitas marcadas</td><td class="n bem">3</td></tr></table>`
-        + doc({ tipo: "xls", nome: "Contactos_de_hoje.xlsx", meta: "14 contactos · já no vosso programa", titulo: "Contactos de hoje", corpo: contactosHoje() }), 1100, true);
+      await passos(["Li 20 contactos desta noite: Idealista 7, Facebook e Instagram 6, Imovirtual 4, site 3", "Respondi a todos em menos de 2 minutos: 13 em português, 4 em inglês e 3 em francês", "Perguntei orçamento, crédito, prazo e tipologia", "Marquei 4 visitas nas agendas dos consultores e no andar modelo"]);
+      const b = await diz(`<table class="t"><tr><td>🔥 Quentes: orçamento e crédito certos</td><td class="n bem">7</td></tr><tr><td>🌤 A acompanhar</td><td class="n">8</td></tr><tr><td>❄ Só curiosos</td><td class="n">5</td></tr><tr><td>Visitas marcadas</td><td class="n bem">4</td></tr></table>`
+        + doc({ tipo: "xls", nome: "Contactos_de_hoje.xlsx", meta: "20 contactos · já no vosso programa", titulo: "Contactos de hoje", corpo: contactosHoje() }), 1100, true);
       const i = await acoes(b, ["Distribui pelos consultores", "Mostra os quentes"]);
-      if (i === 0) await diz("Feito ✓ O Ricardo ficou com 2, a Ana com 2 e o Miguel com 1, por zona e por língua. Cada um recebeu no telemóvel a ficha e a conversa.", 1100);
+      if (i === 0) await diz("Feito ✓ O Ricardo ficou com 3, a Ana com 2 e o Miguel com 2, por empreendimento e por língua. Cada um recebeu no telemóvel a ficha e a conversa.", 1100);
       else await diz(LEADS_HOJE.slice(0, 5).map(([n, im, o, l, v, e]) => `<b>${n}</b> (${l}) · ${im} · ${v}<br><span class="mudo">${o} · ${e}</span>`).join("<br>"), 1100, true);
-      poupar(90);
+      poupar(110);
     } },
-  { id: "imovel", chip: "🏡 Prepara o anúncio do imóvel novo", pede: "Entrou uma moradia nova. Preparas o anúncio?", chaves: /anúnc|anunc|imóvel|imovel|angari|moradia|foto/i,
-    anexo: '<div class="anexos"><span>📎 12 fotografias</span><span>📎 Caderneta_predial.pdf</span><span>📎 Certificado_energetico.pdf</span></div>',
+  { id: "antigos", chip: "🔁 Liga aos contactos antigos", pede: "Liga aos contactos antigos que não compraram", chaves: /antig|reativ|recuper|ligar a|liga a|base/i,
     async correr() {
-      await passos(["Li a caderneta predial e o certificado energético (classe B)", "Vi as 12 fotografias e escolhi a ordem para os portais", "Escrevi o anúncio em português, inglês e francês", "Procurei na vossa base quem procura uma casa assim"]);
-      const b = await diz(`Anúncio pronto ✅ E há <b>4 compradores</b> na vossa base à procura disto mesmo: T4 até 260 000 €, com garagem.`
-        + doc({ tipo: "pdf", nome: "Anuncio_Moradia_T4.pdf", meta: "PT · EN · FR · 245 000 €", titulo: "Anúncio · Moradia T4 com piscina", corpo: anuncio() }), 1100, true);
-      const i = await acoes(b, ["Publica e avisa os 4", "Eu revejo primeiro"]);
-      if (i === 0) await diz(`Publicado no Idealista, no Imovirtual e no vosso site às ${hora()} ✓ Os 4 compradores receberam a ficha, cada um na sua língua, e 2 já pediram visita.`, 1300);
-      else await diz("Fica em rascunho. Quando o aprovar, publico nos portais e aviso os 4 compradores.");
-      poupar(75);
+      await passos(["Encontrei 46 contactos dos últimos 12 meses que procuravam T2 ou T3 e não compraram", "Liguei-lhes entre as 10:00 e as 19:00, a cada um pelo nome", "Falei com 31 e registei o que disseram na ficha de cada um"]);
+      await escrever(500);
+      const c = bolha("ela", `<div class="chamada"><div class="topo"><div class="bola">📞</div><div><b>Nuno Correia</b><small>chamada feita pela Daniela · 00:52</small></div></div><div class="falas"></div></div>`, true);
+      const falas = c.querySelector(".falas");
+      const linhas = [["c", "Daniela", `Bom dia, Sr. Nuno, fala a Daniela, assistente de IA ${daEmpresa()}. Em março procurava um T3 com garagem. Ainda está à procura?`],
+        ["", "Nuno Correia", "Ainda, sim. Não encontrámos nada que valesse a pena."],
+        ["c", "Daniela", "Temos um empreendimento novo, o Jardins da Encosta: T3 com 118 m², garagem e arrecadação, a 198 000 €. Quer ver o andar modelo no sábado de manhã?"],
+        ["", "Nuno Correia", "Pode ser às 11:00."]];
+      for (const [cl, q, t] of linhas) { await espera(1500); falas.insertAdjacentHTML("beforeend", `<p class="${cl}"><em>${q}</em>${esc(t)}</p>`); descer(); }
+      const b = await diz(`<table class="t"><tr><td>Atenderam</td><td class="n">31</td></tr><tr><td>Continuam à procura</td><td class="n bem">9</td></tr><tr><td>Visitas marcadas</td><td class="n bem">4</td></tr>
+        <tr><td>Já compraram noutro lado</td><td class="n">7</td></tr><tr><td>Pediram para não voltarmos a ligar</td><td class="n">2 · já retirados</td></tr></table>`, 1300, true);
+      const i = await acoes(b, ["Manda a tabela aos 9", "Porque compraram noutro lado?"]);
+      if (i === 0) await diz("Enviada ✓ Cada um recebeu a tabela do Jardins da Encosta e as plantas da tipologia que procura. Se não responderem até sexta, volto a ligar.", 1100);
+      else await diz("Dos 7 que compraram noutro lado: 4 pelo preço, 2 pela localização e 1 pelo prazo de entrega. Pus isto no relatório para o promotor.", 1100);
+      poupar(150);
     } },
-  { id: "propostas", chip: "🤝 Gere as propostas", pede: "Chegaram propostas para a moradia T4. O que achas?", chaves: /propost|ofert|negoc|cpcv|contrat|preço|preco/i,
+  { id: "lancamento", chip: "🏗️ Lança o empreendimento novo", pede: "Chegou o empreendimento Jardins da Encosta. Preparas o lançamento?", chaves: /empreend|lança|lanca|lançamento|fração|fracao|tabela|planta/i,
+    anexo: '<div class="anexos"><span>📎 Tabela_de_precos.xlsx</span><span>📎 Plantas (24)</span><span>📎 Memoria_descritiva.pdf</span></div>',
     async correr() {
-      await passos(["Recebi 2 propostas para a Moradia T4 com piscina (pedido: 245 000 €)", "Confirmei a declaração do banco da proposta A", "Comparei valor, pagamento, sinal e prazo da escritura"]);
-      const b = await diz(`<table class="t"><tr><td>Proposta A<br><span class="mudo">crédito pré-aprovado · escritura em 60 dias</span></td><td class="n bem">232 000 €</td></tr>
-        <tr><td>Proposta B<br><span class="mal">depende da venda da casa atual</span></td><td class="n">238 000 €</td></tr></table>
-        Recomendo uma contraproposta de <b>240 000 €</b> à A: o dinheiro é certo e a escritura é mais rápida.`
-        + doc({ tipo: "pdf", nome: "Propostas_Moradia_T4.pdf", meta: "resumo para o proprietário", titulo: "Propostas · Moradia T4 com piscina", corpo: resumoPropostas() }), 1200, true);
-      const i = await acoes(b, ["Envia ao proprietário", "Ainda não"]);
+      await passos(["Li a tabela de preços, a memória descritiva e as plantas das 24 frações", "Fiz a ficha de cada fração e os textos em português, inglês e francês", "Preparei a página do empreendimento com a disponibilidade ao minuto", "Cruzei com a vossa base e com a lista de espera"]);
+      const b = await diz(`Pronto ✅ <b>52 contactos</b> da vossa base procuram o que o Jardins da Encosta tem, e 18 estavam na lista de espera.`
+        + doc({ tipo: "xls", nome: "Tabela_Jardins_da_Encosta.xlsx", meta: "24 frações · T1 a T4 · desde 139 000 €", titulo: "Jardins da Encosta · tabela de lançamento", corpo: tabelaLancamento() }), 1100, true);
+      const i = await acoes(b, ["Lança e avisa os 52", "Eu revejo primeiro"]);
+      if (i === 0) await diz(`Lançado às ${hora()} ✓ Está nos portais, no site e nos anúncios. Os 52 receberam a tabela, cada um na sua língua: 11 já a abriram e 3 marcaram visita ao andar modelo no sábado.`, 1300);
+      else await diz("Fica tudo pronto em rascunho. Quando o aprovar, lanço e aviso os 52 contactos.");
+      poupar(240);
+    } },
+  { id: "propostas", chip: "🤝 Gere as propostas", pede: "Chegaram propostas para a fração D. O que achas?", chaves: /propost|ofert|negoc|cpcv|contrat|reserv/i,
+    async correr() {
+      await passos(["Recebi 2 propostas para a fração D (T3) do Jardins da Encosta, de tabela a 198 000 €", "Confirmei a declaração do banco da proposta A", "Comparei valor, pagamento e sinal"]);
+      const b = await diz(`<table class="t"><tr><td>Proposta A<br><span class="mudo">crédito pré-aprovado · sinal de 10 % + reforço</span></td><td class="n bem">189 000 €</td></tr>
+        <tr><td>Proposta B<br><span class="mal">depende da venda da casa atual</span></td><td class="n">195 000 €</td></tr></table>
+        Recomendo uma contraproposta de <b>194 000 €</b> à A: o dinheiro é certo e o sinal é maior.`
+        + doc({ tipo: "pdf", nome: "Propostas_Fracao_D.pdf", meta: "resumo para o promotor", titulo: "Propostas · Fração D (T3) · Jardins da Encosta", corpo: resumoPropostas() }), 1200, true);
+      const i = await acoes(b, ["Envia ao promotor", "Ainda não"]);
       if (i === 0) {
-        await diz("Enviado ✓ O proprietário concordou, e os compradores da A aceitaram <b>238 500 €</b>.", 1600);
-        await passos(["Preenchi o vosso modelo de CPCV com os dados das duas partes", "Conferi os documentos do imóvel"]);
-        await diz(`CPCV pronto para rever. <span class="mal">Atenção:</span> o certificado energético caduca em 3 semanas, antes da escritura. Já pedi orçamento a 2 peritos.`
-          + doc({ tipo: "pdf", nome: "CPCV_Moradia_T4_rascunho.pdf", meta: `sinal 23 850 € · escritura até ${dataPT(daqui(60))}`, titulo: "CPCV · rascunho", corpo: cpcv() }), 1200, true);
+        await diz("Enviado ✓ O promotor concordou, e os compradores da A aceitaram <b>193 500 €</b>.", 1600);
+        await passos(["Preenchi o vosso modelo de CPCV para obra em construção", "Conferi os documentos do empreendimento"]);
+        await diz(`CPCV pronto para rever. A fração D passou a <b>reservada</b> na tabela e nos portais. <span class="mal">Atenção:</span> a licença de utilização está prevista para março de 2028, por isso a escritura ficou ligada a essa data.`
+          + doc({ tipo: "pdf", nome: "CPCV_Fracao_D_rascunho.pdf", meta: "sinal 19 350 € · reforço na cobertura", titulo: "CPCV · rascunho", corpo: cpcv() }), 1200, true);
       } else await diz("Fica guardado. As duas propostas são válidas até sexta; lembro-o na quinta.");
       poupar(120);
     } },
-  { id: "condominios", chip: "🏢 Como estão os condomínios?", pede: "Como estão os condomínios que administramos?", chaves: /condom|quota|assembl|avaria|ocorr|infiltr/i,
+  { id: "vendas", chip: "📊 Como vão as vendas?", pede: "Como vão as vendas dos empreendimentos?", chaves: /venda|vend|funil|relat|promot|reserv|disponib/i,
     async correr() {
-      await passos(["Li os emails e os WhatsApp dos condóminos de 6 edifícios", "Conferi as quotas pagas no extrato do banco", "Revi as ocorrências abertas e as assembleias por marcar"]);
-      const b = await diz(`<table class="t"><tr><td>Edifício Jardim<br><span class="mudo">3 frações com quotas em atraso</span></td><td class="n mal">1.140 €</td></tr>
-        <tr><td>Rua Nova, 12<br><span class="mudo">infiltração no 3.º Esq. (fotografias por WhatsApp)</span></td><td class="n mal">por resolver</td></tr>
-        <tr><td>Edifício Sol<br><span class="mudo">assembleia anual por marcar</span></td><td class="n">convocatória pronta</td></tr></table>`
-        + doc({ tipo: "eml", nome: "Aviso de quotas em atraso (3)", meta: "Edifício Jardim · um por fração", titulo: "Aviso de quotas em atraso", corpo: avisoQuotas() })
-        + doc({ tipo: "pdf", nome: "Convocatoria_Edificio_Sol.pdf", meta: `assembleia a ${dataPT(daqui(15))} · 19:00`, titulo: "Convocatória · Assembleia de condóminos", corpo: convocatoria() }), 1200, true);
-      const i = await acoes(b, ["Envia os avisos e a convocatória", "Pede orçamentos para a infiltração"]);
-      if (i === 0) await diz("Enviados ✓ Os avisos seguiram por email; a convocatória por email e, a quem não tem email, por carta registada. Se as quotas não entrarem em 10 dias, ligo aos condóminos.", 1300);
-      else await diz("Pedi orçamento a 2 canalizadores ✓ Um passa quinta de manhã e já avisei o condómino do 3.º Esq. Quando chegarem os orçamentos, mostro-lhos lado a lado.", 1300);
-      poupar(80);
+      await passos(["Juntei as reservas, os CPCV e as escrituras dos 3 empreendimentos", "Cruzei com os contactos, as visitas e a origem de cada um", "Vi o que está parado e porquê"]);
+      const ob = (n, f, g, txt, alerta) => `<div class="obra"><b>${n}</b><div class="barra${alerta ? " alerta" : ""}"><i class="feito" style="width:${f}%"></i><i class="gasto" style="width:${g}%"></i></div><div class="lin"><span>${f} % vendido · ${g} % com reserva</span><span class="${alerta ? "mal" : "bem"}">${txt}</span></div></div>`;
+      const b = await diz(ob("Jardins da Encosta · 24 frações", 38, 54, "a bom ritmo") + ob("Edifício Miradouro · 16 frações", 88, 94, "falta 1") + ob("Quinta do Rio · 8 moradias", 38, 38, "⚠ T4 parados", true)
+        + `412 contactos → 96 visitas → <b>30 reservas</b>. O Idealista dá 38 % das reservas; os anúncios no Facebook custam 410 € por reserva.<br><span class="mal">Quinta do Rio:</span> as moradias T4 têm visitas mas nenhuma proposta, e 3 visitantes disseram que o preço está acima.`
+        + doc({ tipo: "pdf", nome: "Relatorio_vendas_semana.pdf", meta: "para o promotor · 3 empreendimentos", titulo: "Relatório de vendas da semana", corpo: relatorioVendas() }), 1300, true);
+      const i = await acoes(b, ["Envia o relatório ao promotor", "Faz campanha às moradias T4"]);
+      if (i === 0) await diz(`Enviado ao promotor às ${hora()} ✓ Na segunda de manhã mando o da próxima semana.`, 1000);
+      else await diz("Campanha preparada ✓ 64 contactos da base com orçamento acima de 280 000 € recebem amanhã às 10:00 a ficha das moradias T4, cada um na sua língua. A quem abrir, ligo eu no próprio dia.", 1300);
+      poupar(90);
     } },
   { id: "resumo", chip: "🌙 O que fizeste hoje?", pede: "O que fizeste hoje?", chaves: /hoje|resum|fizeste|dia/i,
     async correr() {
       await escrever(1300);
-      bolha("ela", `Hoje ${daEmpresa()} 👇<div class="numeros"><div><b>12</b><span>chamadas atendidas, 4 fora de horas</span></div><div><b>31</b><span>contactos respondidos, em 3 línguas</span></div>
-        <div><b>7</b><span>visitas marcadas</span></div><div><b>2</b><span>propostas tratadas e 1 CPCV</span></div><div><b>1</b><span>anúncio em 3 línguas</span></div><div><b>9</b><span>condóminos avisados</span></div></div>
+      bolha("ela", `Hoje ${daEmpresa()} 👇<div class="numeros"><div><b>12</b><span>chamadas atendidas, 4 fora de horas</span></div><div><b>20</b><span>contactos novos respondidos, em 3 línguas</span></div>
+        <div><b>46</b><span>contactos antigos chamados, 9 de volta</span></div><div><b>8</b><span>visitas marcadas</span></div><div><b>1</b><span>empreendimento lançado</span></div><div><b>2</b><span>propostas tratadas e 1 CPCV</span></div></div>
         <div class="grande"><b>7 h 40</b>de trabalho que ninguém da equipa teve de fazer</div>`, true);
       poupar(Math.max(0, 460 - minutos));
-      await diz("É como ter uma funcionária sobredotada que atende a qualquer hora, fala três línguas e não se esquece de nenhum contacto… e ainda por cima não paga IRS nem Segurança Social 😉", 1800);
+      await diz("É como ter uma funcionária sobredotada que atende a qualquer hora, fala três línguas e não deixa nenhum contacto arrefecer… e ainda por cima não paga IRS nem Segurança Social 😉", 1800);
       await diz(`<div class="cta"><b>Quer ver isto com os imóveis ${daEmpresa()}?</b><br>Falamos 15 minutos e mostro-lhe com a vossa carteira.</div>`
         + `<div class="acoes"><button class="principal" type="button" onclick="location.href='tel:+351936882364'">Ligar ao Pedro</button><button type="button" onclick="location.href='https://wa.me/351936882364'">WhatsApp</button></div>`, 900, true);
     } },
@@ -666,7 +710,7 @@ async function inicio() {
   await espera(400);
   await diz(`Olá! 👋 Sou a Daniela, a assistente de IA ${daEmpresa()}.`, 900);
   await diz({ textil: "Abro as encomendas novas: leio o pedido e o tech pack do cliente, cruzo cada componente com os vossos artigos e deixo a ficha técnica e a encomenda interna prontas a validar. Também peço materiais, sigo prazos e calculo custos reais. Toque numa sugestão aqui em baixo 👇",
-    imobiliaria: "Atendo o telefone e os contactos dos portais a qualquer hora, em português, inglês e francês, e marco as visitas com o consultor certo. Também preparo anúncios, trato das propostas até ao CPCV e dos condomínios que administram. Toque numa sugestão aqui em baixo 👇" }[SETOR]
+    imobiliaria: "Atendo o telefone e os contactos dos portais e dos anúncios a qualquer hora, em português, inglês e francês, e marco as visitas com o consultor certo. Também ligo aos contactos antigos, lanço empreendimentos, trato das propostas até ao CPCV e faço o relatório de vendas para o promotor. Toque numa sugestão aqui em baixo 👇" }[SETOR]
     || "Leio emails e faturas, faço medições e orçamentos, ligo a clientes e fornecedores, marco reuniões. Peça-me qualquer coisa, ou toque numa sugestão aqui em baixo 👇", 1300);
 }
 function abrirConfig() { $("#nome-empresa").value = EMPRESA; $("#config").classList.add("aberto"); setTimeout(() => $("#nome-empresa").focus(), 50); }
