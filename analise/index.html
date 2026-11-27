@@ -39,15 +39,15 @@
 <body>
 <main>
   <a class="back-link" href="/">← Febrero AI</a>
-  <h1 data-textil="Envie encomendas dos vossos clientes">Envie um pedido de um cliente</h1>
-  <p class="sub" data-textil="A nossa IA analisa-as e devolvemos-lhe, por email, um exemplo detalhado do que faria para abrir cada encomenda no vosso sistema.">A nossa IA analisa-o e devolvemos-lhe, por email, um exemplo detalhado do que faria com os pedidos que vos chegam todos os dias.</p>
+  <h1 data-textil="Envie encomendas dos vossos clientes" data-contabilidade="Envie digitalizações de documentos">Envie um pedido de um cliente</h1>
+  <p class="sub" data-contabilidade="A nossa IA lê cada fatura, talão ou recibo e devolvemos-lhe, por email, um Excel com os dados de cada documento, pronto a conferir." data-textil="A nossa IA analisa-as e devolvemos-lhe, por email, um exemplo detalhado do que faria para abrir cada encomenda no vosso sistema.">A nossa IA analisa-o e devolvemos-lhe, por email, um exemplo detalhado do que faria com os pedidos que vos chegam todos os dias.</p>
   <a class="ver-demo" id="ver-demo" href="/demo/empresa/"><span id="ver-demo-txt">Ver primeiro a demonstração com uma empresa fictícia</span> <span aria-hidden="true">→</span></a>
 
   <h2>Como funciona</h2>
   <ol>
-    <li data-textil="Junte num ficheiro ZIP as encomendas de um a cinco clientes tal como vos chegaram: a nota de encomenda, as fichas técnicas ou tech packs, as tabelas de medidas, as listas de materiais e aviamentos, cartas de cores, emails; e, se quiserem comparar, a ficha técnica que criaram no vosso sistema para essas encomendas. Não precisamos de preços nem de stocks.">Junte num ficheiro ZIP os documentos de um pedido real: o email do cliente, as plantas, o mapa de quantidades, o caderno de encargos, fotografias.</li>
+    <li data-contabilidade="Junte num ficheiro ZIP as digitalizações tal como vos saem do digitalizador: imagens (JPG, PNG) ou PDF de faturas, faturas simplificadas, talões, recibos e notas de crédito. Podem ser precisamente os casos em que o vosso programa falha a leitura. Um PDF pode ter vários documentos, até 100 páginas." data-textil="Junte num ficheiro ZIP as encomendas de um a cinco clientes tal como vos chegaram: a nota de encomenda, as fichas técnicas ou tech packs, as tabelas de medidas, as listas de materiais e aviamentos, cartas de cores, emails; e, se quiserem comparar, a ficha técnica que criaram no vosso sistema para essas encomendas. Não precisamos de preços nem de stocks.">Junte num ficheiro ZIP os documentos de um pedido real: o email do cliente, as plantas, o mapa de quantidades, o caderno de encargos, fotografias.</li>
     <li>Escreva o código que lhe enviámos e envie o ZIP. Cada código serve para um único ZIP, até 25 MB.</li>
-    <li data-textil="Em um a dois dias úteis recebe a análise: os artigos, cores e tamanhos; a estrutura técnica com todos os componentes e consumos; a codificação proposta; a encomenda interna em rascunho; e os pontos a esclarecer com o cliente.">Em um a dois dias úteis recebe a análise: o que o cliente pede, as medições e o mapa de quantidades, um rascunho do orçamento e os pontos a esclarecer com o cliente.</li>
+    <li data-contabilidade="Recebe por email um Excel com uma linha por documento: fornecedor, NIF, data, número, ATCUD, base e IVA por taxa e total. A amarelo fica o que pede verificação: NIF que não passa no dígito de controlo, somas que não batem, campos ilegíveis ou duplicados." data-textil="Em um a dois dias úteis recebe a análise: os artigos, cores e tamanhos; a estrutura técnica com todos os componentes e consumos; a codificação proposta; a encomenda interna em rascunho; e os pontos a esclarecer com o cliente.">Em um a dois dias úteis recebe a análise: o que o cliente pede, as medições e o mapa de quantidades, um rascunho do orçamento e os pontos a esclarecer com o cliente.</li>
   </ol>
 
   <form id="envio" novalidate>
@@ -75,8 +75,8 @@
 
   <h2>O que pode enviar</h2>
   <ul>
-    <li data-textil="PDF (incluindo documentos digitalizados), Word e Excel (.docx, .xlsx) e imagens (JPG, PNG).">PDF (incluindo plantas digitalizadas), Word e Excel (.docx, .xlsx), imagens (JPG, PNG) e desenhos em DXF.</li>
-    <li data-textil="">Desenhos em DWG: por agora, exporte-os em PDF ou DXF.</li>
+    <li data-contabilidade="Imagens (JPG, PNG) e PDF, incluindo digitalizações e fotografias de documentos." data-textil="PDF (incluindo documentos digitalizados), Word e Excel (.docx, .xlsx) e imagens (JPG, PNG).">PDF (incluindo plantas digitalizadas), Word e Excel (.docx, .xlsx), imagens (JPG, PNG) e desenhos em DXF.</li>
+    <li data-textil="" data-contabilidade="">Desenhos em DWG: por agora, exporte-os em PDF ou DXF.</li>
     <li>Não são aceites ficheiros com macros, programas, nem ZIPs dentro do ZIP.</li>
   </ul>
 
@@ -96,13 +96,15 @@
   let valido = false;
   let setorAtual = "", empresaAtual = "";   // do código verificado (24/11)
   const normal = (c) => String(c || "").trim().toUpperCase().replace(/[^A-Z0-9-]/g, "");
-  // Texto por setor (24/11): o código diz se a empresa é de construção (o texto de sempre) ou têxtil. Cada elemento com
-  // data-textil guarda o texto da construção e troca para o do têxtil; data-textil="" esconde-o no têxtil.
-  const porSetor = [...document.querySelectorAll("[data-textil]")];
+  // Texto por setor (24/11; contabilidade 27/11): o código diz se a empresa é de construção (o texto de sempre), têxtil
+  // ou contabilidade. Cada elemento com data-textil / data-contabilidade guarda o texto da construção e troca para o do
+  // setor; um atributo vazio esconde-o nesse setor; sem o atributo fica o texto da construção.
+  const porSetor = [...document.querySelectorAll("[data-textil],[data-contabilidade]")];
   for (const el of porSetor) el.dataset.construcao = el.textContent;
   function aplicarSetor(setor) {
     for (const el of porSetor) {
-      const texto = setor === "textil" ? el.dataset.textil : el.dataset.construcao;
+      const proprio = setor === "textil" ? el.dataset.textil : setor === "contabilidade" ? el.dataset.contabilidade : undefined;
+      const texto = proprio !== undefined ? proprio : el.dataset.construcao;
       el.textContent = texto;
       el.hidden = !texto;
     }
@@ -116,7 +118,7 @@
     try {
       const r = await fetch(`${API}/codigo?c=${encodeURIComponent(c)}`);
       const j = await r.json().catch(() => ({}));
-      if (r.ok) { valido = true; setorAtual = j.setor === "textil" ? "textil" : ""; empresaAtual = j.empresa || ""; aplicarSetor(j.setor); demo(); msg($("estadoCodigo"), `Código válido para ${j.empresa}.`, "ok"); }
+      if (r.ok) { valido = true; setorAtual = ["textil", "contabilidade"].includes(j.setor) ? j.setor : ""; empresaAtual = j.empresa || ""; aplicarSetor(j.setor); demo(); msg($("estadoCodigo"), `Código válido para ${j.empresa}.`, "ok"); }
       else msg($("estadoCodigo"), j.error || "Não conseguimos verificar o código.", "erro");
     } catch { msg($("estadoCodigo"), "Não conseguimos verificar o código. Tente de novo daqui a pouco.", "erro"); }
   }
