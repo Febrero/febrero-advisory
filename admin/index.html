@@ -201,12 +201,24 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
 .mc.em_falta{border-color:var(--serious);color:#f6c9b6}
 .mc.este_mes{border:1px dashed #8e76a8;color:var(--ink)}
 .mc.previsto,.mc.sem_fatura{border:1px dashed #3f3449;color:var(--muted)}
+/* a month with invoices is a button: one tap marks them paid (green), another gives them back to «por receber» */
+button.mc{font:inherit;font-size:11.5px;line-height:1.3;font-variant-numeric:tabular-nums;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.mc:hover{filter:brightness(1.25)}
+button.mc:focus-visible,.estado-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.mc:disabled,.estado-btn:disabled{opacity:.55;cursor:progress}
+.estado-btn{font:inherit;color:inherit;background:none;border:0;padding:2px 0;margin:0;cursor:pointer;text-align:left}
+.estado-btn:hover .estado{text-decoration:underline;text-underline-offset:3px}
 .cli .det{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:13.5px;display:grid;gap:6px;overflow-wrap:anywhere}
 .cli .det b{font-weight:600}
 .cli .det a{color:var(--accent)}
 .cli .det table{width:100%;border-collapse:collapse;font-size:13px}
 .cli .det td{padding:5px 8px 5px 0;border-top:1px solid rgba(221,210,241,.07);vertical-align:middle}
 .cli .det td.n{text-align:right;font-variant-numeric:tabular-nums}
+/* number, date and amount on one line each (they broke mid-number on a phone); only the state wraps, and under 480px the
+   invoice date goes (the state already says the day it was paid) */
+.cli .det td{overflow-wrap:normal}
+.cli .det td:not(:nth-child(4)){white-space:nowrap}
+@media (max-width:480px){.cli .det td:nth-child(2){display:none}}
 .legenda-c{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .legenda-c .mc{min-width:0;padding:1px 7px;display:inline-block}
 /* leads */
@@ -369,7 +381,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:22px}
       <div class="tiles" id="cart-tiles"></div>
       <div class="cartao">
         <div class="cab">
-          <div><h2>Clientes em curso</h2><div class="sub">Cada contrato com as faturas mês a mês. Toca no nome para ver as notas, as faturas e os contactos.</div></div>
+          <div><h2>Clientes em curso</h2><div class="sub">Cada contrato com as faturas mês a mês. Toca no valor de um mês faturado para o marcar pago (fica verde); outro toque volta a por receber. Toca no nome para ver as notas, as faturas e os contactos.</div></div>
           <div class="legenda-c" aria-label="Legenda"><span class="mc paga">paga</span><span class="mc por_receber">por receber</span><span class="mc vencida">vencida</span>
             <span class="mc em_falta">por faturar</span><span class="mc este_mes">este mês</span><span class="mc previsto">a seguir</span></div>
         </div>
@@ -1083,6 +1095,32 @@ function desenharCarteira(c) {
   if (!lista.length) return $("#carteira").replaceChildren(el("p", { class: "sub", text: "Ainda não há contratos: chegam do PC (Finance\\_scripts\\previsao.json) com as faturas." }));
   $("#carteira").replaceChildren(...lista.map(linhaCliente));
 }
+// the month's invoices a tap can mark: paid ↔ to receive (a replaced or cancelled one stays as it is)
+function faturasDoMes(x, m) {
+  if (!["paga", "por_receber", "vencida"].includes(m.estado)) return [];
+  return m.faturas.map((n) => x.faturas.find((f) => f.numero === n)).filter((f) => f && ["paga", "por_receber"].includes(f.estado));
+}
+// one invoice's state in the open card, a button with the same toggle
+function botaoEstado(f) {
+  if (!["paga", "por_receber"].includes(f.estado)) return estadoDe(f);
+  const paga = f.estado === "paga", acao = paga ? "voltar a por receber" : "marcar paga";
+  const b = el("button", { type: "button", class: "estado-btn", "data-chip": "f|" + f.numero, "aria-pressed": String(paga),
+    title: `Toca para ${acao}`, "aria-label": `${f.numero}: ${paga ? "paga" : "por receber"}. Toca para ${acao}.` }, estadoDe(f));
+  b.addEventListener("click", () => alternarPagas([f], paga ? "por_receber" : "paga", b));
+  return b;
+}
+// paid today, or back to «por receber»; the server tells Telegram each change (with «Desfazer»), as from «Contas»
+async function alternarPagas(fs, estado, botao) {
+  const chip = botao.dataset.chip, mudar_ = fs.filter((f) => f.estado !== estado);
+  botao.disabled = true;
+  try {
+    for (const f of mudar_) await api("/estado", { method: "POST", body: { numero: f.numero, estado, ...(estado === "paga" ? { data: dados.hoje } : {}) } });
+    const nums = mudar_.map((f) => f.numero).join(" e ");
+    if (nums) aviso(estado === "paga" ? `✓ ${nums} ${mudar_.length > 1 ? "marcadas pagas" : "marcada paga"} (${dm(dados.hoje)})` : `${nums} ${mudar_.length > 1 ? "voltaram" : "voltou"} a por receber`);
+  } catch (e) { console.error("estado", e); if (e.message !== "sessão") aviso(`Não gravou: ${e.message}`); }
+  await carregar();
+  document.querySelector(`[data-chip="${CSS.escape(chip)}"]`)?.focus();   // the same month (or invoice) keeps the focus
+}
 function linhaCliente(x) {
   const [cls, rot] = ESTADO_C[x.estado] || ["neutro", x.estado];
   // a job paid in many stages (a builder's monthly autos) reads as «12 autos de medição», not a list of twelve amounts
@@ -1098,7 +1136,15 @@ function linhaCliente(x) {
     ...x.mesAMes.filter((m) => m.estado !== "nada").map((m) => {
       const txt = `${mesTxt(m.mes)}: ${ROT_MES[m.estado] || m.estado}${m.devido ? `, ${eur(m.devido)} sem IVA` : ""}${m.faturas.length ? ` (${m.faturas.join(", ")})` : ""}`
         + (m.falta && m.falta < m.devido && m.estado !== "previsto" ? `, faltam ${eur(m.falta)}` : "");
-      return el("span", { class: "mc " + m.estado, role: "listitem", title: txt, "aria-label": txt }, mesTxt(m.mes, false), el("small", { text: valorCurto(m.devido) }));
+      const conteudo = [mesTxt(m.mes, false), el("small", { text: valorCurto(m.devido) })], fs = faturasDoMes(x, m);
+      if (!fs.length) return el("span", { class: "mc " + m.estado, role: "listitem", title: txt, "aria-label": txt }, ...conteudo);
+      // Pedro 2026-11-27: «deixa me clicar para actualizar os que ja foram pagos basta clicar no valor fica a verde se clicar
+      // outra x volta a vermelho por pagar»
+      const paga = fs.every((f) => f.estado === "paga"), acao = paga ? "voltar a por receber" : "marcar pago";
+      const b = el("button", { type: "button", class: "mc " + m.estado, "data-chip": `${x.id}|${m.mes}`, "aria-pressed": String(paga),
+        title: `${txt} · toca para ${acao}`, "aria-label": `${txt}. Toca para ${acao}.` }, ...conteudo);
+      b.addEventListener("click", () => alternarPagas(fs, paga ? "por_receber" : "paga", b));
+      return el("span", { role: "listitem" }, b);
     }));
   const numeros = el("div", { class: "numeros" },
     el("span", {}, "Faturado ", el("b", { text: eur(x.faturado.base) }), ` sem IVA · ${x.faturado.n} ${x.faturado.n === 1 ? "fatura" : "faturas"}`),
@@ -1118,7 +1164,7 @@ function linhaCliente(x) {
       cv.telefone ? el("a", { href: "tel:+351" + cv.telefone.replace(/\D/g, "").slice(-9), text: cv.telefone }) : null) : null,
     x.faturas.length ? el("table", {}, el("tbody", {}, ...x.faturas.map((f) => {
       const g = (dados.faturas || []).find((y) => y.numero === f.numero) || f;
-      return el("tr", {}, el("td", { text: f.numero }), el("td", { text: dma(f.data) }), el("td", { class: "n", text: eur(f.total) }), el("td", {}, estadoDe(g)),
+      return el("tr", {}, el("td", { text: f.numero }), el("td", { text: dma(f.data) }), el("td", { class: "n", text: eur(f.total) }), el("td", {}, botaoEstado(g)),
         el("td", { class: "n" }, f.pdf ? el("button", { class: "btn peq", type: "button", text: "PDF", "aria-label": `Abrir o PDF da ${f.numero}`, onclick: (ev) => abrirPdf(f.numero, ev.currentTarget) }) : null));
     }))) : el("div", { class: "sub", text: "Ainda sem faturas." })) : null;
   return el("div", { class: "cli" + (x.certo || x.estado === "teste" ? "" : " fraco") },
