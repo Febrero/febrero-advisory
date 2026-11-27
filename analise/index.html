@@ -56,7 +56,7 @@
     <div class="estado" id="estadoCodigo" aria-live="polite"></div>
 
     <label for="zip">Ficheiros (um ZIP, ou PDFs e imagens)</label>
-    <input type="file" id="zip" name="zip" multiple accept=".zip,application/zip,application/x-zip-compressed,.pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,.docx,.xlsx,.dxf">
+    <input type="file" id="zip" name="zip" multiple accept=".zip,application/zip,application/x-zip-compressed,.pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,.docx,.xlsx,.dxf,.dwg,.dwf,.dwfx">
     <div class="estado" id="estadoZip" aria-live="polite"></div>
 
     <div class="consent">
@@ -75,8 +75,8 @@
 
   <h2>O que pode enviar</h2>
   <ul>
-    <li data-contabilidade="Imagens (JPG, PNG) e PDF, incluindo digitalizações e fotografias de documentos." data-textil="PDF (incluindo documentos digitalizados), Word e Excel (.docx, .xlsx) e imagens (JPG, PNG).">PDF (incluindo plantas digitalizadas), Word e Excel (.docx, .xlsx), imagens (JPG, PNG) e desenhos em DXF.</li>
-    <li data-textil="" data-contabilidade="">Desenhos em DWG: por agora, exporte-os em PDF ou DXF.</li>
+    <li data-contabilidade="Imagens (JPG, PNG) e PDF, incluindo digitalizações e fotografias de documentos." data-textil="PDF (incluindo documentos digitalizados), Word e Excel (.docx, .xlsx) e imagens (JPG, PNG).">PDF (incluindo plantas digitalizadas), Word e Excel (.docx, .xlsx), imagens (JPG, PNG) e desenhos em DWG, DWF, DWFX ou DXF.</li>
+    <li data-textil="" data-contabilidade="">Modelos BIM (Revit, IFC, Navisworks): por agora, exporte as plantas em PDF.</li>
     <li>Não são aceites ficheiros com macros, programas, nem ZIPs dentro do ZIP.</li>
   </ul>
 
@@ -180,7 +180,7 @@
     let o = 0; for (const p of todas) { out.set(p, o); o += p.length; }
     return out;
   }
-  const SOLTOS = /\.(pdf|jpe?g|png|webp|docx|xlsx|dxf)$/i;
+  const SOLTOS = /\.(pdf|jpe?g|png|webp|docx|xlsx|dxf|dwg|dwfx?)$/i;
   // what to send: {erro} or {nome, tamanho, dados: () => Promise<Blob|File>}
   function escolha() {
     const fs_ = [...zip.files];
@@ -189,11 +189,11 @@
     if (zips.length && fs_.length > 1) return { erro: "Envie um ZIP sozinho, ou só os ficheiros soltos (sem o ZIP)." };
     if (zips.length) return fs_[0].size > MAX ? { erro: `O ZIP tem ${(fs_[0].size / 1048576).toFixed(1).replace(".", ",")} MB: o máximo são 25 MB.` }
       : { nome: fs_[0].name, tamanho: fs_[0].size, dados: async () => fs_[0] };
-    // Autodesk drawings (27/11, João Marchante tried a .dwf): say how to get a PDF instead of the generic refusal
-    const cad = fs_.find((x) => /.(dwf|dwfx|dwg|rvt|ifc|nwd)$/i.test(x.name));
-    if (cad) return { erro: `«${cad.name}» é um desenho em formato da Autodesk, que ainda não lemos diretamente. Abra-o no programa onde o vê e exporte ou imprima para PDF (por exemplo, Imprimir → Microsoft Print to PDF), ou envie-o por email para pedro@gigacorp.pt e nós tratamos da conversão.` };
+    // DWG/DWF/DWFX are read since 27/11 (the worker converts them to PDF); BIM models still get a how-to message
+    const bim = fs_.find((x) => /\.(rvt|ifc|nwd)$/i.test(x.name));
+    if (bim) return { erro: `«${bim.name}» é um modelo BIM, que ainda não lemos diretamente. Abra-o no programa onde o vê e exporte ou imprima as plantas para PDF (por exemplo, Imprimir → Microsoft Print to PDF), ou envie-o por email para pedro@gigacorp.pt e nós tratamos da conversão.` };
     const fora = fs_.filter((x) => !SOLTOS.test(x.name));
-    if (fora.length) return { erro: `Não aceitamos «${fora[0].name}». Envie PDF, imagens (JPG, PNG), Word, Excel ou DXF, ou junte tudo num ZIP.` };
+    if (fora.length) return { erro: `Não aceitamos «${fora[0].name}». Envie PDF, imagens (JPG, PNG), Word, Excel ou desenhos (DWG, DWF, DXF), ou junte tudo num ZIP.` };
     const total = fs_.reduce((s, x) => s + x.size, 0);
     if (total > MAX) return { erro: `Os ficheiros somam ${(total / 1048576).toFixed(1).replace(".", ",")} MB: o máximo são 25 MB.` };
     const nome = (fs_.length === 1 ? fs_[0].name.replace(/\.[^.]+$/, "") : "ficheiros") + ".zip";
