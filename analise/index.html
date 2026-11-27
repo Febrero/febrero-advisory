@@ -189,6 +189,9 @@
     if (zips.length && fs_.length > 1) return { erro: "Envie um ZIP sozinho, ou só os ficheiros soltos (sem o ZIP)." };
     if (zips.length) return fs_[0].size > MAX ? { erro: `O ZIP tem ${(fs_[0].size / 1048576).toFixed(1).replace(".", ",")} MB: o máximo são 25 MB.` }
       : { nome: fs_[0].name, tamanho: fs_[0].size, dados: async () => fs_[0] };
+    // Autodesk drawings (27/11, João Marchante tried a .dwf): say how to get a PDF instead of the generic refusal
+    const cad = fs_.find((x) => /.(dwf|dwfx|dwg|rvt|ifc|nwd)$/i.test(x.name));
+    if (cad) return { erro: `«${cad.name}» é um desenho em formato da Autodesk, que ainda não lemos diretamente. Abra-o no programa onde o vê e exporte ou imprima para PDF (por exemplo, Imprimir → Microsoft Print to PDF), ou envie-o por email para pedro@gigacorp.pt e nós tratamos da conversão.` };
     const fora = fs_.filter((x) => !SOLTOS.test(x.name));
     if (fora.length) return { erro: `Não aceitamos «${fora[0].name}». Envie PDF, imagens (JPG, PNG), Word, Excel ou DXF, ou junte tudo num ZIP.` };
     const total = fs_.reduce((s, x) => s + x.size, 0);
